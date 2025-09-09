@@ -8,6 +8,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.habitforge.application.model.Task;
+import com.example.habitforge.application.model.User;
+import com.example.habitforge.data.database.TaskLocalDataSource;
+import com.example.habitforge.data.database.UserLocalDataSource;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -20,5 +25,20 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+
+        // --- Test ubacivanja korisnika ---
+        User testUser = new User();
+        testUser.setUserId("test123");
+        testUser.setEmail("test@example.com");
+        testUser.setUsername("Tester");
+        new UserLocalDataSource(this).insertUser(testUser);
+
+        // --- Test ubacivanja zadatka ---
+        Task testTask = new Task();
+        testTask.setId("task123");
+        testTask.setUserId("test123");
+        testTask.setName("Test Task");
+        new TaskLocalDataSource(this).addTask(testTask);
     }
 }
