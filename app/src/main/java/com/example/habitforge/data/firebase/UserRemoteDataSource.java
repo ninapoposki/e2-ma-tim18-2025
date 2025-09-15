@@ -51,7 +51,7 @@ public class UserRemoteDataSource {
     public void updateUserActivation(String userId, boolean activated, OnCompleteListener<Void> listener) {
         db.collection("users")
                 .document(userId)
-                .update("active", activated)
+                .update("isActive", activated)
                 .addOnCompleteListener(listener);
     }
 

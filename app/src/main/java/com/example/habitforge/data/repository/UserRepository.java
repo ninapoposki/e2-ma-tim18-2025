@@ -7,6 +7,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.example.habitforge.application.model.User;
 import com.example.habitforge.data.database.UserLocalDataSource;
@@ -47,9 +48,30 @@ public class UserRepository {
     }
 
     // --- PRIJAVA ---
-    public void signInUser(String email, String password, OnCompleteListener<AuthResult> callback) {
-        remoteDb.signInUser(email, password, callback);
-    }
+//    public void signInUser(String email, String password, OnCompleteListener<AuthResult> callback) {
+//        remoteDb.signInUser(email, password, callback);
+//    }
+//    public void signInUser(String email, String password, OnCompleteListener<AuthResult> callback) {
+//        remoteDb.signInUser(email, password, authTask -> {
+//            if (authTask.isSuccessful() && authTask.getResult() != null) {
+//                FirebaseUser firebaseUser = auth.getCurrentUser();
+//                if (firebaseUser != null && firebaseUser.isEmailVerified()) {
+//                    // aktivacija prošla -> upiši u Firestore da je active = true
+//                    updateUserActivation(firebaseUser.getUid(), true, result -> {});
+//                    callback.onComplete(authTask);
+//                } else {
+//                    // ako nije aktiviran -> izbriši korisnika i prijava ne prolazi
+//                    removeUser(firebaseUser.getUid(), result -> {});
+//                    callback.onComplete(Tasks.forException(
+//                            new Exception("Nalog nije aktiviran! Proverite email.")));
+//                }
+//            } else {
+//                callback.onComplete(authTask);
+//            }
+//        });
+//    }
+//
+
 
     // --- PREUZIMANJE KORISNIKA ---
 //    public void getUserById(String userId, OnCompleteListener<User> callback) {

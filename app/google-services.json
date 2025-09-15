@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "295099813939",
+    "project_id": "habitforge-3559b",
+    "storage_bucket": "habitforge-3559b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:295099813939:android:0622e9daf890829a699346",
+        "android_client_info": {
+          "package_name": "com.example.habitforge"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCGAdjsnx8coSuTBKKk2EMEwoFU7z06SNA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

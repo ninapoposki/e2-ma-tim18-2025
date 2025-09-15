@@ -1,5 +1,66 @@
-//package com.example.habitforge.presentation.activity;
+package com.example.habitforge.presentation.activity;
+
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.habitforge.R;
+import com.example.habitforge.application.service.UserService;
+
 //
+public class RegistrationActivity extends AppCompatActivity {
+    private EditText etEmail, etPassword, etRepeatPassword, etUsername;
+    private Button btnRegister;
+    private String selectedAvatar = null; // zapamti izbor avatara
+    private UserService userService;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_registration);
+
+        userService = new UserService(this);
+
+        // Poveži UI elemente
+        etEmail = findViewById(R.id.etEmail);
+        etPassword = findViewById(R.id.etPassword);
+        etRepeatPassword = findViewById(R.id.etRepeatPassword);
+        etUsername = findViewById(R.id.etUsername);
+        btnRegister = findViewById(R.id.btnRegister);
+
+        // Avatari (primer za 5 dugmića)
+        findViewById(R.id.btnAvatar1).setOnClickListener(v -> selectedAvatar = "avatar1");
+        findViewById(R.id.btnAvatar2).setOnClickListener(v -> selectedAvatar = "avatar2");
+        findViewById(R.id.btnAvatar3).setOnClickListener(v -> selectedAvatar = "avatar3");
+        findViewById(R.id.btnAvatar4).setOnClickListener(v -> selectedAvatar = "avatar4");
+        findViewById(R.id.btnAvatar5).setOnClickListener(v -> selectedAvatar = "avatar5");
+
+        // Registracija
+        btnRegister.setOnClickListener(v -> {
+            String email = etEmail.getText().toString().trim();
+            String password = etPassword.getText().toString().trim();
+            String repeatPassword = etRepeatPassword.getText().toString().trim();
+            String username = etUsername.getText().toString().trim();
+
+            try {
+                userService.registerUser(email, password, repeatPassword, username, selectedAvatar, task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this, "Registracija uspešna! Proverite email za aktivaciju.", Toast.LENGTH_LONG).show();
+                        finish(); // možeš da prebaciš na login activity
+                    } else {
+                        Toast.makeText(this, "Greška: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                });
+            } catch (IllegalArgumentException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+}
+
 //import android.os.Bundle;
 //
 //import androidx.activity.EdgeToEdge;
