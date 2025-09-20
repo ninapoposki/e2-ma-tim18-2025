@@ -11,6 +11,7 @@ playServicesTasks = "18.3.2"
 firebaseDatabase = "22.0.0"
 firebaseFirestore = "26.0.0"
 firebaseAuth = "24.0.1"
+googleGmsGoogleServices = "4.4.3"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -27,4 +28,5 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }
 

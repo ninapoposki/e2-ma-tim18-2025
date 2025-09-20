@@ -14,9 +14,10 @@
         <activity
             android:name=".presentation.activity.AddTaskActivity"
             android:exported="false" />
-         <activity
-         android:name=".presentation.activity.RegistrationActivity"
-         android:exported="false" />
+        <!-- <activity -->
+        <!-- android:name=".presentation.activity.RegistrationActivity" -->
+        <!-- android:exported="false" /> -->
+        <activity android:name=".presentation.activity.RegistrationActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
