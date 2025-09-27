@@ -47,10 +47,18 @@ public class UserRepository {
         });
     }
 
+    public boolean isUserActivated() {
+        return remoteDb.checkEmailVerified();
+    }
+
+    public void activateUser(String userId, OnCompleteListener<Void> listener) {
+        remoteDb.updateUserActivation(userId, true, listener);
+    }
+
     // --- PRIJAVA ---
-//    public void signInUser(String email, String password, OnCompleteListener<AuthResult> callback) {
-//        remoteDb.signInUser(email, password, callback);
-//    }
+    public void login(String email, String password, OnCompleteListener<AuthResult> callback) {
+        remoteDb.signInUser(email, password, callback);
+    }
 //    public void signInUser(String email, String password, OnCompleteListener<AuthResult> callback) {
 //        remoteDb.signInUser(email, password, authTask -> {
 //            if (authTask.isSuccessful() && authTask.getResult() != null) {
@@ -95,21 +103,21 @@ public class UserRepository {
 //    }
 
     // --- AKTIVACIJA ---
-    public void setUserActivated(String userId, boolean active) {
-        // update lokalno
-        User u = localDb.getUserById(userId);
-        if (u != null) {
-            u.setActive(active);
-            localDb.updateUser(u);
-        }
-
-        // update u Firestore
-        remoteDb.updateUserActivation(userId, active, result -> {
-            if (!result.isSuccessful()) {
-                Log.e("UserRepo", "Failed to update activation status", result.getException());
-            }
-        });
-    }
+//    public void setUserActivated(String userId, boolean active) {
+//        // update lokalno
+//        User u = localDb.getUserById(userId);
+//        if (u != null) {
+//            u.setActive(active);
+//            localDb.updateUser(u);
+//        }
+//
+//        // update u Firestore
+//        remoteDb.updateUserActivation(userId, active, result -> {
+//            if (!result.isSuccessful()) {
+//                Log.e("UserRepo", "Failed to update activation status", result.getException());
+//            }
+//        });
+//    }
 
     // --- SVI KORISNICI ---
 //    public void getAllUsers(OnCompleteListener<List<User>> callback) {

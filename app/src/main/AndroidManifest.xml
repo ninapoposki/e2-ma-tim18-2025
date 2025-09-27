@@ -12,9 +12,20 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HabitForge">
         <activity
-            android:name=".presentation.activity.AddTaskActivity"
+            android:name=".presentation.activity.ProfileActivity"
             android:exported="false" />
-        <!-- <activity -->
+        <activity
+            android:name=".presentation.activity.NavigationActivity"
+            android:exported="false"
+            android:label="@string/title_activity_navigation"
+            android:theme="@style/Theme.HabitForge.NoActionBar" />
+        <activity
+            android:name=".presentation.activity.ui.login.LoginActivity"
+            android:exported="false"
+            android:label="@string/title_activity_login" />
+        <activity
+            android:name=".presentation.activity.AddTaskActivity"
+            android:exported="false" /> <!-- <activity -->
         <!-- android:name=".presentation.activity.RegistrationActivity" -->
         <!-- android:exported="false" /> -->
         <activity android:name=".presentation.activity.RegistrationActivity" />

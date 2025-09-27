@@ -26,7 +26,7 @@ public class UserLocalDataSource {
         cv.put("id", u.getUserId());
         cv.put("email", u.getEmail());
         cv.put("username", u.getUsername());
-        cv.put("avatar_url", u.getAvatarUrl());
+        cv.put("avatar_url", u.getAvatar());
         db.insert(DatabaseHelper.T_USERS, null, cv);
         db.close();
     }
@@ -83,7 +83,7 @@ public class UserLocalDataSource {
         ContentValues cv = new ContentValues();
         cv.put("email", u.getEmail());
         cv.put("username", u.getUsername());
-        cv.put("avatar_url", u.getAvatarUrl());
+        cv.put("avatar_url", u.getAvatar());
         db.update(DatabaseHelper.T_USERS, cv,
                 "id = ?", new String[]{u.getUserId()});
         db.close();
@@ -112,7 +112,7 @@ public class UserLocalDataSource {
         u.setUserId(c.getString(c.getColumnIndexOrThrow("id")));
         u.setEmail(c.getString(c.getColumnIndexOrThrow("email")));
         u.setUsername(c.getString(c.getColumnIndexOrThrow("username")));
-        u.setAvatarUrl(c.getString(c.getColumnIndexOrThrow("avatar_url")));
+        u.setAvatar(c.getString(c.getColumnIndexOrThrow("avatar_url")));
         return u;
     }
 }

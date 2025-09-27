@@ -15,6 +15,7 @@ import com.example.habitforge.application.model.User;
 import com.example.habitforge.data.database.TaskLocalDataSource;
 import com.example.habitforge.data.database.UserLocalDataSource;
 import com.example.habitforge.presentation.activity.RegistrationActivity;
+import com.example.habitforge.presentation.activity.ui.login.LoginActivity;
 import com.google.firebase.FirebaseApp;
 
 
@@ -39,6 +40,11 @@ public class MainActivity extends AppCompatActivity {
 
         btnGoToRegister.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, RegistrationActivity.class);
+            startActivity(intent);
+        });
+        Button btnGoToLogin = findViewById(R.id.btnGoToLogin);
+        btnGoToLogin.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
         });
     }
