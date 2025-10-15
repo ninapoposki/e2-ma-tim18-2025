@@ -6,14 +6,19 @@ package com.example.habitforge.presentation.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
+import android.widget.Button;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.habitforge.R;
+import com.example.habitforge.application.session.SessionManager;
 import com.example.habitforge.databinding.NavigationActivityBinding;
+import com.example.habitforge.presentation.activity.ui.login.LoginActivity;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class NavigationActivity extends AppCompatActivity {
 
@@ -48,7 +53,7 @@ public class NavigationActivity extends AppCompatActivity {
 
             if (id == R.id.nav_profile) {
                 // Otvori ProfileActivity
-                startActivity(new Intent(NavigationActivity.this, ProfileActivity.class));
+               // startActivity(new Intent(NavigationActivity.this, ProfileActivity.class));
                 drawer.closeDrawers();
                 return true;
             } else if (id == R.id.nav_home) {
@@ -57,6 +62,19 @@ public class NavigationActivity extends AppCompatActivity {
                 return true;
             }
             return false;
+        });
+
+
+        Button logoutButton = findViewById(R.id.logoutButton);
+        logoutButton.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut(); // Firebase logout
+            SessionManager session = new SessionManager(this);
+            session.clearSession(); // Lokalno obriši
+
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
         });
 
         // Fab dugme
@@ -72,6 +90,9 @@ public class NavigationActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.navigation, menu);
         return true;
     }
+
+
+
 }
 
 

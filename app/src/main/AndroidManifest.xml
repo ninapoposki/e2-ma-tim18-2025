@@ -12,9 +12,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HabitForge">
         <activity
-            android:name=".presentation.activity.ProfileActivity"
-            android:exported="false" />
-        <activity
             android:name=".presentation.activity.NavigationActivity"
             android:exported="false"
             android:label="@string/title_activity_navigation"

@@ -163,6 +163,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.habitforge.R;
 import com.example.habitforge.application.service.UserService;
+import com.example.habitforge.application.session.SessionManager;
 import com.example.habitforge.databinding.ActivityLoginBinding;
 import com.example.habitforge.presentation.activity.NavigationActivity;
 
@@ -261,6 +262,8 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(this, "Greška pri aktivaciji naloga!", Toast.LENGTH_LONG).show();
                         }
                     });
+                    SessionManager session = new SessionManager(LoginActivity.this);
+                    session.saveSession(task.getResult().getUser());
                     Intent intent = new Intent(LoginActivity.this, NavigationActivity.class);
                     startActivity(intent);
                     finish();
