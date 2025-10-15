@@ -19,7 +19,7 @@
 
     <string name="menu_home">Home</string>
     <string name="menu_profile">My profile</string>
-    <string name="menu_slideshow">Slideshow</string>
+    <string name="menu_equipment">Equipment</string>
 
     <string name="drawer_open">Open drawer</string>
     <string name="drawer_close">Close drawer</string>

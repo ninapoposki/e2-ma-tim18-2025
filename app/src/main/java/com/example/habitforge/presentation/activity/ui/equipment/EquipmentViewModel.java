@@ -1,16 +1,16 @@
-package com.example.habitforge.presentation.activity.ui.slideshow;
+package com.example.habitforge.presentation.activity.ui.equipment;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class SlideshowViewModel extends ViewModel {
+public class EquipmentViewModel extends ViewModel {
 
     private final MutableLiveData<String> mText;
 
-    public SlideshowViewModel() {
+    public EquipmentViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("This is slideshow fragment");
+        mText.setValue("This is equipment fragment");
     }
 
     public LiveData<String> getText() {

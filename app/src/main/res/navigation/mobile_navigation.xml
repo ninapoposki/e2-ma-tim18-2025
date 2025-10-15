@@ -18,8 +18,8 @@
         tools:layout="@layout/fragment_gallery" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.example.habitforge.presentation.activity.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        android:id="@+id/nav_equipment"
+        android:name="com.example.habitforge.presentation.activity.ui.equipment.EquipmentFragment"
+        android:label="@string/menu_equipment"
+        tools:layout="@layout/fragment_equipment" />
 </navigation>

@@ -165,6 +165,7 @@ import com.example.habitforge.R;
 import com.example.habitforge.application.service.UserService;
 import com.example.habitforge.application.session.SessionManager;
 import com.example.habitforge.databinding.ActivityLoginBinding;
+import com.example.habitforge.presentation.activity.AddTaskActivity;
 import com.example.habitforge.presentation.activity.NavigationActivity;
 
 public class LoginActivity extends AppCompatActivity {
@@ -257,16 +258,17 @@ public class LoginActivity extends AppCompatActivity {
                     userService.activateUser(task.getResult().getUser().getUid(), activateTask -> {
                         if (activateTask.isSuccessful()) {
                             Toast.makeText(this, "Prijava uspešna!", Toast.LENGTH_LONG).show();
+                            SessionManager session = new SessionManager(LoginActivity.this);
+                            session.saveSession(task.getResult().getUser());
+                            Intent intent = new Intent(LoginActivity.this, NavigationActivity.class);
+                            startActivity(intent);
+
                             finish(); // idi dalje u aplikaciju
                         } else {
                             Toast.makeText(this, "Greška pri aktivaciji naloga!", Toast.LENGTH_LONG).show();
                         }
                     });
-                    SessionManager session = new SessionManager(LoginActivity.this);
-                    session.saveSession(task.getResult().getUser());
-                    Intent intent = new Intent(LoginActivity.this, NavigationActivity.class);
-                    startActivity(intent);
-                    finish();
+
                 } else {
                     Toast.makeText(this, "Email nije verifikovan!", Toast.LENGTH_LONG).show();
                 }
