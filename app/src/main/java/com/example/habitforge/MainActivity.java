@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.habitforge.application.model.Task;
 import com.example.habitforge.application.model.User;
+import com.example.habitforge.data.database.DatabaseHelper;
 import com.example.habitforge.data.database.TaskLocalDataSource;
 import com.example.habitforge.data.database.UserLocalDataSource;
 import com.example.habitforge.presentation.activity.RegistrationActivity;
@@ -36,11 +37,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Button btnGoToRegister = findViewById(R.id.btnGoToRegister);
-
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        dbHelper.getWritableDatabase();
         btnGoToRegister.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, RegistrationActivity.class);
             startActivity(intent);
         });
+
+        Button btnOpenAddCategory = findViewById(R.id.btnOpenAddCategory);
+
+        btnOpenAddCategory.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, com.example.habitforge.presentation.activity.AddCategoryActivity.class);
+            startActivity(intent);
+        });
+
     }
 }
 

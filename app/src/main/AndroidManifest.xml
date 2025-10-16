@@ -11,22 +11,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.HabitForge">
-        <activity
-            android:name=".presentation.activity.AddTaskActivity"
+
+
+        <activity android:name=".presentation.activity.AddCategoryActivity"
             android:exported="false" />
-        <!-- <activity -->
-        <!-- android:name=".presentation.activity.RegistrationActivity" -->
-        <!-- android:exported="false" /> -->
-        <activity android:name=".presentation.activity.RegistrationActivity" />
-        <activity
-            android:name=".MainActivity"
+
+        <activity android:name=".presentation.activity.RegistrationActivity"
+            android:exported="false" />
+
+        <!-- Ovo je launcher aktivnost -->
+        <activity android:name=".presentation.activity.AddTaskActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

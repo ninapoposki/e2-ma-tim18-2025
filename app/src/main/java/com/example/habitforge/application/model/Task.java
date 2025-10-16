@@ -12,26 +12,43 @@ public class Task {
     private String name;
     private String description;
 
-    private String categoryId;     // ID kategorije (npr. "health")
-    //private String categoryColor;  // boja kategorije (npr. "#FF0000")
+    private String categoryId;
+    //private String categoryColor;
 
-    private TaskType taskType;     // JEDNOKRATNI ili PONAVLJAJUCI
-    private int recurringInterval; // npr. 1, 2, 3
-    private RecurrenceUnit recurrenceUnit; // DAN ili NEDELJA
-    private long recurringStart;   // millis timestamp
-    private long recurringEnd;     // millis timestamp
-    private long executionTime;    // vreme izvršenja
+    private TaskType taskType;     // one-time or multiple
+    private int recurringInterval;
+    private RecurrenceUnit recurrenceUnit; // day or week
+    private long recurringStart;
+    private long recurringEnd;
+    private long executionTime;
 
-    private TaskDifficulty difficulty; // Veoma lak, Lak, Težak, Ekstremno težak
-    private TaskPriority priority;     // Normalan, Važan, Ekstremno važan, Specijalan
-    private int xp;                    // izračunato XP (difficulty + priority)
+    private TaskDifficulty difficulty;
+    private TaskPriority priority;
+    private int xp;                    // calculated xp (difficulty+priority)
 
-    private TaskStatus status;   // AKTIVAN, ZAVRSEN, OTKAZAN
+    private TaskStatus status;
 
-    // --- KONSTRUKTOR ---
     public Task() {}
 
-    // --- GETTERI I SETTERI ---
+    public Task(String id, String userId, String name, String description, String categoryId, TaskType taskType, int recurringInterval, long recurringStart, RecurrenceUnit recurrenceUnit, long recurringEnd, long executionTime, TaskDifficulty difficulty, TaskPriority priority, int xp, TaskStatus status) {
+        this.id = id;
+        this.userId = userId;
+        this.name = name;
+        this.description = description;
+        this.categoryId = categoryId;
+        this.taskType = taskType;
+        this.recurringInterval = recurringInterval;
+        this.recurringStart = recurringStart;
+        this.recurrenceUnit = recurrenceUnit;
+        this.recurringEnd = recurringEnd;
+        this.executionTime = executionTime;
+        this.difficulty = difficulty;
+        this.priority = priority;
+        this.xp = xp;
+        this.status = status;
+    }
+
+    // --- getters and setters ---
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -79,4 +96,9 @@ public class Task {
 
     public TaskStatus getStatus() { return status; }
     public void setStatus(TaskStatus status) { this.status = status; }
+    public void calculateXp(){
+        int difficultyXp=(difficulty!=null)?difficulty.getXp():0;
+        int priorityXp=(priority!=null)? priority.getXp() : 0;
+        this.xp=difficultyXp+priorityXp;
+    }
 }
