@@ -43,8 +43,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
-            app:srcCompat="@android:drawable/ic_dialog_email"
-            android:contentDescription="Send email" />
+            app:srcCompat="@drawable/ic_shop"
+            android:contentDescription="Open shop" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

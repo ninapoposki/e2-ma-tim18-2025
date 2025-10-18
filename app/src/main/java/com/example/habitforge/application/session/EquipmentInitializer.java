@@ -43,7 +43,8 @@ public class EquipmentInitializer {
                             if (snapshot.isEmpty()) {
                                 // Ako ne postoji, dodaj
                                 db.collection("equipment")
-                                        .add(eq)
+                                        .document(eq.getId())
+                                        .set(eq)
                                         .addOnSuccessListener(documentReference ->
                                                 Log.d("Firestore", "Added equipment: " + eq.getName()))
                                         .addOnFailureListener(e ->

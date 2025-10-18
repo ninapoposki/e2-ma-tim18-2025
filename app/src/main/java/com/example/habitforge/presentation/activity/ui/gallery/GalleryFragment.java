@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.habitforge.R;
 import com.example.habitforge.application.model.User;
+import com.example.habitforge.application.model.UserEquipment;
 import com.example.habitforge.application.session.SessionManager;
 import com.example.habitforge.data.repository.UserRepository;
 import com.example.habitforge.databinding.FragmentGalleryBinding;
@@ -29,6 +30,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class GalleryFragment extends Fragment {
 

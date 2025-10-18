@@ -1,7 +1,10 @@
 package com.example.habitforge.application.model;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class User {
     private String userId;        // Firebase UID
@@ -17,7 +20,8 @@ public class User {
     private int experiencePoints;
     private int coins;
     private List<String> badges;
-    private List<String> equipment;
+    private List<UserEquipment> equipment = new ArrayList<>();
+
     private String qrCode;
 
     // --- KONSTRUKTORI ---
@@ -84,8 +88,16 @@ public class User {
     public List<String> getBadges() { return badges; }
     public void setBadges(List<String> badges) { this.badges = badges; }
 
-    public List<String> getEquipment() { return equipment; }
-    public void setEquipment(List<String> equipment) { this.equipment = equipment; }
+    public List<UserEquipment> getEquipment() {
+        if (equipment == null) {
+            equipment = new ArrayList<>();
+        }
+        return equipment;
+    }
+
+    public void setEquipment(List<UserEquipment> equipment) {
+        this.equipment = equipment;
+    }
 
     public String getQrCode() { return qrCode; }
     public void setQrCode(String qrCode) { this.qrCode = qrCode; }
@@ -102,7 +114,7 @@ public class User {
                 ", powerPoints=" + powerPoints +
                 ", coins=" + coins +
                 ", badges=" + badges +
-                ", equipment=" + equipment +
+                ", equipment=" + equipment  +
                 '}';
     }
 

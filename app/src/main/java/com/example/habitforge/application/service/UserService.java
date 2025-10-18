@@ -10,6 +10,7 @@ import com.google.firebase.auth.AuthResult;
 public class UserService {
     private final UserRepository userRepository;
 
+
     public UserService(Context context) {
         this.userRepository = new UserRepository(context);
     }
@@ -51,5 +52,9 @@ public class UserService {
 
     public void activateUser(String userId, OnCompleteListener<Void> listener) {
         userRepository.activateUser(userId, listener);
+    }
+
+    public void useWeapon(User user, String equipmentId, Runnable onSuccess) {
+        userRepository.useWeapon(user, equipmentId, onSuccess);
     }
 }

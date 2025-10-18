@@ -8,6 +8,7 @@ import com.example.habitforge.application.model.User;
 import com.example.habitforge.application.session.SessionManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class GalleryViewModel extends ViewModel {
 
@@ -38,7 +39,8 @@ public class GalleryViewModel extends ViewModel {
             if (user.getCoins() == 0) user.setCoins(0);
             if (user.getBadges() == null) user.setBadges(new ArrayList<>());
             if (user.getEquipment() == null || user.getEquipment().isEmpty()) user.setEquipment(new ArrayList<>());
-            // QR kod ignorisemo za sada
+
+
 
             mUserLiveData.setValue(user);
         }

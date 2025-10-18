@@ -3,6 +3,7 @@ package com.example.habitforge.presentation.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -62,21 +63,17 @@ public class NavigationActivity extends AppCompatActivity {
         });
 
 //        // Floating Action Button
-//        FloatingActionButton fab = findViewById(R.id.fab);
-//        fab.setOnClickListener(view ->
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null)
-//                        .setAnchorView(R.id.fab).show()
-//        );
         FloatingActionButton fab = findViewById(R.id.fab);
+//        fab.setOnClickListener(v -> {
+//            getSupportFragmentManager()
+//                    .beginTransaction()
+//                    .replace(R.id.nav_host_fragment_content_navigation, new ShopFragment())
+//                    .addToBackStack(null) // omogućava da se vratiš na prethodni fragment pritiskom na back
+//                    .commit();
+//        });
         fab.setOnClickListener(v -> {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.nav_host_fragment_content_navigation, new ShopFragment())
-                    .addToBackStack(null) // omogućava da se vratiš na prethodni fragment pritiskom na back
-                    .commit();
+            startActivity(new Intent(this, ShopActivity.class));
         });
-
     }
 
     @Override

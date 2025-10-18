@@ -3,6 +3,8 @@ package com.example.habitforge.data.repository;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.habitforge.application.model.UserEquipment;
+import com.example.habitforge.application.model.enums.EquipmentType;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
@@ -16,7 +18,9 @@ import com.example.habitforge.data.database.UserLocalDataSource;
 import com.example.habitforge.data.firebase.UserRemoteDataSource;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class UserRepository {
 
@@ -137,7 +141,11 @@ public class UserRepository {
 
                 // Badges i Equipment
                 cloudUser.setBadges(snapshot.contains("badges") ? (List<String>) snapshot.get("badges") : new ArrayList<>());
-                cloudUser.setEquipment(snapshot.contains("equipment") ? (List<String>) snapshot.get("equipment") : new ArrayList<>());
+                cloudUser.setEquipment(
+                        snapshot.contains("userEquipment")
+                                ? (List<UserEquipment>) snapshot.get("userEquipment")
+                                : new ArrayList<>()
+                );
 
                 // Sačuvaj u lokalnu bazu
                // localDb.insertUser(cloudUser);
@@ -149,6 +157,98 @@ public class UserRepository {
             }
         });
     }
+
+    public void addEquipmentToUser(User user, UserEquipment item) {
+        List<UserEquipment> equipmentList = user.getEquipment();
+
+        switch (item.getType()) {
+            case POTION:
+                // Trenutno ništa posebno, samo dodajemo napitak
+                break;
+            case CLOTHING:
+                // Trenutno ništa posebno, ali ovde možemo dodati buduće unapređenje
+                break;
+            case WEAPON:
+                // Trenutno ništa posebno, ali ovde možemo dodati buduće unapređenje
+                break;
+        }
+
+        // Svaki predmet dodajemo kao poseban objekat
+        equipmentList.add(item);
+
+        user.setEquipment(equipmentList);
+        updateUser(user);
+    }
+    public void useWeapon(User user, String equipmentId, Runnable onSuccess) {
+        if (user == null || user.getEquipment() == null) return;
+
+        List<UserEquipment> equipmentList = user.getEquipment();
+
+        for (int i = 0; i < equipmentList.size(); i++) {
+            UserEquipment item = equipmentList.get(i);
+
+            if (item.getEquipmentId().equals(equipmentId) && item.getType() == EquipmentType.WEAPON) {
+                // Umanji trajanje
+                item.setDuration(item.getDuration() - 1);
+
+                // Ako je duration 0, izbriši
+                if (item.getDuration() <= 0) {
+                    equipmentList.remove(i);
+                }
+
+                // Snimi izmenjenog korisnika u Firestore
+                try {
+                    remoteDb.saveUserDocument(user);
+
+                    // Pokreni callback da fragment može da osveži UI
+                    if (onSuccess != null) {
+                        onSuccess.run();
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                break; // prekid jer smo našli oružje
+            }
+        }
+    }
+
+
+//    public void addEquipmentToUser(User user, UserEquipment item) {
+//        Map<String, UserEquipment> eqMap = user.getUserEquipment();
+//
+//        if (eqMap.containsKey(item.getId())) {
+//            UserEquipment existing = eqMap.get(item.getId());
+//
+//            switch (item.getType()) {
+//                case POTION:
+//                    // 👉 samo povećaj količinu
+//                    existing.setAmount(existing.getAmount() + item.getAmount());
+//                    break;
+//
+//                case CLOTHING:
+//                    // ako korisnik ima istu odeću, efekat se sabira
+//                    existing.setEffect(existing.getEffect() + item.getEffect());
+//                    existing.setDuration(Math.max(existing.getDuration(), item.getDuration()));
+//                    break;
+//
+//                case WEAPON:
+//                    // unapređenje oružja — povećaj level i malo efekat
+//                    existing.setLevel(existing.getLevel() + 1);
+//                    existing.setEffect(existing.getEffect() + item.getEffect() * 0.01);
+//                    break;
+//            }
+//
+//            eqMap.put(existing.getId(), existing);
+//
+//        } else {
+//            eqMap.put(item.getId(), item);
+//        }
+//        user.setUserEquipment(eqMap);
+//        updateUser(user);
+//
+//    }
 
 
     // --- GET USER BY EMAIL ---

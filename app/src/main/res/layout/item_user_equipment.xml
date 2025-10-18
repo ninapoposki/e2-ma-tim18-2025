@@ -1,0 +1,30 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/tvEquipmentName"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+        android:text="Equipment Name"
+        android:textSize="18sp"/>
+
+    <Button
+        android:id="@+id/btnActivate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Activate"/>
+
+    <TextView
+        android:id="@+id/tvActivated"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Activated"
+        android:textSize="16sp"
+        android:visibility="gone"
+        android:textColor="@android:color/holo_green_dark"
+        android:paddingStart="8dp"/>
+</LinearLayout>
