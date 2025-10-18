@@ -13,5 +13,9 @@
             android:id="@+id/nav_equipment"
             android:icon="@drawable/ic_menu_equipment"
             android:title="Equipment"/>
+        <item
+            android:id="@+id/nav_user_list"
+            android:icon="@drawable/ic_menu_equipment"
+            android:title="Other users"/>
     </group>
 </menu>

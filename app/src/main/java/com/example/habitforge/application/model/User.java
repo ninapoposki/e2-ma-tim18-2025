@@ -89,4 +89,21 @@ public class User {
 
     public String getQrCode() { return qrCode; }
     public void setQrCode(String qrCode) { this.qrCode = qrCode; }
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + userId + '\'' +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", level=" + level +
+                ", title='" + title + '\'' +
+                ", experiencePoints=" + experiencePoints +
+                ", powerPoints=" + powerPoints +
+                ", coins=" + coins +
+                ", badges=" + badges +
+                ", equipment=" + equipment +
+                '}';
+    }
+
 }

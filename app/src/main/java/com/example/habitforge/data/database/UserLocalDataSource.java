@@ -20,16 +20,35 @@ public class UserLocalDataSource {
     }
 
     // --- INSERT ---
-    public void insertUser(User u) {
+//    public void insertUser(User u) {
+//        SQLiteDatabase db = dbHelper.getWritableDatabase();
+//        ContentValues cv = new ContentValues();
+//        cv.put("id", u.getUserId());
+//        cv.put("email", u.getEmail());
+//        cv.put("username", u.getUsername());
+//        cv.put("avatar_url", u.getAvatar());
+//        db.insert(DatabaseHelper.T_USERS, null, cv);
+//        db.close();
+//    }
+    public void insertUser(User user) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put("id", u.getUserId());
-        cv.put("email", u.getEmail());
-        cv.put("username", u.getUsername());
-        cv.put("avatar_url", u.getAvatar());
-        db.insert(DatabaseHelper.T_USERS, null, cv);
-        db.close();
+
+        // Provera da li username postoji
+        Cursor cursor = db.query("users", null, "username = ?",
+                new String[]{user.getUsername()}, null, null, null);
+        boolean exists = cursor.getCount() > 0;
+        cursor.close();
+
+        if (!exists) {
+            ContentValues values = new ContentValues();
+            values.put("id", user.getUserId());
+            values.put("username", user.getUsername());
+            values.put("email", user.getEmail());
+            values.put("avatar", user.getAvatar());
+            db.insert("users", null, values);
+        }
     }
+
 
     // --- GET BY EMAIL ---
     public User getUserByEmail(String email) {

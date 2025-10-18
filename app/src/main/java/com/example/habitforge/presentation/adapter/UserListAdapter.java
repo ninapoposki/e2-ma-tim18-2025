@@ -12,61 +12,72 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.habitforge.R;
 import com.example.habitforge.application.model.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
+public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserViewHolder> {
 
-    public interface OnUserClickListener {
-        void onClick(User user);
-    }
-
-    private final List<User> users;
+    private List<User> users = new ArrayList<>();
     private final OnUserClickListener listener;
 
-    public UserAdapter(List<User> users, OnUserClickListener listener) {
-        this.users = users;
+    public interface OnUserClickListener {
+        void onUserClick(User user);
+    }
+
+    public UserListAdapter(OnUserClickListener listener) {
         this.listener = listener;
+    }
+
+    // Postavljanje nove liste korisnika
+    public void submitList(List<User> list) {
+        this.users = list != null ? list : new ArrayList<>();
+        notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Koristimo tvoj custom layout user_item.xml
-        View view = LayoutInflater.from(parent.getContext())
+        View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_user, parent, false);
-        return new UserViewHolder(view);
+        return new UserViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         User user = users.get(position);
 
-        // Popunjavanje podataka
+        // Popunjavanje osnovnih podataka
         holder.username.setText(user.getUsername());
-        holder.email.setText(user.getEmail());
-        holder.title.setText(user.getTitle());
+        holder.email.setText(user.getEmail() != null ? user.getEmail() : "Nema email");
+        holder.title.setText(user.getTitle() != null ? user.getTitle() : "");
 
-        // Avatar logika (npr. "avatar4" → R.drawable.avatar4)
-        int avatarResId = holder.itemView.getContext()
+        // Avatar logika
+        String avatarName = user.getAvatar();
+        if (avatarName == null || avatarName.isEmpty()) {
+            avatarName = "avatar1"; // default
+        } else {
+            // ukloni ekstenziju ako postoji (.png)
+            avatarName = avatarName.replace(".png", "");
+        }
+
+        int resId = holder.itemView.getContext()
                 .getResources()
-                .getIdentifier(user.getAvatar(), "drawable",
+                .getIdentifier(avatarName, "drawable",
                         holder.itemView.getContext().getPackageName());
 
-        // Ako avatar postoji, postavi ga
-        if (avatarResId != 0) {
-            holder.avatar.setImageResource(avatarResId);
+        if (resId != 0) {
+            holder.avatar.setImageResource(resId);
         } else {
-            // Ako ne postoji, koristi podrazumevani avatar
             holder.avatar.setImageResource(R.drawable.avatar1);
         }
 
         // Klik na korisnika
-        holder.itemView.setOnClickListener(v -> listener.onClick(user));
+        holder.itemView.setOnClickListener(v -> listener.onUserClick(user));
     }
 
     @Override
     public int getItemCount() {
-        return users != null ? users.size() : 0;
+        return users.size();
     }
 
     static class UserViewHolder extends RecyclerView.ViewHolder {

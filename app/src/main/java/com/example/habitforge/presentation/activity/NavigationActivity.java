@@ -16,6 +16,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.habitforge.R;
 import com.example.habitforge.application.session.SessionManager;
 import com.example.habitforge.presentation.activity.ui.login.LoginActivity;
+import com.example.habitforge.presentation.activity.ui.store.ShopFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -60,13 +61,22 @@ public class NavigationActivity extends AppCompatActivity {
             finish();
         });
 
-        // Floating Action Button
+//        // Floating Action Button
+//        FloatingActionButton fab = findViewById(R.id.fab);
+//        fab.setOnClickListener(view ->
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null)
+//                        .setAnchorView(R.id.fab).show()
+//        );
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view ->
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null)
-                        .setAnchorView(R.id.fab).show()
-        );
+        fab.setOnClickListener(v -> {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.nav_host_fragment_content_navigation, new ShopFragment())
+                    .addToBackStack(null) // omogućava da se vratiš na prethodni fragment pritiskom na back
+                    .commit();
+        });
+
     }
 
     @Override
