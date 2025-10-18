@@ -36,6 +36,19 @@ public class User {
         this.coins = 0;
     }
 
+    public User(String userId, String email, String username, String avatar, Boolean isActive) {
+        this.userId = userId;
+        this.email = email;
+        this.username = username;
+        this.avatar = avatar;
+        this.isActive = isActive;
+        this.level = 1;
+        this.title = "Beginner";
+        this.powerPoints = 0;
+        this.experiencePoints = 0;
+        this.coins = 0;
+    }
+
     // --- GETTERI I SETTERI ---
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
@@ -47,8 +60,8 @@ public class User {
 
     public void setUsername(String username){ this.username = username;}
 
-    public String getAvatarUrl() { return avatar; }
-    public void setAvatarUrl(String avatar) {  this.avatar = avatar;}
+    public String getAvatar() { return avatar; }
+    public void setAvatar(String avatar) { this.avatar = avatar; }
 
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
@@ -76,4 +89,21 @@ public class User {
 
     public String getQrCode() { return qrCode; }
     public void setQrCode(String qrCode) { this.qrCode = qrCode; }
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + userId + '\'' +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", level=" + level +
+                ", title='" + title + '\'' +
+                ", experiencePoints=" + experiencePoints +
+                ", powerPoints=" + powerPoints +
+                ", coins=" + coins +
+                ", badges=" + badges +
+                ", equipment=" + equipment +
+                '}';
+    }
+
 }

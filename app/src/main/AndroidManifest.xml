@@ -11,6 +11,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.HabitForge">
+        <activity
+            android:name=".presentation.activity.NavigationActivity"
+            android:exported="false"
+            android:label="@string/title_activity_navigation"
+            android:theme="@style/Theme.HabitForge.NoActionBar" />
+        <activity
+            android:name=".presentation.activity.ui.login.LoginActivity"
+            android:exported="false"
+            android:label="@string/title_activity_login" />
+        <activity
+            android:name=".presentation.activity.AddTaskActivity"
+            android:exported="false" /> <!-- <activity -->
+        <!-- android:name=".presentation.activity.RegistrationActivity" -->
+        <!-- android:exported="false" /> -->
+        <activity android:name=".presentation.activity.RegistrationActivity" />
 
 
         <activity android:name=".presentation.activity.AddCategoryActivity"
@@ -19,17 +34,16 @@
             android:name=".presentation.activity.TaskCalendarActivity"
             android:exported="false" />
 
-        <activity android:name=".presentation.activity.RegistrationActivity"
-            android:exported="false" />
 
-        <!-- Ovo je launcher aktivnost -->
-        <activity android:name=".presentation.activity.AddTaskActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+<!--        &lt;!&ndash; Ovo je launcher aktivnost &ndash;&gt;-->
+<!--        <activity android:name=".presentation.activity.AddTaskActivity"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
 
         <activity
             android:name=".presentation.activity.TaskDetailsActivity"

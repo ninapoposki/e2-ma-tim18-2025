@@ -41,4 +41,15 @@ public class UserService {
         // prosledi repozitorijumu
         userRepository.signUpUser(email, password, newUser, callback);
     }
+    public void loginUser(String email, String password, OnCompleteListener<AuthResult> callback) {
+        userRepository.login(email, password, callback);
+    }
+
+    public boolean isUserActivated() {
+        return userRepository.isUserActivated();
+    }
+
+    public void activateUser(String userId, OnCompleteListener<Void> listener) {
+        userRepository.activateUser(userId, listener);
+    }
 }

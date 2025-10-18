@@ -5,9 +5,11 @@ import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.example.habitforge.application.model.User;
 import com.example.habitforge.data.database.UserLocalDataSource;
@@ -47,10 +49,18 @@ public class UserRepository {
         });
     }
 
+    public boolean isUserActivated() {
+        return remoteDb.checkEmailVerified();
+    }
+
+    public void activateUser(String userId, OnCompleteListener<Void> listener) {
+        remoteDb.updateUserActivation(userId, true, listener);
+    }
+
     // --- PRIJAVA ---
-//    public void signInUser(String email, String password, OnCompleteListener<AuthResult> callback) {
-//        remoteDb.signInUser(email, password, callback);
-//    }
+    public void login(String email, String password, OnCompleteListener<AuthResult> callback) {
+        remoteDb.signInUser(email, password, callback);
+    }
 //    public void signInUser(String email, String password, OnCompleteListener<AuthResult> callback) {
 //        remoteDb.signInUser(email, password, authTask -> {
 //            if (authTask.isSuccessful() && authTask.getResult() != null) {
@@ -73,66 +83,146 @@ public class UserRepository {
 //
 
 
-    // --- PREUZIMANJE KORISNIKA ---
-//    public void getUserById(String userId, OnCompleteListener<User> callback) {
-//        User cachedUser = localDb.getUserById(userId);
+   //  --- PREUZIMANJE KORISNIKA ---
+   // --- GET USER BY ID ---
+//   public void getUserById(String userId, UserCallback callback) {
+//       // prvo iz lokalne baze
+//       User cachedUser = localDb.getUserById(userId);
+//       if (cachedUser != null) {
+//           callback.onSuccess(cachedUser);
+//           return;
+//       }
 //
-//        if (cachedUser != null) {
-//            callback.onComplete(Task.forResult(cachedUser));
-//        }
-//
-//        remoteDb.fetchUserDocument(userId, remoteTask -> {
-//            if (remoteTask.isSuccessful() && remoteTask.getResult() != null && remoteTask.getResult().exists()) {
-//                User cloudUser = remoteTask.getResult().toObject(User.class);
-//                if (cloudUser != null) {
-//                    localDb.insertUser(cloudUser); // update cache
-//                    callback.onComplete(Task.forResult(cloudUser));
-//                }
-//            } else if (cachedUser == null) {
-//                callback.onComplete(Task.forException(remoteTask.getException()));
-//            }
-//        });
-//    }
+//       // iz Firestore
+//       remoteDb.fetchUserDocument(userId, remoteTask -> {
+//           if (remoteTask.isSuccessful() && remoteTask.getResult() != null && remoteTask.getResult().exists()) {
+//               User cloudUser = remoteTask.getResult().toObject(User.class);
+//               if (cloudUser != null) {
+//                   localDb.insertUser(cloudUser);
+//                   callback.onSuccess(cloudUser);
+//               } else {
+//                   callback.onFailure(new Exception("User not found"));
+//               }
+//           } else {
+//               callback.onFailure(remoteTask.getException());
+//           }
+//       });
+//   }
 
-    // --- AKTIVACIJA ---
-    public void setUserActivated(String userId, boolean active) {
-        // update lokalno
-        User u = localDb.getUserById(userId);
-        if (u != null) {
-            u.setActive(active);
-            localDb.updateUser(u);
-        }
+    public void getUserById(String userId, UserCallback callback) {
 
-        // update u Firestore
-        remoteDb.updateUserActivation(userId, active, result -> {
-            if (!result.isSuccessful()) {
-                Log.e("UserRepo", "Failed to update activation status", result.getException());
+        // iz Firestore
+        remoteDb.fetchUserDocument(userId, remoteTask -> {
+            if (remoteTask.isSuccessful() && remoteTask.getResult() != null && remoteTask.getResult().exists()) {
+                DocumentSnapshot snapshot = remoteTask.getResult();
+
+                User cloudUser = new User();
+                cloudUser.setUserId(snapshot.getId());
+                cloudUser.setUsername(snapshot.getString("username"));
+                cloudUser.setEmail(snapshot.getString("email"));
+
+                // Avatar
+                String avatar = snapshot.getString("avatar");
+                cloudUser.setAvatar(avatar != null && !avatar.isEmpty() ? avatar : "default_avatar.png");
+
+                // Level, XP, PP, Coins
+                cloudUser.setLevel(snapshot.contains("level") ? snapshot.getLong("level").intValue() : 1);
+                cloudUser.setExperiencePoints(snapshot.contains("experiencePoints") ? snapshot.getLong("experiencePoints").intValue() : 0);
+                cloudUser.setPowerPoints(snapshot.contains("powerPoints") ? snapshot.getLong("powerPoints").intValue() : 0);
+                cloudUser.setCoins(snapshot.contains("coins") ? snapshot.getLong("coins").intValue() : 0);
+
+                // Title
+                String title = snapshot.getString("title");
+                cloudUser.setTitle(title != null && !title.isEmpty() ? title : "Beginner");
+
+                // Badges i Equipment
+                cloudUser.setBadges(snapshot.contains("badges") ? (List<String>) snapshot.get("badges") : new ArrayList<>());
+                cloudUser.setEquipment(snapshot.contains("equipment") ? (List<String>) snapshot.get("equipment") : new ArrayList<>());
+
+                // Sačuvaj u lokalnu bazu
+               // localDb.insertUser(cloudUser);
+
+                // Vrati callback
+                callback.onSuccess(cloudUser);
+            } else {
+                callback.onFailure(remoteTask.getException() != null ? remoteTask.getException() : new Exception("User not found"));
             }
         });
     }
 
-    // --- SVI KORISNICI ---
-//    public void getAllUsers(OnCompleteListener<List<User>> callback) {
-//        List<User> cached = localDb.getAllUsers();
-//
-//        if (!cached.isEmpty()) {
-//            callback.onComplete(Task.forResult(cached));
+
+    // --- GET USER BY EMAIL ---
+//    public void getUserByEmail(String email, UserCallback callback) {
+//        // prvo iz lokalne baze
+//        User cachedUser = localDb.getUserByEmail(email);
+//        if (cachedUser != null) {
+//            callback.onSuccess(cachedUser);
+//            return;
 //        }
 //
-//        remoteDb.fetchAllUsers(task -> {
-//            if (task.isSuccessful() && task.getResult() != null) {
-//                List<User> remoteUsers = new ArrayList<>();
-//                for (QueryDocumentSnapshot doc : task.getResult()) {
-//                    User u = doc.toObject(User.class);
-//                    remoteUsers.add(u);
-//                    localDb.insertUser(u);
+//        // iz Firestore
+//        remoteDb.fetchUserByEmail(email, remoteTask -> {
+//            if (remoteTask.isSuccessful() && remoteTask.getResult() != null && !remoteTask.getResult().isEmpty()) {
+//                User cloudUser = remoteTask.getResult().getDocuments().get(0).toObject(User.class);
+//                if (cloudUser != null) {
+//                    localDb.insertUser(cloudUser);
+//                    callback.onSuccess(cloudUser);
+//                } else {
+//                    callback.onFailure(new Exception("User not found"));
 //                }
-//                callback.onComplete(Task.forResult(remoteUsers));
-//            } else if (cached.isEmpty()) {
-//                callback.onComplete(Task.forException(task.getException()));
+//            } else {
+//                callback.onFailure(remoteTask.getException());
 //            }
 //        });
 //    }
+
+
+    // --- AKTIVACIJA ---
+//    public void setUserActivated(String userId, boolean active) {
+//        // update lokalno
+//        User u = localDb.getUserById(userId);
+//        if (u != null) {
+//            u.setActive(active);
+//            localDb.updateUser(u);
+//        }
+//
+//        // update u Firestore
+//        remoteDb.updateUserActivation(userId, active, result -> {
+//            if (!result.isSuccessful()) {
+//                Log.e("UserRepo", "Failed to update activation status", result.getException());
+//            }
+//        });
+//    }
+
+    // --- SVI KORISNICI ---
+    public void getAllUsers(UserListCallback callback) {
+        // prvo iz lokalne baze
+//        List<User> cached = localDb.getAllUsers();
+//        if (!cached.isEmpty()) {
+//            callback.onSuccess(new ArrayList<>(cached));
+//            return;
+//        }
+
+        // iz Firestore
+        remoteDb.fetchAllUsers(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                List<User> remoteUsers = new ArrayList<>();
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    User u = doc.toObject(User.class);
+                    remoteUsers.add(u);
+                 //   localDb.insertUser(u);
+                }
+                callback.onSuccess(remoteUsers);
+            } else {
+                callback.onFailure(task.getException());
+            }
+        });
+    }
+
+    public interface UserListCallback {
+        void onSuccess(List<User> users);
+        void onFailure(Exception e);
+    }
 
     // --- UPDATE ---
     public void updateUser(User user) {
@@ -162,4 +252,9 @@ public class UserRepository {
             });
         }
     }
+    public interface UserCallback {
+        void onSuccess(User user);
+        void onFailure(Exception e);
+    }
 }
+

@@ -86,38 +86,134 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:gravity="center"
-        android:layout_marginTop="16dp">
+        android:layout_marginTop="16dp"
+        android:weightSum="5">
 
-        <Button
-            android:id="@+id/btnAvatar1"
-            android:layout_width="wrap_content"
+        <!-- Avatar 1 -->
+        <FrameLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="A1"/>
+            android:layout_weight="1"
+            android:gravity="center">
 
-        <Button
-            android:id="@+id/btnAvatar2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="A2"/>
+            <!-- Plavi krug (veći) -->
+            <ImageView
+                android:id="@+id/ivSelected1"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/blue_circle"
+                android:visibility="gone"/>
 
-        <Button
-            android:id="@+id/btnAvatar3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="A3"/>
+            <!-- Avatar -->
+            <ImageButton
+                android:id="@+id/btnAvatar1"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/avatar1"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Avatar 1"/>
+        </FrameLayout>
 
-        <Button
-            android:id="@+id/btnAvatar4"
-            android:layout_width="wrap_content"
+        <!-- Avatar 2 -->
+        <FrameLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="A4"/>
+            android:layout_weight="1"
+            android:gravity="center">
 
-        <Button
-            android:id="@+id/btnAvatar5"
-            android:layout_width="wrap_content"
+            <ImageView
+                android:id="@+id/ivSelected2"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/blue_circle"
+                android:visibility="gone"/>
+
+            <ImageButton
+                android:id="@+id/btnAvatar2"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/avatar2"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Avatar 2"/>
+        </FrameLayout>
+
+        <!-- Avatar 3 -->
+        <FrameLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="A5"/>
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/ivSelected3"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/blue_circle"
+                android:visibility="gone"/>
+
+            <ImageButton
+                android:id="@+id/btnAvatar3"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/avatar3"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Avatar 3"/>
+        </FrameLayout>
+
+        <!-- Avatar 4 -->
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/ivSelected4"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/blue_circle"
+                android:visibility="gone"/>
+
+            <ImageButton
+                android:id="@+id/btnAvatar4"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/avatar4"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Avatar 4"/>
+        </FrameLayout>
+
+        <!-- Avatar 5 -->
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/ivSelected5"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/blue_circle"
+                android:visibility="gone"/>
+
+            <ImageButton
+                android:id="@+id/btnAvatar5"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/avatar5"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Avatar 5"/>
+        </FrameLayout>
+
     </LinearLayout>
+
+
 
     <Button
         android:id="@+id/btnRegister"
@@ -129,3 +225,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="20dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+

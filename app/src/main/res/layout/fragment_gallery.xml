@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#F5F5F5"
+    tools:context=".presentation.activity.ui.gallery.GalleryFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center_horizontal">
+
+        <!-- Avatar korisnika -->
+        <ImageView
+            android:id="@+id/image_avatar"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="12dp"
+            android:contentDescription="Avatar korisnika"
+            android:scaleType="centerCrop"
+            android:src="@android:drawable/sym_def_app_icon"
+            android:background="@drawable/white_rounded_bg" />
+
+        <!-- Korisničko ime -->
+        <TextView
+            android:id="@+id/text_username"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Korisničko ime"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#222" />
+
+        <!-- Level i titula -->
+        <TextView
+            android:id="@+id/text_level_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Level 1 • Početnik"
+            android:textColor="#666"
+            android:textSize="16sp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Statistike -->
+        <LinearLayout
+            android:id="@+id/layout_stats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:background="@drawable/white_rounded_bg"
+            android:padding="16dp"
+            android:elevation="4dp"
+            android:layout_marginVertical="16dp">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="XP"
+                    android:textColor="#888"
+                    android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/text_xp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+                <TextView
+                    android:id="@+id/labelPp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PP"
+                    android:textColor="#888"
+                    android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/text_pp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center">
+                <TextView
+                    android:id="@+id/labelCoins"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Coins"
+                    android:textColor="#888"
+                    android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/text_coins"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="#000"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Bedževi -->
+        <TextView
+            android:id="@+id/text_badges_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🏅 Bedževi:"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/text_badges"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nema bedževa"
+            android:textColor="#333"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Oprema -->
+        <TextView
+            android:id="@+id/text_equipment_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="⚔️ Oprema:"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/text_equipment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nema opreme"
+            android:textColor="#333"
+            android:layout_marginBottom="20dp" />
+
+        <!-- QR kod -->
+        <ImageView
+            android:id="@+id/image_qr"
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="24dp"
+            android:contentDescription="QR kod korisnika"
+            android:background="@drawable/white_rounded_bg"
+            android:padding="8dp"
+            android:src="@android:drawable/ic_menu_share" />
+
+
+
+    <!-- Change Password Section -->
+    <LinearLayout
+        android:id="@+id/layout_change_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@drawable/white_rounded_bg"
+        android:elevation="4dp"
+        android:layout_marginVertical="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Promeni lozinku"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginBottom="12dp"/>
+
+        <EditText
+            android:id="@+id/edit_old_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Stara lozinka"
+            android:inputType="textPassword"/>
+
+        <EditText
+            android:id="@+id/edit_new_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nova lozinka"
+            android:inputType="textPassword"
+            android:layout_marginTop="8dp"/>
+
+        <EditText
+            android:id="@+id/edit_confirm_new_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Ponovi novu lozinku"
+            android:inputType="textPassword"
+            android:layout_marginTop="8dp"/>
+
+        <Button
+            android:id="@+id/button_change_password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Promeni lozinku"
+            android:layout_marginTop="12dp"/>
+    </LinearLayout>
+    </LinearLayout>
+</ScrollView>
