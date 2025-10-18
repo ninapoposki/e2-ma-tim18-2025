@@ -50,4 +50,6 @@ dependencies {
     implementation libs.firebase.database
     implementation libs.firebase.firestore
     implementation libs.firebase.auth
+    implementation 'com.github.mhiew:material-calendarview:2.0.1'
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.4.7'
 }

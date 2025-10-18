@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">HabitForge</string>
+    <string-array name="recurrence_units">
+        <item>Day</item>
+        <item>Week</item>
+    </string-array>
 </resources>

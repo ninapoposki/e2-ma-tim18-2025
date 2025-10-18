@@ -6,7 +6,9 @@ import com.example.habitforge.application.model.enums.TaskPriority;
 import com.example.habitforge.application.model.enums.TaskStatus;
 import com.example.habitforge.application.model.enums.TaskType;
 
-public class Task {
+import java.io.Serializable;
+
+public class Task implements Serializable {
     private String id;
     private String userId;
     private String name;

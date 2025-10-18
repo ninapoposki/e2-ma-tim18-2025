@@ -85,24 +85,20 @@ public class CategoryRepository {
     }
 
 
-    public void getAllCategories(OnCompleteListener<List<Category>> callback){
-        List<Category> cached=localDb.getAllCategories();
-
-        if(!cached.isEmpty()){
-            callback.onComplete(Tasks.forResult(cached));
-        }
+    public void getAllCategories(OnCompleteListener<List<Category>> callback) {
         remoteDb.fetchAllCategories(remoteTask -> {
             if (remoteTask.isSuccessful() && remoteTask.getResult() != null) {
                 List<Category> remoteCategories = new ArrayList<>();
                 for (com.google.firebase.firestore.QueryDocumentSnapshot doc : remoteTask.getResult()) {
                     Category c = doc.toObject(Category.class);
                     remoteCategories.add(c);
-                    localDb.insertCategory(c);
+                    localDb.insertCategory(c); // može da ostane, da keširaš
                 }
                 callback.onComplete(Tasks.forResult(remoteCategories));
-            } else if (cached.isEmpty()) {
+            } else {
                 callback.onComplete(Tasks.forException(remoteTask.getException()));
             }
         });
     }
+
 }

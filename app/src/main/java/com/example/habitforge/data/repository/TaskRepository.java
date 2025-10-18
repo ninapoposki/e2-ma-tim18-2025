@@ -101,5 +101,30 @@ public class TaskRepository {
         });
     }
 
+    // ---GET ALL TASKS (for calendar or admin view)---
+    public void getAllTasks(OnCompleteListener<List<Task>> callback) {
+        // 1️⃣ prvo pokušaj iz lokalne baze
+        List<Task> cached = localDb.getAllTasks();
+        if (!cached.isEmpty()) {
+            callback.onComplete(Tasks.forResult(cached));
+        }
+
+        // 2️⃣ zatim povuci iz Firestore
+        remoteDb.fetchAllTasks(remoteTask -> {
+            if (remoteTask.isSuccessful() && remoteTask.getResult() != null) {
+                List<Task> remoteTasks = new ArrayList<>();
+                for (QueryDocumentSnapshot doc : remoteTask.getResult()) {
+                    Task t = doc.toObject(Task.class);
+                    remoteTasks.add(t);
+                    localDb.addTask(t); // update cache
+                }
+                callback.onComplete(Tasks.forResult(remoteTasks));
+            } else if (cached.isEmpty()) {
+                callback.onComplete(Tasks.forException(remoteTask.getException()));
+            }
+        });
+    }
+
+
 
 }

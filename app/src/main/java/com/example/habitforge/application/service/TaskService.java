@@ -48,6 +48,9 @@ public class TaskService {
 
         taskRepository.getTaskById(taskId, callback);
     }
+    public void getAllTasks(OnCompleteListener<List<Task>> callback) {
+        taskRepository.getAllTasks(callback);
+    }
 
     public void getTasksForUser(String userId, OnCompleteListener<List<Task>> callback) {
         if (userId == null || userId.trim().isEmpty()) {
@@ -56,5 +59,14 @@ public class TaskService {
 
         taskRepository.getAllTasksForUser(userId, callback);
     }
+
+    public void updateTask(Task task, OnCompleteListener<Void> callback) {
+        if (task.getId() == null || task.getId().trim().isEmpty()) {
+            throw new IllegalArgumentException("Task id is required for update");
+        }
+        task.calculateXp(); // da se xp racuna ako se nesto menja-ali ne bi trebalo
+        taskRepository.updateTask(task, callback);
+    }
+
 
 }
