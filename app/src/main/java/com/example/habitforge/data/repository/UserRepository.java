@@ -524,7 +524,56 @@ public class UserRepository {
                 Log.e("UserRepo", "User not found in Firestore for XP update.");
             }
         });
+
+
     }
+    //Šansa da korisnikov napad uspe se obračunava po procentu uspešnosti rešavanja
+    //zadataka
+    public void getUserSuccessRate(String userId, SuccessRateCallback callback) {
+        if (userId == null) {
+            callback.onFailure(new Exception("User ID is null"));
+            return;
+        }
+
+        // Uzmemo sve zadatke korisnika iz Firestore-a
+        remoteDb.getFirestore()
+                .collection("tasks")
+                .whereEqualTo("userId", userId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (querySnapshot.isEmpty()) {
+                        callback.onSuccess(0);
+                        return;
+                    }
+
+                    int completed = 0;
+                    int total = 0;
+
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        String status = doc.getString("status");
+
+                        if (status == null) continue;
+
+                        if (!status.equals("PAUSED") && !status.equals("CANCELED")) {
+                            total++;
+                            if (status.equals("COMPLETED")) completed++;
+                        }
+                    }
+
+                    int rate = total > 0 ? (completed * 100 / total) : 0;
+                    callback.onSuccess(rate);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public interface SuccessRateCallback {
+        void onSuccess(int rate);
+        void onFailure(Exception e);
+    }
+
+
+
+
 
     // --- FRIEND REQUESTS ---
     public void sendFriendRequest(String fromUserId, String toUserId, FriendRequestCallback  callback) {

@@ -298,6 +298,7 @@ public class AddTaskActivity extends AppCompatActivity {
 
         Task task = new Task();
         task.setId(UUID.randomUUID().toString());
+        task.setCreatedAt(System.currentTimeMillis());
         task.setName(name);
         task.setDescription(description);
         task.setCategoryId(selectedCategory.getId());

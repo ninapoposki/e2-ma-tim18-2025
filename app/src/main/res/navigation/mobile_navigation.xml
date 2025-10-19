@@ -32,6 +32,11 @@
             app:destination="@id/nav_profile" />
     </fragment>
     <fragment
+        android:id="@+id/nav_bossfight"
+        android:name="com.example.habitforge.presentation.activity.ui.bossfight.BossFightFragment"
+        android:label="@string/menu_bossfight"
+        tools:layout="@layout/fragment_boss_fight" />
+    <fragment
         android:id="@+id/nav_user_progress"
         android:name="com.example.habitforge.presentation.activity.ui.progress.UserProgressFragment"
         android:label="@string/menu_userProgress"
@@ -46,4 +51,6 @@
         android:name="com.example.habitforge.presentation.activity.ui.alliance.AllianceFragment"
         android:label="@string/menu_alliance"
         tools:layout="@layout/fragment_alliance" />
+
+
 </navigation>

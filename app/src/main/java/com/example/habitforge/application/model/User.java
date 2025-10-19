@@ -121,6 +121,19 @@ public class User {
     }
     public String getQrCode() { return qrCode; }
     public void setQrCode(String qrCode) { this.qrCode = qrCode; }
+
+    public List<UserEquipment> getActiveEquipment() {
+        List<UserEquipment> activeList = new ArrayList<>();
+        if (equipment != null) {
+            for (UserEquipment item : equipment) {
+                if (item.isActive()) {
+                    activeList.add(item);
+                }
+            }
+        }
+        return activeList;
+    }
+
     @Override
     public String toString() {
         return "User{" +

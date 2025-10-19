@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/pastel_cream">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <!-- Boss Header Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardBossHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/pastel_purple"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvBossTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Boss Level 1 🐉"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_500" />
+
+                <TextView
+                    android:id="@+id/tvHitChance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Hit chance: 67%"
+                    android:textSize="16sp"
+                    android:textColor="@color/gray" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Boss Image and HP Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardBoss"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardBossHeader">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/ivBoss"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:src="@drawable/boss_idle"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/tvBossHPLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Boss HP:"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/ivBoss" />
+
+                <TextView
+                    android:id="@+id/tvBossHP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="200 / 200"
+                    android:textSize="14sp"
+                    android:textColor="@color/red"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/tvBossHPLabel" />
+
+                <ProgressBar
+                    android:id="@+id/pbBossHP"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:max="100"
+                    android:progress="100"
+                    android:progressTint="@color/red"
+                    android:progressBackgroundTint="@color/gray"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvBossHPLabel" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- User Stats Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardUserStats"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardBoss">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvUserPowerLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your Power: ⚡"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/tvUserPower"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="120 PP"
+                    android:textSize="16sp"
+                    android:textColor="@color/purple_500"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ProgressBar
+                    android:id="@+id/pbUserPP"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="20dp"
+                    android:layout_marginTop="8dp"
+                    android:max="100"
+                    android:progress="80"
+                    android:progressTint="@color/blue"
+                    android:progressBackgroundTint="@color/gray"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvUserPowerLabel" />
+
+                <TextView
+                    android:id="@+id/tvEquipmentLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="Active Equipment:"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/pbUserPP" />
+
+                <HorizontalScrollView
+                    android:id="@+id/hsvEquipment"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tvEquipmentLabel">
+
+                    <LinearLayout
+                        android:id="@+id/llEquipmentIcons"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Attack Section Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAttack"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/pastel_purple"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardUserStats">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tvAttemptsLeft"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Attempts: 5/5"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_500" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAttack"
+                    android:layout_width="wrap_content"
+                    android:layout_height="64dp"
+                    android:layout_marginTop="12dp"
+                    android:text="⚔️ ATTACK!"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:paddingHorizontal="48dp"
+                    app:cornerRadius="32dp"
+                    app:backgroundTint="@color/purple_500" />
+
+                <TextView
+                    android:id="@+id/tvAttackResult"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text=""
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_500"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Reward Section Card (Initially Hidden) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardReward"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardAttack">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:gravity="center">
+
+                <ImageView
+                    android:id="@+id/ivChest"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:src="@drawable/new_chest_close"
+                    android:scaleType="fitCenter"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/tvShakePrompt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="🎉 Victory! Shake to open chest!"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_500"
+                    android:gravity="center" />
+
+                <LinearLayout
+                    android:id="@+id/llRewardContent"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tvCoinsReward"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+200 Coins 💰"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/purple_500" />
+
+                    <TextView
+                        android:id="@+id/tvItemReward"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text=""
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/purple_500" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnNextBoss"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Next Boss"
+                        app:cornerRadius="16dp"
+                        app:backgroundTint="@color/purple_500" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
