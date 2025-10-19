@@ -83,7 +83,7 @@ public class EquipmentFragment extends Fragment {
                         adapter.notifyItemChanged(position);
                     });
 //         OVAKO CE SE ISKORISTITI ODECA I SMANJICE TRAJANJE ZA 1
-           // userService.useClothing(currentUser, item.getEquipmentId(), () -> {
+//            userService.useAllActiveClothing(currentUser, () -> {
 //                adapter.notifyDataSetChanged();
 //            });
 

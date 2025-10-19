@@ -77,11 +77,15 @@
 package com.example.habitforge.data.firebase;
 
 
+import android.util.Log;
+
+import com.example.habitforge.application.model.UserEquipment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.example.habitforge.application.model.User;
@@ -114,6 +118,15 @@ public class UserRemoteDataSource {
                     .set(user);
         }
     }
+
+    public void addEquipmentItem(User user, UserEquipment newItem) {
+        db.collection("users")
+                .document(user.getUserId())
+                .update("equipment", FieldValue.arrayUnion(newItem))
+                .addOnSuccessListener(aVoid -> Log.d("Firestore", "✅ Equipment item added"))
+                .addOnFailureListener(e -> Log.e("Firestore", "❌ Failed to add equipment", e));
+    }
+
 
     // --- FIRESTORE: UZIMANJE KORISNIKA PO ID ---
     public void fetchUserDocument(String userId, OnCompleteListener<DocumentSnapshot> listener) {

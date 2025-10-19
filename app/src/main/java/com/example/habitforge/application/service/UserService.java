@@ -61,8 +61,8 @@ public class UserService {
     }
 
 //koriscenje odece
-    public void useClothing(User user, String equipmentId, Runnable onSuccess) {
-        userRepository.useClothing(user, equipmentId, onSuccess);
+    public void useAllActiveClothing(User user, Runnable onSuccess) {
+        userRepository.useAllActiveClothing(user, onSuccess);
     }
 //Nakon aktivacije jednokratnih napitaka, njihovo dejstvo će biti potrošeno u prvoj narednoj borbi sa bosom.
     public void useAllActivePotions(User user, Runnable onSuccess) {

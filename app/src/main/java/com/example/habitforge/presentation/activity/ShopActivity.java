@@ -19,6 +19,7 @@ import com.example.habitforge.application.model.UserEquipment;
 import com.example.habitforge.application.model.enums.EquipmentType;
 import com.example.habitforge.data.repository.UserRepository;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -118,7 +119,19 @@ public class ShopActivity extends AppCompatActivity {
             if (imageRes != 0) image.setImageResource(imageRes);
 
             buyButton.setOnClickListener(v -> {
-                if (currentUser == null) return;
+                String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                userRepository.getUserById(uid, new UserRepository.UserCallback() {
+                    @Override
+                    public void onSuccess(User user) {
+                        currentUser = user;
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        // obradi grešku
+                    }
+                });
+               // if (currentUser == null) return;
 
                 // 1️⃣ Proveri da li korisnik ima dovoljno novčića
                 long cena = (long) (currentUser.getCoins() * eq.getPriceMultiplier());
@@ -162,49 +175,16 @@ public class ShopActivity extends AppCompatActivity {
                         throw new IllegalStateException("Nepoznat tip opreme: " + eq.getType());
                 }
 
-                // 3️⃣ Dodaj opremu korisniku
+                //Dodaj opremu korisniku
                 userRepository.addEquipmentToUser(currentUser, newItem);
+               // userRepository.receiveEquipmentByBoss(currentUser, newItem);
 
-                // 4️⃣ Oduzmi novčiće i sačuvaj
+                //Oduzmi novčiće i sačuvaj
                 currentUser.setCoins((int) (currentUser.getCoins() - cena));
                 userRepository.updateUser(currentUser);
 
                 Toast.makeText(this, "Kupio si " + eq.getName() + "!", Toast.LENGTH_SHORT).show();
             });
-
-
-//            buyButton.setOnClickListener(v -> {
-//                // TODO: logika kupovine
-//                if (currentUser == null) return;
-//
-//                // 1️⃣ Proveri da li korisnik ima dovoljno novčića
-//                long cena = (long) (currentUser.getCoins() * eq.getPriceMultiplier());
-//                if (currentUser.getCoins() < cena) {
-//                    Toast.makeText(this, "Nemaš dovoljno novčića!", Toast.LENGTH_SHORT).show();
-//                    return;
-//                }
-//
-//                // 2️⃣ Napravi UserEquipment objekat iz Equipment-a
-//                UserEquipment newItem = new UserEquipment(
-//                        eq.getName(),              // id opreme
-//                        eq.getType(),            // EquipmentType
-//                        1,                       // amount (početna količina)
-//                        false,                   // active (nije aktivna odmah po kupovini)
-//                        eq.getDuration(),        // trajanje ako postoji
-//                        1,           // level opreme
-//                        eq.getBonus()            // effect (bonus koji daje)
-//                );
-//
-//                // 3️⃣ Dodaj opremu korisniku
-//                userRepository.addEquipmentToUser(currentUser, newItem);
-//
-//                // 4️⃣ Oduzmi novčiće i sačuvaj u bazi
-//                currentUser.setCoins((int) (currentUser.getCoins() - cena));
-//
-//                userRepository.updateUser(currentUser);
-//
-//                Toast.makeText(this, "Kupio si " + eq.getName() + "!", Toast.LENGTH_SHORT).show();
-//            });
 
             equipmentContainer.addView(itemView);
         }

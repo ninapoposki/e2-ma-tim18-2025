@@ -2,6 +2,7 @@ package com.example.habitforge.data.repository;
 
 import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.habitforge.application.model.UserEquipment;
 import com.example.habitforge.application.model.enums.EquipmentType;
@@ -142,11 +143,44 @@ public class UserRepository {
 
                 // Badges i Equipment
                 cloudUser.setBadges(snapshot.contains("badges") ? (List<String>) snapshot.get("badges") : new ArrayList<>());
-                cloudUser.setEquipment(
-                        snapshot.contains("userEquipment")
-                                ? (List<UserEquipment>) snapshot.get("userEquipment")
-                                : new ArrayList<>()
-                );
+//                cloudUser.setEquipment(
+//                        snapshot.contains("userEquipment")
+//                                ? (List<UserEquipment>) snapshot.get("userEquipment")
+//                                : new ArrayList<>()
+//                );
+
+                if (snapshot.contains("equipment")) {
+                    List<Map<String, Object>> rawList = (List<Map<String, Object>>) snapshot.get("equipment");
+                    List<UserEquipment> parsedList = new ArrayList<>();
+
+                    if (rawList != null) {
+                        for (Map<String, Object> map : rawList) {
+                            try {
+                                UserEquipment eq = new UserEquipment();
+                                eq.setId((String) map.get("id"));
+                                eq.setEquipmentId((String) map.get("equipmentId"));
+                                eq.setType(EquipmentType.valueOf((String) map.get("type")));
+                                if (map.get("duration") != null)
+                                    eq.setDuration(((Long) map.get("duration")).intValue());
+                                if (map.get("effect") != null)
+                                    eq.setEffect((Double) map.get("effect"));
+                                if (map.get("level") != null)
+                                    eq.setLevel(((Long) map.get("level")).intValue());
+                                if (map.get("active") != null)
+                                    eq.setActive((Boolean) map.get("active"));
+                                if (map.get("usedInNextBossFight") != null)
+                                    eq.setUsedInNextBossFight((Boolean) map.get("usedInNextBossFight"));
+                                parsedList.add(eq);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                    cloudUser.setEquipment(parsedList);
+                } else {
+                    cloudUser.setEquipment(new ArrayList<>());
+                }
 
                 // Sačuvaj u lokalnu bazu
                // localDb.insertUser(cloudUser);
@@ -176,44 +210,45 @@ public class UserRepository {
 
         // Svaki predmet dodajemo kao poseban objekat
         equipmentList.add(item);
-
-        user.setEquipment(equipmentList);
-        updateUser(user);
+        //user.getEquipment().add(item);
+       // user.setEquipment(equipmentList);
+        remoteDb.addEquipmentItem(user, item);
+        //updateUser(user);
     }
-    public void useClothing(User user, String equipmentId, Runnable onSuccess) {
+
+    public void useAllActiveClothing(User user, Runnable onSuccess) {
         if (user == null || user.getEquipment() == null) return;
 
         List<UserEquipment> equipmentList = user.getEquipment();
+        boolean changed = false;
 
+        // prolazimo kroz sve aktivne CLOTHING
         for (int i = 0; i < equipmentList.size(); i++) {
             UserEquipment item = equipmentList.get(i);
 
-            if (item.getEquipmentId().equals(equipmentId) && item.getType() == EquipmentType.CLOTHING) {
-                // Umanji trajanje
+            if (item.getType() == EquipmentType.CLOTHING && item.isActive()) {
+                // umanji trajanje
                 item.setDuration(item.getDuration() - 1);
+                changed = true;
 
-                // Ako je duration 0, izbriši
+                // ako je duration pao na 0 ili manje, ukloni
                 if (item.getDuration() <= 0) {
                     equipmentList.remove(i);
+                    i--; // obavezno smanji i, jer se lista pomerila
                 }
+            }
+        }
 
-                // Snimi izmenjenog korisnika u Firestore
-                try {
-                    remoteDb.saveUserDocument(user);
-
-                    // Pokreni callback da fragment može da osveži UI
-                    if (onSuccess != null) {
-                        onSuccess.run();
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                break; // prekid jer smo našli oružje
+        if (changed) {
+            try {
+                remoteDb.saveUserDocument(user); // snimi izmene
+                if (onSuccess != null) onSuccess.run(); // callback za UI osveženje
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
+
 
     public void useAllActivePotions(User user, Runnable onSuccess) {
         if (user == null || user.getEquipment() == null) return;
@@ -240,84 +275,74 @@ public class UserRepository {
     }
 
 
-//    public void addEquipmentToUser(User user, UserEquipment item) {
-//        Map<String, UserEquipment> eqMap = user.getUserEquipment();
-//
-//        if (eqMap.containsKey(item.getId())) {
-//            UserEquipment existing = eqMap.get(item.getId());
-//
-//            switch (item.getType()) {
-//                case POTION:
-//                    // 👉 samo povećaj količinu
-//                    existing.setAmount(existing.getAmount() + item.getAmount());
-//                    break;
-//
-//                case CLOTHING:
-//                    // ako korisnik ima istu odeću, efekat se sabira
-//                    existing.setEffect(existing.getEffect() + item.getEffect());
-//                    existing.setDuration(Math.max(existing.getDuration(), item.getDuration()));
-//                    break;
-//
-//                case WEAPON:
-//                    // unapređenje oružja — povećaj level i malo efekat
-//                    existing.setLevel(existing.getLevel() + 1);
-//                    existing.setEffect(existing.getEffect() + item.getEffect() * 0.01);
-//                    break;
-//            }
-//
-//            eqMap.put(existing.getId(), existing);
-//
-//        } else {
-//            eqMap.put(item.getId(), item);
-//        }
-//        user.setUserEquipment(eqMap);
-//        updateUser(user);
-//
-//    }
+    // Metoda koja dodaje oružje od bossa
+    public void receiveEquipmentByBoss(User user, UserEquipment newItem) {
+        if (user == null || newItem == null) return;
+
+        List<UserEquipment> equipmentList = user.getEquipment();
+        boolean found = false;
+
+        switch (newItem.getType()) {
+            case POTION:
+                // Dodaj napitak kao novi item, nema posebnih pravila
+                equipmentList.add(newItem);
+                break;
+
+            case CLOTHING:
+                // Trenutno dodajemo kao novi item
+                equipmentList.add(newItem);
+                break;
+
+            case WEAPON:
+                // Proveri da li korisnik već ima ovo oružje
+                for (UserEquipment eq : equipmentList) {
+                    if (eq.getEquipmentId().equals(newItem.getEquipmentId())) {
+                        // Već ima ovo oružje → povećaj efekat za 0.02%
+                        eq.setEffect(eq.getEffect() + 0.0002);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    // Dodaj novo oružje
+                    equipmentList.add(newItem);
+                }
+                break;
+        }
+        //user.setEquipment(equipmentList);
+
+        // Sačuvaj promene u Firebase
+        remoteDb.addEquipmentItem(user, newItem);
+    }
 
 
-    // --- GET USER BY EMAIL ---
-//    public void getUserByEmail(String email, UserCallback callback) {
-//        // prvo iz lokalne baze
-//        User cachedUser = localDb.getUserByEmail(email);
-//        if (cachedUser != null) {
-//            callback.onSuccess(cachedUser);
-//            return;
-//        }
-//
-//        // iz Firestore
-//        remoteDb.fetchUserByEmail(email, remoteTask -> {
-//            if (remoteTask.isSuccessful() && remoteTask.getResult() != null && !remoteTask.getResult().isEmpty()) {
-//                User cloudUser = remoteTask.getResult().getDocuments().get(0).toObject(User.class);
-//                if (cloudUser != null) {
-//                    localDb.insertUser(cloudUser);
-//                    callback.onSuccess(cloudUser);
-//                } else {
-//                    callback.onFailure(new Exception("User not found"));
-//                }
-//            } else {
-//                callback.onFailure(remoteTask.getException());
-//            }
-//        });
-//    }
+    // Metoda za unapređenje oružja
+    public void upgradeWeapon(User user, UserEquipment weapon, int potentialCoinsFromBoss) {
+        if (user == null || weapon == null) return;
+
+        int cost = (int)(0.6 * potentialCoinsFromBoss);
+
+        if (user.getCoins() < cost) {
+            // Nema dovoljno novčića
+            //Toast.makeText(context, "Nemaš dovoljno novčića za unapređenje!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Oduzmi novčiće
+        user.setCoins(user.getCoins() - cost);
+
+        // Povećaj efekat i level
+        weapon.setEffect(weapon.getEffect() + 0.0001);
+        weapon.setLevel(weapon.getLevel() + 1);
+
+        // Sačuvaj promene
+        remoteDb.addEquipmentItem(user, weapon);
+      //  userRepository.updateUser(user); // ili update cele liste
+    }
 
 
-    // --- AKTIVACIJA ---
-//    public void setUserActivated(String userId, boolean active) {
-//        // update lokalno
-//        User u = localDb.getUserById(userId);
-//        if (u != null) {
-//            u.setActive(active);
-//            localDb.updateUser(u);
-//        }
-//
-//        // update u Firestore
-//        remoteDb.updateUserActivation(userId, active, result -> {
-//            if (!result.isSuccessful()) {
-//                Log.e("UserRepo", "Failed to update activation status", result.getException());
-//            }
-//        });
-//    }
+
+
 
     // --- SVI KORISNICI ---
     public void getAllUsers(UserListCallback callback) {
