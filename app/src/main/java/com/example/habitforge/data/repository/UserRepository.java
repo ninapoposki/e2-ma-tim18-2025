@@ -140,7 +140,8 @@ public class UserRepository {
                 cloudUser.setExperiencePoints(snapshot.contains("experiencePoints") ? snapshot.getLong("experiencePoints").intValue() : 0);
                 cloudUser.setPowerPoints(snapshot.contains("powerPoints") ? snapshot.getLong("powerPoints").intValue() : 0);
                 cloudUser.setCoins(snapshot.contains("coins") ? snapshot.getLong("coins").intValue() : 0);
-
+                String allianceId = snapshot.getString("allianceId");
+                cloudUser.setAllianceId(allianceId != null ? allianceId : "");
                 // Title
                 String title = snapshot.getString("title");
                 cloudUser.setTitle(title != null && !title.isEmpty() ? title : "Beginner");
@@ -746,6 +747,26 @@ public class UserRepository {
                 .collection("allianceInvites")
                 .add(invite)
                 .addOnCompleteListener(task -> callback.onComplete(task.isSuccessful()));
+    }
+
+    public void getAllianceById(String allianceId, AlliancePageCallback callback) {
+        remoteDb.getFirestore().collection("alliances")
+                .document(allianceId)
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        Alliance alliance = document.toObject(Alliance.class);
+                        callback.onSuccess(alliance);
+                    } else {
+                        callback.onFailure(new Exception("Alliance not found"));
+                    }
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public interface AlliancePageCallback {
+        void onSuccess(Alliance alliance);
+        void onFailure(Exception e);
     }
 
 

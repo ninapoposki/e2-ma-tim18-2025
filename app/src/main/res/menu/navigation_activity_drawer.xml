@@ -25,5 +25,9 @@
             android:id="@+id/nav_friend_request"
             android:icon="@drawable/ic_menu_equipment"
             android:title="Friend requests"/>
+        <item
+            android:id="@+id/nav_alliance"
+            android:icon="@drawable/ic_menu_equipment"
+            android:title="Alliance"/>
     </group>
 </menu>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_alliance"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <!-- Ime saveza -->
+    <TextView
+        android:id="@+id/text_alliance_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Alliance Name"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"/>
+
+    <!-- Lider saveza -->
+    <TextView
+        android:id="@+id/text_leader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Leader: "
+        android:textSize="16sp"
+        android:paddingBottom="4dp"/>
+
+    <!-- Članovi saveza -->
+    <TextView
+        android:id="@+id/text_members"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Members: "
+        android:textSize="16sp"
+        android:paddingBottom="16dp"/>
+
+    <!-- Separator -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- Lista poruka (RecyclerView za chat) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_alliance_messages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical"/>
+
+    <!-- Polje za unos poruke -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="8dp">
+
+        <EditText
+            android:id="@+id/edit_message"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="Type a message"/>
+
+        <Button
+            android:id="@+id/button_send_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send"/>
+    </LinearLayout>
+
+</LinearLayout>
