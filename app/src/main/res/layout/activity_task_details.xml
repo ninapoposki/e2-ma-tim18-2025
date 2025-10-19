@@ -1,73 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp">
+    tools:context=".presentation.activity.TaskDetailsActivity">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <!-- 🔹 POZADINSKA SLIKA -->
+    <ImageView
+        android:id="@+id/background_image"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal">
+        android:layout_height="match_parent"
+        android:src="@drawable/main_bg"
+        android:scaleType="centerCrop"
+        android:alpha="0.4" />
 
-        <TextView
-            android:id="@+id/taskName"
-            android:layout_width="wrap_content"
+    <!-- 🔹 SADRŽAJ (ScrollView da može da se skroluje) -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Task name"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:textColor="@color/black"
-            android:layout_marginBottom="8dp" />
+            android:gravity="center">
 
-        <TextView
-            android:id="@+id/taskDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Opis zadatka..."
-            android:textSize="16sp"
-            android:layout_marginBottom="12dp" />
+            <!-- 🔹 Glavna kartica -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="6dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/purple_200"
+                android:backgroundTint="@color/pastel_cream"
+                android:padding="20dp"
+                android:layout_marginTop="90sp">
 
-        <TextView
-            android:id="@+id/taskDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="📅 Datum: "
-            android:textSize="16sp"
-            android:layout_marginBottom="8dp" />
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    >
 
-        <TextView
-            android:id="@+id/taskTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="⏰ Vreme: "
-            android:textSize="16sp"
-            android:layout_marginBottom="8dp" />
+                    <TextView
+                        android:id="@+id/taskName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Task name"
+                        android:textStyle="bold"
+                        android:textSize="22sp"
+                        android:textColor="@color/dark_bg"
+                        android:layout_marginTop="10dp" />
 
-        <TextView
-            android:id="@+id/taskXp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="⭐ XP: "
-            android:textSize="16sp"
-            android:layout_marginBottom="8dp" />
+                    <TextView
+                        android:id="@+id/taskDescription"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Opis zadatka..."
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_bg"
+                        android:layout_marginBottom="8sp" />
 
-        <TextView
-            android:id="@+id/taskStatus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Status: "
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_marginBottom="20dp" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@color/purple_100"
+                        android:layout_marginBottom="14dp" />
 
-        <Button
-            android:id="@+id/changeStatusBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="✏️ Promeni status"
-            android:backgroundTint="@color/purple_200"
-            android:textColor="@color/white" />
+                    <TextView
+                        android:id="@+id/taskDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📅 Datum: 12.10.2025."
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_bg"
+                        android:layout_marginBottom="6dp" />
 
-    </LinearLayout>
-</ScrollView>
+                    <TextView
+                        android:id="@+id/taskTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⏰ Vreme: 08:30"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_bg"
+                        android:layout_marginBottom="6dp" />
+
+                    <TextView
+                        android:id="@+id/taskXp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="⭐ XP: 50"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_bg"
+                        android:layout_marginBottom="6dp" />
+
+                    <TextView
+                        android:id="@+id/taskStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Status: 🟢 ACTIVE"
+                        android:textStyle="bold"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_bg"
+                        android:layout_marginBottom="16dp" />
+
+                    <Button
+                        android:id="@+id/changeStatusBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="✏️ Change status"
+                        android:textStyle="bold"
+                        android:backgroundTint="@color/purple_400"
+                        android:textColor="@color/white"
+                        android:paddingHorizontal="20dp"
+                        android:paddingVertical="10dp"
+                        android:layout_marginBottom="10sp"
+                        android:elevation="2dp" />
+
+                    <!-- 🔹 View more dugme u gornjem desnom uglu kartice -->
+                    <TextView
+                        android:id="@+id/btnViewMore"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="View more ›"
+                        android:textStyle="bold"
+                        android:textColor="@color/purple_400"
+                        android:textSize="14sp"
+                        android:background="@drawable/view_more_bg"
+                        android:paddingHorizontal="14dp"
+                        android:paddingVertical="6dp"
+                        android:layout_gravity="end"
+                        android:elevation="3dp"
+                        android:layout_marginBottom="10dp" />
+
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

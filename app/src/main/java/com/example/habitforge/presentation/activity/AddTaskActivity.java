@@ -12,6 +12,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import com.example.habitforge.application.session.SessionManager;
 
 import com.example.habitforge.R;
 import com.example.habitforge.application.model.Category;
@@ -23,6 +24,7 @@ import com.example.habitforge.application.model.enums.TaskStatus;
 import com.example.habitforge.application.model.enums.TaskType;
 import com.example.habitforge.application.service.CategoryService;
 import com.example.habitforge.application.service.TaskService;
+import com.example.habitforge.application.util.EnumMapper;
 import com.example.habitforge.presentation.adapter.CategorySpinnerAdapter;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
@@ -91,10 +93,10 @@ public class AddTaskActivity extends AppCompatActivity {
 
         btnSaveTask.setOnClickListener(v -> saveTask());
 
-        Button viewTasksBtn = findViewById(R.id.btnViewTasks);
-        viewTasksBtn.setOnClickListener(v ->
-                startActivity(new Intent(AddTaskActivity.this, TaskCalendarActivity.class))
-        );
+//        Button viewTasksBtn = findViewById(R.id.btnViewTasks);
+//        viewTasksBtn.setOnClickListener(v ->
+//                startActivity(new Intent(AddTaskActivity.this, TaskCalendarActivity.class))
+//        );
 
     }
 
@@ -144,21 +146,35 @@ public class AddTaskActivity extends AppCompatActivity {
         return true;
     }
     private void setupSpinners() {
-        ArrayAdapter<TaskDifficulty> diffAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_item, TaskDifficulty.values());
+        // 🔹 Difficulty spinner
+        List<String> difficultyLabels = new ArrayList<>();
+        for (TaskDifficulty d : TaskDifficulty.values()) {
+            difficultyLabels.add(EnumMapper.getDifficultyLabel(d));
+        }
+
+        ArrayAdapter<String> diffAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, difficultyLabels);
         diffAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerDifficulty.setAdapter(diffAdapter);
 
-        ArrayAdapter<TaskPriority> priorityAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_item, TaskPriority.values());
+        // 🔹 Priority spinner
+        List<String> priorityLabels = new ArrayList<>();
+        for (TaskPriority p : TaskPriority.values()) {
+            priorityLabels.add(EnumMapper.getPriorityLabel(p));
+        }
+
+        ArrayAdapter<String> priorityAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, priorityLabels);
         priorityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerPriority.setAdapter(priorityAdapter);
 
+        // 🔹 Recurrence unit
         ArrayAdapter<RecurrenceUnit> recurrenceAdapter = new ArrayAdapter<>(
                 this, android.R.layout.simple_spinner_item, RecurrenceUnit.values());
         recurrenceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerRecurrenceUnit.setAdapter(recurrenceAdapter);
     }
+
 
     private void setupTaskTypeToggle() {
         rgTaskType.setOnCheckedChangeListener((group, checkedId) -> {
@@ -259,8 +275,26 @@ public class AddTaskActivity extends AppCompatActivity {
         }
 
         Category selectedCategory = categories.get(categoryIndex);
-        TaskDifficulty difficulty = (TaskDifficulty) spinnerDifficulty.getSelectedItem();
-        TaskPriority priority = (TaskPriority) spinnerPriority.getSelectedItem();
+//        TaskDifficulty difficulty = (TaskDifficulty) spinnerDifficulty.getSelectedItem();
+//        TaskPriority priority = (TaskPriority) spinnerPriority.getSelectedItem();
+        String difficultyLabel = (String) spinnerDifficulty.getSelectedItem();
+        TaskDifficulty difficulty = null;
+        for (TaskDifficulty d : TaskDifficulty.values()) {
+            if (EnumMapper.getDifficultyLabel(d).equals(difficultyLabel)) {
+                difficulty = d;
+                break;
+            }
+        }
+
+        String priorityLabel = (String) spinnerPriority.getSelectedItem();
+        TaskPriority priority = null;
+        for (TaskPriority p : TaskPriority.values()) {
+            if (EnumMapper.getPriorityLabel(p).equals(priorityLabel)) {
+                priority = p;
+                break;
+            }
+        }
+
 
         Task task = new Task();
         task.setId(UUID.randomUUID().toString());
@@ -270,7 +304,16 @@ public class AddTaskActivity extends AppCompatActivity {
         task.setDifficulty(difficulty);
         task.setPriority(priority);
         task.calculateXp();
-        task.setUserId("demoUser");
+        SessionManager sessionManager = new SessionManager(this);
+        String userId = sessionManager.getUserId();
+        task.setStatus(TaskStatus.ACTIVE); //inicijalno pri kreiranju je aktivan
+
+
+        if (userId != null) {
+            task.setUserId(userId);
+        } else {
+            task.setUserId("unknownUser");
+        }
 
         if (selectedType == R.id.rbOneTime) {
             if (selectedExecutionTime == 0) {
@@ -312,7 +355,6 @@ public class AddTaskActivity extends AppCompatActivity {
             task.setRecurringInterval(interval);
             task.setRecurrenceUnit((RecurrenceUnit) spinnerRecurrenceUnit.getSelectedItem());
             task.setTaskType(TaskType.RECURRING);
-            task.setStatus(TaskStatus.ACTIVE); //inicijalno pri kreiranju je aktivan
 
         }
 

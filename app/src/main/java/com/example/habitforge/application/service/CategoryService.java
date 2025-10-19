@@ -70,7 +70,8 @@ public void addCategory(Category category, OnCompleteListener<Void> callback) {
         return;
     }
 
-    // ⚡ Umesto da se oslanjamo na lokalnu bazu, čitamo direktno iz Firestore-a
+
+
     categoryRepository.getRemoteDb().fetchAllCategories(remoteTask -> {
         if (remoteTask.isSuccessful() && remoteTask.getResult() != null) {
             boolean colorExists = false;
@@ -98,9 +99,6 @@ public void addCategory(Category category, OnCompleteListener<Void> callback) {
         }
     });
 }
-
-
-
 
 
 
@@ -143,4 +141,8 @@ public void addCategory(Category category, OnCompleteListener<Void> callback) {
     public void getAllCategories(OnCompleteListener<List<Category>> callback) {
         categoryRepository.getAllCategories(callback);
     }
+//    public void getCategoryByIdWithoutSave(String id, OnCompleteListener<Category> callback) {
+//        categoryRepository.getRemoteDb().getCategoryById(id, callback);
+//    }
+
 }

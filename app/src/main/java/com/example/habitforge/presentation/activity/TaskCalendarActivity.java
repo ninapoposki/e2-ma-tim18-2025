@@ -84,7 +84,7 @@ public class TaskCalendarActivity extends AppCompatActivity {
                         Task selectedTask = dayTasks.get(which);
 
                         Intent intent = new Intent(TaskCalendarActivity.this, TaskDetailsActivity.class);
-                        intent.putExtra("task", selectedTask); // radi samo ako Task implements Serializable
+                        intent.putExtra("taskId", selectedTask.getId()); // radi samo ako Task implements Serializable
                         android.util.Log.i("Calendar", "➡ Opening details for: " + selectedTask.getName());
                         startActivity(intent);
                     })
@@ -102,29 +102,27 @@ public class TaskCalendarActivity extends AppCompatActivity {
             List<Task> tasks = taskListTask.getResult();
             runOnUiThread(() -> calendarView.removeDecorators());
             taskMap.clear();
-            Map<CalendarDay, Integer> categoryColors = new HashMap<>();
 
             for (Task t : tasks) {
 
                 int colorInt = getCategoryColorById(t.getCategoryId());
                 String name = t.getName();
 
+                // 🚫 Ako je ONE_TIME i obrisan, preskoči
+                if (t.getTaskType() == TaskType.ONE_TIME &&
+                        t.getStatus() == com.example.habitforge.application.model.enums.TaskStatus.CANCELED)
+                    continue;
+
                 if (t.getTaskType() == TaskType.ONE_TIME) {
                     LocalDate date = Instant.ofEpochMilli(t.getExecutionTime())
                             .atZone(ZoneId.systemDefault())
                             .toLocalDate();
+
                     CalendarDay day = CalendarDay.from(date);
-
-                    // dodaj u mapu
                     taskMap.computeIfAbsent(day, k -> new java.util.ArrayList<>()).add(t);
+                    calendarView.addDecorator(new TaskDecorator(colorInt, day, name, false, false));
 
-                    java.text.SimpleDateFormat timeFormat = new java.text.SimpleDateFormat("HH:mm");
-                    String timeString = timeFormat.format(t.getExecutionTime());
-                    String displayName = t.getName() + " — " + timeString;
-
-                    calendarView.addDecorator(new TaskDecorator(colorInt, day, displayName, false, false));
-
-                } else {
+                } else { // 🔁 Recurring
                     LocalDate start = Instant.ofEpochMilli(t.getRecurringStart())
                             .atZone(ZoneId.systemDefault())
                             .toLocalDate();
@@ -133,19 +131,43 @@ public class TaskCalendarActivity extends AppCompatActivity {
                             .atZone(ZoneId.systemDefault())
                             .toLocalDate();
 
-                    // samo start dan
-                    CalendarDay startDay = CalendarDay.from(start);
-                    taskMap.computeIfAbsent(startDay, k -> new java.util.ArrayList<>()).add(t);
-                    calendarView.addDecorator(new TaskDecorator(colorInt, startDay, name, true, false));
+                    LocalDate today = LocalDate.now();
 
-                    if (!end.isEqual(start)) {
-                        CalendarDay endDay = CalendarDay.from(end);
-                        taskMap.computeIfAbsent(endDay, k -> new java.util.ArrayList<>()).add(t);
-                        calendarView.addDecorator(new TaskDecorator(colorInt, endDay, name, false, true));
+                    // 🔹 Ako je obrisan (CANCELED), prikaži samo do trenutnog kraja (recurringEnd)
+                    // 🔹 Ako NIJE obrisan, prikaži sve do stvarnog kraja (može biti i u budućnosti)
+                    LocalDate visibleEnd = end;
+                    if (t.getStatus() == com.example.habitforge.application.model.enums.TaskStatus.CANCELED
+                            && end.isAfter(today)) {
+                        visibleEnd = today; // ako je obrisan, ne idemo posle dana brisanja
                     }
 
+                    int interval = t.getRecurringInterval() > 0 ? t.getRecurringInterval() : 1;
+                    String unit = t.getRecurrenceUnit() != null ? t.getRecurrenceUnit().name() : "DAY";
+
+                    LocalDate current = start;
+
+                    while (!current.isAfter(visibleEnd)) {
+                        CalendarDay day = CalendarDay.from(current);
+                        taskMap.computeIfAbsent(day, k -> new java.util.ArrayList<>()).add(t);
+                        calendarView.addDecorator(new TaskDecorator(colorInt, day, name, false, false));
+
+                        switch (unit) {
+                            case "DAY":
+                                current = current.plusDays(interval);
+                                break;
+                            case "WEEK":
+                                current = current.plusWeeks(interval);
+                                break;
+                            default:
+                                current = current.plusDays(interval);
+                        }
+                    }
                 }
             }
+        });
+    }
+
+
 
 
 
@@ -156,8 +178,8 @@ public class TaskCalendarActivity extends AppCompatActivity {
 //                    );
 //                }
 //            });
-        });
-    }
+//        });
+//    }
 
     private int getCategoryColorById(String categoryId) {
         if (categoryId == null) {

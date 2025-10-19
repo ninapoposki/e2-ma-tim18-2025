@@ -3,6 +3,7 @@ package com.example.habitforge.data.repository;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.habitforge.application.session.SessionManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
@@ -252,6 +253,39 @@ public class UserRepository {
             });
         }
     }
+
+    // --- DODAJ XP KORISNIKU ---
+    public void addExperienceToUser(Context context, int gainedXp, OnCompleteListener<Void> callback) {
+        SessionManager sessionManager = new SessionManager(context);
+        String userId = sessionManager.getUserId();
+
+        if (userId == null) {
+            Log.e("UserRepo", "No logged user found for XP update.");
+            return;
+        }
+
+        remoteDb.fetchUserDocument(userId, remoteTask -> {
+            if (remoteTask.isSuccessful() && remoteTask.getResult() != null && remoteTask.getResult().exists()) {
+                DocumentSnapshot doc = remoteTask.getResult();
+                int currentXp = doc.contains("experiencePoints") ? doc.getLong("experiencePoints").intValue() : 0;
+                int newXp = currentXp + gainedXp;
+
+                // Ažuriraj XP u Firestore
+                remoteDb.getFirestore()
+                        .collection("users")
+                        .document(userId)
+                        .update("experiencePoints", newXp)
+                        .addOnSuccessListener(aVoid -> {
+                            Log.i("UserRepo", "✅ XP updated: " + newXp);
+                            callback.onComplete(null);
+                        })
+                        .addOnFailureListener(e -> Log.e("UserRepo", "❌ XP update failed", e));
+            } else {
+                Log.e("UserRepo", "User not found in Firestore for XP update.");
+            }
+        });
+    }
+
     public interface UserCallback {
         void onSuccess(User user);
         void onFailure(Exception e);

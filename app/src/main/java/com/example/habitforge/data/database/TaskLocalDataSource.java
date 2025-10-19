@@ -44,7 +44,9 @@ public class TaskLocalDataSource {
         cv.put("xp", task.getXp());
         cv.put("status", task.getStatus() != null ? task.getStatus().name() : null);
 
-        db.insert(DatabaseHelper.T_TASKS, null, cv);
+//        db.insert(DatabaseHelper.T_TASKS, null, cv);
+        db.insertWithOnConflict(DatabaseHelper.T_TASKS, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+
         db.close();
     }
 
