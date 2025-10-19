@@ -17,5 +17,10 @@
             android:id="@+id/nav_user_list"
             android:icon="@drawable/ic_menu_equipment"
             android:title="Other users"/>
+
+        <item
+            android:id="@+id/nav_bossfight"
+            android:icon="@drawable/swords"
+            android:title="Boss Fight"/>
     </group>
 </menu>

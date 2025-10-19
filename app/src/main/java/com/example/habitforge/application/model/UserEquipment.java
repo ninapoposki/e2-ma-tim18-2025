@@ -79,4 +79,17 @@ public class UserEquipment {
     public String getEquipmentId() { return equipmentId; }
     public void setEquipmentId(String equipmentId) { this.equipmentId = equipmentId; }
 
+//    public int getPowerBonus() {
+//        // ako je efekat izrazen ako procenat(npr. 0.1 = +10%)
+//        // Za jednostavno testiranje možeš vratiti efekat u integer obliku:
+//        return (int) (effect * 100);
+//    }
+
+    public int getPowerBonus() {
+        return (int) (effect * 100);
+    }
+
+
+
+
 }

@@ -24,8 +24,10 @@ public class TaskService {
         if(task.getUserId()==null||task.getUserId().trim().isEmpty()){
             throw new IllegalArgumentException("Task must be linked to a user!");
         }
-        task.calculateXp();
-        taskRepository.addTask(task,callback);
+//        task.calculateXp();
+//        taskRepository.addTask(task,callback);
+        taskRepository.addTaskWithQuotaCheck(task, callback);
+
     }
 
     public void editTask(Task task,OnCompleteListener<Void> callback) {

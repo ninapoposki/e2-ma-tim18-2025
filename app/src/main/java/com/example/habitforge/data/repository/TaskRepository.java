@@ -1,15 +1,21 @@
 package com.example.habitforge.data.repository;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.habitforge.application.model.Task;
+import com.example.habitforge.application.model.enums.TaskDifficulty;
+import com.example.habitforge.application.model.enums.TaskPriority;
 import com.example.habitforge.data.database.TaskLocalDataSource;
 import com.example.habitforge.data.firebase.TaskRemoteDataSource;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class TaskRepository {
@@ -124,6 +130,82 @@ public class TaskRepository {
             }
         });
     }
+    // --- CHECK QUOTA BEFORE ADDING TASK ---
+    public void addTaskWithQuotaCheck(Task task, OnCompleteListener<Void> callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        int quota = getQuotaForTask(task);
+        long startOfPeriod = getStartOfPeriod(task);
+
+        db.collection("users")
+                .document(task.getUserId())
+                .collection("tasks")
+                .whereEqualTo("difficulty", task.getDifficulty().name())
+                .whereEqualTo("priority", task.getPriority().name())
+                .whereGreaterThanOrEqualTo("createdAt", startOfPeriod)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    // ✅ LOG mora biti ovde
+                    Log.d("TaskQuota", "Found " + querySnapshot.size() + " tasks for "
+                            + task.getDifficulty() + " + " + task.getPriority());
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        Log.d("TaskQuota", "Existing task ID: " + doc.getId());
+                    }
+
+                    int existingCount = querySnapshot.size();
+                    boolean exceeds = existingCount >= quota;
+                    task.setExceedsQuota(exceeds);
+
+                    if (!exceeds) {
+                        task.calculateXp();
+                    } else {
+                        task.setXp(0);
+                    }
+
+                    addTask(task, callback);
+                })
+                .addOnFailureListener(e -> {
+                    task.setExceedsQuota(false);
+                    task.calculateXp();
+                    addTask(task, callback);
+                });
+    }
+
+
+    /** Quota limits based on difficulty + priority */
+    private int getQuotaForTask(Task task) {
+        TaskDifficulty difficulty = task.getDifficulty();
+        TaskPriority priority = task.getPriority();
+
+        if ((difficulty == TaskDifficulty.VERY_EASY && priority == TaskPriority.NORMAL) ||
+                (difficulty == TaskDifficulty.EASY && priority == TaskPriority.IMPORTANT)) {
+            return 5; // per day
+        } else if (difficulty == TaskDifficulty.HARD && priority == TaskPriority.EXTREMELY_IMPORTANT) {
+            return 2; // per day
+        } else if (difficulty == TaskDifficulty.EXTREMELY_HARD) {
+            return 1; // per week
+        } else if (priority == TaskPriority.SPECIAL) {
+            return 1; // per month
+        }
+        return 5;
+    }
+
+    /** Time range for quota evaluation */
+    private long getStartOfPeriod(Task task) {
+        Calendar cal = Calendar.getInstance();
+        TaskDifficulty difficulty = task.getDifficulty();
+        TaskPriority priority = task.getPriority();
+
+        if (difficulty == TaskDifficulty.EXTREMELY_HARD) {
+            cal.add(Calendar.DAY_OF_YEAR, -7);
+        } else if (priority == TaskPriority.SPECIAL) {
+            cal.add(Calendar.MONTH, -1);
+        } else {
+            cal.add(Calendar.DAY_OF_YEAR, -1);
+        }
+        return cal.getTimeInMillis();
+    }
+
 
 
 

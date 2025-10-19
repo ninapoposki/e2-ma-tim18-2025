@@ -31,4 +31,10 @@
             android:id="@+id/action_userListFragment_to_galleryFragment"
             app:destination="@id/nav_profile" />
     </fragment>
+    <fragment
+        android:id="@+id/nav_bossfight"
+        android:name="com.example.habitforge.presentation.activity.ui.bossfight.BossFightFragment"
+        android:label="@string/menu_bossfight"
+        tools:layout="@layout/fragment_boss_fight" />
+
 </navigation>

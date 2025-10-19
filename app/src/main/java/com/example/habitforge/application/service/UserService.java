@@ -3,12 +3,16 @@ package com.example.habitforge.application.service;
 import android.content.Context;
 
 import com.example.habitforge.application.model.User;
+import com.example.habitforge.application.model.UserEquipment;
 import com.example.habitforge.application.session.SessionManager;
 import com.example.habitforge.data.database.UserLocalDataSource;
 import com.example.habitforge.data.repository.UserRepository;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserService {
     private final UserRepository userRepository;
@@ -68,5 +72,20 @@ public class UserService {
     public void useAllActivePotions(User user, Runnable onSuccess) {
         userRepository.useAllActivePotions(user, onSuccess);
     }
+
+
+    //za fight sa bossom
+    public void getUserById(String userId, UserRepository.UserCallback callback) {
+        userRepository.getUserById(userId, callback);
+    }
+    public void getSuccessRate(String userId, UserRepository.SuccessRateCallback callback) {
+        userRepository.getUserSuccessRate(userId, callback);
+    }
+
+
+
+
+
+
 
 }

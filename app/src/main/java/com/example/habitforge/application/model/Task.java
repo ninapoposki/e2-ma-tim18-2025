@@ -27,6 +27,9 @@ public class Task implements Serializable {
     private TaskDifficulty difficulty;
     private TaskPriority priority;
     private int xp;                    // calculated xp (difficulty+priority)
+    private boolean exceedsQuota;
+    private long createdAt;
+
 
     private TaskStatus status;
 
@@ -48,6 +51,8 @@ public class Task implements Serializable {
         this.priority = priority;
         this.xp = xp;
         this.status = status;
+        this.createdAt = System.currentTimeMillis();
+
     }
 
     // --- getters and setters ---
@@ -103,4 +108,21 @@ public class Task implements Serializable {
         int priorityXp=(priority!=null)? priority.getXp() : 0;
         this.xp=difficultyXp+priorityXp;
     }
+
+    public boolean isExceedsQuota() {
+        return exceedsQuota;
+    }
+
+    public void setExceedsQuota(boolean exceedsQuota) {
+        this.exceedsQuota = exceedsQuota;
+    }
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(long createdAt) {
+        this.createdAt = createdAt == 0 ? System.currentTimeMillis() : createdAt;
+    }
+
+
 }
