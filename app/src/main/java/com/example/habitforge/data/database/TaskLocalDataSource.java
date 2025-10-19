@@ -44,7 +44,9 @@ public class TaskLocalDataSource {
         cv.put("xp", task.getXp());
         cv.put("status", task.getStatus() != null ? task.getStatus().name() : null);
 
-        db.insert(DatabaseHelper.T_TASKS, null, cv);
+//        db.insert(DatabaseHelper.T_TASKS, null, cv);
+        db.insertWithOnConflict(DatabaseHelper.T_TASKS, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+
         db.close();
     }
 
@@ -142,6 +144,22 @@ public class TaskLocalDataSource {
 
         return task;
     }
+    // --- GET ALL TASKS (za prikaz u kalendaru ili listi) ---
+    public List<Task> getAllTasks() {
+        List<Task> tasks = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor c = db.query(DatabaseHelper.T_TASKS, null, null, null, null, null, "execution_time ASC");
+
+        if (c != null && c.moveToFirst()) {
+            do {
+                tasks.add(cursorToTask(c));
+            } while (c.moveToNext());
+            c.close();
+        }
+        db.close();
+        return tasks;
+    }
+
 
 
 }

@@ -6,10 +6,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "HabitForge.db";
-    public static final int DB_VERSION = 1;
+    public static final int DB_VERSION = 2;
 
     public static final String T_USERS = "users";
     public static final String T_TASKS = "tasks";
+    public static final String T_CATEGORIES = "categories";
+
 
     public DatabaseHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -23,6 +25,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "email TEXT NOT NULL UNIQUE, " +
                 "username TEXT NOT NULL UNIQUE, " +
                 "avatar_url TEXT" + // moze biti null ako user nema avatar
+                ")");
+        // Kreiranje categories tabele
+        db.execSQL("CREATE TABLE " + T_CATEGORIES + " (" +
+                "id TEXT PRIMARY KEY, " +
+                "name TEXT NOT NULL UNIQUE, " +
+                "color TEXT NOT NULL UNIQUE" +
                 ")");
 
         // Kreiranje tasks tabele
@@ -42,7 +50,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "priority TEXT, " +
                 "xp INTEGER, " +
                 "status TEXT, " +
-                "FOREIGN KEY(user_id) REFERENCES " + T_USERS + "(id) ON DELETE CASCADE" +
+                "FOREIGN KEY(user_id) REFERENCES " + T_USERS + "(id) ON DELETE CASCADE," +
+                "FOREIGN KEY(category_id) REFERENCES " + T_CATEGORIES + "(id) ON DELETE SET NULL"+
                 ")");
     }
 
@@ -50,6 +59,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + T_TASKS);
         db.execSQL("DROP TABLE IF EXISTS " + T_USERS);
+        db.execSQL("DROP TABLE IF EXISTS " + T_CATEGORIES);
         onCreate(db);
     }
 }

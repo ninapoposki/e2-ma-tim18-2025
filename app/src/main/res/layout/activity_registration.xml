@@ -1,89 +1,233 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    android:background="#000000"> <!-- crna pozadina -->
+    android:padding="16dp">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilEmail"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etEmail"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/input_text"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#80CFFF"
-            android:padding="12dp"
-            android:layout_marginBottom="8dp"/>
+            android:hint="Email" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/etPassword"
-            android:hint="Lozinka"
-            android:inputType="textPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/input_text"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#80CFFF"
-            android:padding="12dp"
-            android:layout_marginBottom="8dp"/>
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilUsername"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/tilEmail"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp">
 
-        <EditText
-            android:id="@+id/etRepeatPassword"
-            android:hint="Ponovite lozinku"
-            android:inputType="textPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/input_text"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#80CFFF"
-            android:padding="12dp"
-            android:layout_marginBottom="8dp"/>
-
-        <EditText
+        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etUsername"
-            android:hint="Korisničko ime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/input_text"
-            android:textColor="#FFFFFF"
-            android:textColorHint="#80CFFF"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp"/>
+            android:hint="Korisničko ime" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Izaberite avatara:"
-            android:textColor="#80CFFF"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"/>
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilPassword"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/tilUsername"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp">
 
-        <LinearLayout
-            android:orientation="horizontal"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="Lozinka"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilRepeatPassword"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/tilPassword"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etRepeatPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Ponovite lozinku"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Avatar dugmici -->
+    <LinearLayout
+        android:id="@+id/avatarContainer"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/tilRepeatPassword"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center"
+        android:layout_marginTop="16dp"
+        android:weightSum="5">
+
+        <!-- Avatar 1 -->
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:gravity="center">
 
-            <Button android:id="@+id/btnAvatar1" android:text="Avatar 1" style="@style/BlueButton"/>
-            <Button android:id="@+id/btnAvatar2" android:text="Avatar 2" style="@style/BlueButton"/>
-            <Button android:id="@+id/btnAvatar3" android:text="Avatar 3" style="@style/BlueButton"/>
-            <Button android:id="@+id/btnAvatar4" android:text="Avatar 4" style="@style/BlueButton"/>
-            <Button android:id="@+id/btnAvatar5" android:text="Avatar 5" style="@style/BlueButton"/>
-        </LinearLayout>
+            <!-- Plavi krug (veći) -->
+            <ImageView
+                android:id="@+id/ivSelected1"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/blue_circle"
+                android:visibility="gone"/>
 
-        <Button
-            android:id="@+id/btnRegister"
-            android:text="Registruj se"
-            style="@style/BlueButton"
-            android:layout_width="match_parent"
-            android:layout_marginTop="20dp"/>
+            <!-- Avatar -->
+            <ImageButton
+                android:id="@+id/btnAvatar1"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/avatar1"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Avatar 1"/>
+        </FrameLayout>
+
+        <!-- Avatar 2 -->
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/ivSelected2"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/blue_circle"
+                android:visibility="gone"/>
+
+            <ImageButton
+                android:id="@+id/btnAvatar2"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/avatar2"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Avatar 2"/>
+        </FrameLayout>
+
+        <!-- Avatar 3 -->
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/ivSelected3"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/blue_circle"
+                android:visibility="gone"/>
+
+            <ImageButton
+                android:id="@+id/btnAvatar3"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/avatar3"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Avatar 3"/>
+        </FrameLayout>
+
+        <!-- Avatar 4 -->
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/ivSelected4"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/blue_circle"
+                android:visibility="gone"/>
+
+            <ImageButton
+                android:id="@+id/btnAvatar4"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/avatar4"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Avatar 4"/>
+        </FrameLayout>
+
+        <!-- Avatar 5 -->
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/ivSelected5"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/blue_circle"
+                android:visibility="gone"/>
+
+            <ImageButton
+                android:id="@+id/btnAvatar5"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/avatar5"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Avatar 5"/>
+        </FrameLayout>
+
     </LinearLayout>
-</ScrollView>
+
+
+
+    <Button
+        android:id="@+id/btnRegister"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Registruj se"
+        app:layout_constraintTop_toBottomOf="@id/avatarContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+

@@ -1,0 +1,56 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/white">
+
+
+    <Button
+        android:id="@+id/button_start_create_alliance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Create Alliance"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/purple_500"
+        android:layout_marginBottom="16dp" />
+
+    <LinearLayout
+        android:id="@+id/layout_create_alliance"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+    <EditText
+        android:id="@+id/edit_alliance_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Alliance name"
+        android:layout_marginBottom="12dp"
+        android:padding="8dp"
+        android:background="@color/blue"
+        android:textColor="@color/black"
+        android:textColorHint="@color/gray"/>
+    <TextView
+    android:id="@+id/button_create_alliance"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Create"
+    android:textColor="@color/purple_500"
+    android:padding="8dp"/>
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/text_user_list_title"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="Add friends or click on card to see more about them"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_users"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

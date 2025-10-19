@@ -1,0 +1,26 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:state_selected="true">
+        <shape android:shape="oval">
+            <size android:width="50dp" android:height="50dp"/>
+
+            <solid android:color="@android:color/transparent"/>
+
+            <stroke
+                android:width="6dp"
+                android:color="@color/purple_200"/>
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="oval">
+            <size android:width="50dp" android:height="50dp"/>
+
+            <solid android:color="@android:color/white"/>
+
+            <stroke
+                android:width="2dp"
+                android:color="@android:color/white"/>
+        </shape>
+    </item>
+</selector>

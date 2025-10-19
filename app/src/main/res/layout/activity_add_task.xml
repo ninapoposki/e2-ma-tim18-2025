@@ -1,10 +1,274 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.activity.AddTaskActivity">
+    android:padding="20dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <LinearLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <!-- Naslov -->
+        <TextView
+            android:id="@+id/tvTitleTask"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create Task"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="@color/purple_200"
+            android:letterSpacing="0.05"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Naziv zadatka -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Task name"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTaskName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Opis -->
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Description (optional)"
+            android:layout_marginTop="12dp"
+            app:boxCornerRadiusTopStart="12dp"
+            app:boxCornerRadiusTopEnd="12dp"
+            app:boxCornerRadiusBottomStart="12dp"
+            app:boxCornerRadiusBottomEnd="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTaskDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Kategorija -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Category"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/purple_200"
+            android:layout_marginTop="20dp" />
+
+        <Spinner
+            android:id="@+id/spinnerCategory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/spinner_background"
+            android:layout_marginTop="4dp" />
+
+        <!-- Težina -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Difficulty"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/purple_200"
+            android:layout_marginTop="16dp" />
+
+        <Spinner
+            android:id="@+id/spinnerDifficulty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/spinner_background"
+            android:layout_marginTop="4dp" />
+
+        <!-- Bitnost -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Priority"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/purple_200"
+            android:layout_marginTop="16dp" />
+
+        <Spinner
+            android:id="@+id/spinnerPriority"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/spinner_background"
+            android:layout_marginTop="4dp" />
+
+        <!-- Tip zadatka -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Task type"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/purple_200"
+            android:layout_marginTop="20dp" />
+
+        <RadioGroup
+            android:id="@+id/rgTaskType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <RadioButton
+                android:id="@+id/rbOneTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="One-time"
+                android:textColor="@color/purple_200"/>
+
+            <RadioButton
+                android:id="@+id/rbRecurring"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recurring"
+                android:textColor="@color/purple_200"
+                android:layout_marginStart="20dp" />
+        </RadioGroup>
+
+        <!-- Sekcija za jednokratne -->
+        <LinearLayout
+            android:id="@+id/layoutOneTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Select date and time"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/purple_200"
+                android:textSize="16sp"
+                android:layout_marginBottom="6dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPickExecutionTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Choose"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/light_gray"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:cornerRadius="12dp"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="8dp" />
+        </LinearLayout>
+
+        <!-- Sekcija za ponavljajuće -->
+        <LinearLayout
+            android:id="@+id/layoutRecurring"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recurring schedule"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/purple_200"
+                android:textSize="16sp"
+                android:layout_marginBottom="6dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginBottom="8dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPickStartDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Start"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    android:backgroundTint="@color/light_gray"
+                    app:cornerRadius="12dp"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="8dp"
+                    android:layout_marginEnd="12dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPickEndDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="End"
+                    android:textAllCaps="false"
+                    android:textColor="@color/black"
+                    android:backgroundTint="@color/light_gray"
+                    app:cornerRadius="12dp"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="8dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Repeat every"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/purple_200"
+                    android:layout_marginEnd="8dp" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etRecurringInterval"
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:hint="1" />
+
+                <Spinner
+                    android:id="@+id/spinnerRecurrenceUnit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:entries="@array/recurrence_units" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Dugme za čuvanje -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSaveTask"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Task"
+            android:textAllCaps="false"
+            app:cornerRadius="25dp"
+            android:backgroundTint="@color/purple_400"
+            android:textColor="@color/white"
+            android:layout_marginTop="24dp" />
+
+    </LinearLayout>
+</ScrollView>

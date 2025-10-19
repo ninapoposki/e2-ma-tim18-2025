@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.activity.FullTaskInfoActivity">
+
+    <!-- Pozadinska slika -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/main_bg"
+        android:scaleType="centerCrop"
+        android:alpha="0.35" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal">
+
+            <!-- Glavna kartica -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="8dp"
+                android:backgroundTint="@color/pastel_cream"
+                android:padding="24dp">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal">
+
+                    <!-- Naziv zadatka -->
+                    <TextView
+                        android:id="@+id/tvTaskName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Task Name"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/dark_bg"
+                        android:layout_marginBottom="12dp" />
+
+                    <!-- Opis zadatka -->
+                    <TextView
+                        android:id="@+id/tvTaskDescription"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/rounded_bg_light"
+                        android:padding="12dp"
+                        android:text="Task description goes here..."
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_bg"
+                        android:layout_marginBottom="20dp" />
+
+                    <!-- Dve kolone sa detaljima -->
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="2"
+                        android:layout_marginBottom="16dp">
+
+                        <!-- Leva kolona -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:paddingEnd="8dp">
+
+                            <TextView
+                                android:id="@+id/tvCategory"
+                                style="@style/DetailTextStyle"
+                                android:text="Category:" />
+
+                            <TextView
+                                android:id="@+id/tvTaskType"
+                                style="@style/DetailTextStyle"
+                                android:text="Type:" />
+
+                            <TextView
+                                android:id="@+id/tvDifficulty"
+                                style="@style/DetailTextStyle"
+                                android:text="Difficulty:" />
+                        </LinearLayout>
+
+                        <!-- Desna kolona -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical"
+                            android:paddingStart="8dp">
+
+                            <TextView
+                                android:id="@+id/tvPriority"
+                                style="@style/DetailTextStyle"
+                                android:text="Priority:" />
+
+                            <TextView
+                                android:id="@+id/tvXP"
+                                style="@style/DetailTextStyle"
+                                android:text="XP:" />
+
+                            <TextView
+                                android:id="@+id/tvStatus"
+                                style="@style/DetailTextStyle"
+                                android:text="Status:" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Datum -->
+                    <TextView
+                        android:id="@+id/tvDateRange"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="📆 12.10.2025 → 22.11.2026"
+                        android:textSize="16sp"
+                        android:textColor="@color/dark_bg"
+                        android:textStyle="italic"
+                        android:layout_marginBottom="20dp" />
+
+                    <!-- Dugmad -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:weightSum="3">
+
+                        <Button
+                            android:id="@+id/btnEditTask"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="✏️ Edit"
+                            android:backgroundTint="@color/pastel_blue"
+                            android:textColor="@color/white"
+                            android:layout_marginEnd="6dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="4dp" />
+
+                        <Button
+                            android:id="@+id/btnDeleteTask"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="🗑️ Delete"
+                            android:backgroundTint="@color/red"
+                            android:textColor="@color/white"
+                            android:layout_marginEnd="6dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="4dp" />
+
+                        <Button
+                            android:id="@+id/btnChangeStatus"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="🔄 Status"
+                            android:backgroundTint="@color/pastel_green"
+                            android:textColor="@color/white"
+                            android:layout_marginEnd="6dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginBottom="4dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>

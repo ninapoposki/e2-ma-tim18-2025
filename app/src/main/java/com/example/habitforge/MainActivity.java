@@ -1,6 +1,8 @@
 package com.example.habitforge;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,35 +12,53 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.habitforge.application.model.Task;
 import com.example.habitforge.application.model.User;
+import com.example.habitforge.data.database.DatabaseHelper;
+import com.example.habitforge.application.session.EquipmentInitializer;
 import com.example.habitforge.data.database.TaskLocalDataSource;
 import com.example.habitforge.data.database.UserLocalDataSource;
+import com.example.habitforge.presentation.activity.RegistrationActivity;
+import com.example.habitforge.presentation.activity.ui.login.LoginActivity;
+import com.google.firebase.FirebaseApp;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Button;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+
 
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+       // FirebaseApp.initializeApp(this);
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+
+        Button btnGoToRegister = findViewById(R.id.btnGoToRegister);
+        DatabaseHelper dbHelper = new DatabaseHelper(this);
+        dbHelper.getWritableDatabase();
+        btnGoToRegister.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, RegistrationActivity.class);
+            startActivity(intent);
+        });
+        Button btnGoToLogin = findViewById(R.id.btnGoToLogin);
+        btnGoToLogin.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
         });
 
+        EquipmentInitializer initializer = new EquipmentInitializer();
+        initializer.initializeEquipment();
 
-        // --- Test ubacivanja korisnika ---
-        User testUser = new User();
-        testUser.setUserId("test123");
-        testUser.setEmail("test@example.com");
-        testUser.setUsername("Tester");
-        new UserLocalDataSource(this).insertUser(testUser);
 
-        // --- Test ubacivanja zadatka ---
-        Task testTask = new Task();
-        testTask.setId("task123");
-        testTask.setUserId("test123");
-        testTask.setName("Test Task");
-        new TaskLocalDataSource(this).addTask(testTask);
+//        Button btnOpenAddCategory = findViewById(R.id.btnOpenAddCategory);
+//
+//        btnOpenAddCategory.setOnClickListener(v -> {
+//            Intent intent = new Intent(MainActivity.this, com.example.habitforge.presentation.activity.AddCategoryActivity.class);
+//            startActivity(intent);
+//        });
+
     }
 }

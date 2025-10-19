@@ -1,7 +1,10 @@
 package com.example.habitforge.application.model;
 
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class User {
     private String userId;        // Firebase UID
@@ -17,8 +20,20 @@ public class User {
     private int experiencePoints;
     private int coins;
     private List<String> badges;
-    private List<String> equipment;
+    private List<UserEquipment> equipment = new ArrayList<>();
+    private List<String> friendIds = new ArrayList<>();
+
     private String qrCode;
+
+    private String allianceId; // ID saveza u kojem je korisnik, null ako nije u savezu
+
+    public String getAllianceId() {
+        return allianceId;
+    }
+
+    public void setAllianceId(String allianceId) {
+        this.allianceId = allianceId;
+    }
 
     // --- KONSTRUKTORI ---
     public User() {}
@@ -29,6 +44,19 @@ public class User {
         this.username = username;
         this.avatar = avatar;
         this.isActive = false;
+        this.level = 1;
+        this.title = "Beginner";
+        this.powerPoints = 0;
+        this.experiencePoints = 0;
+        this.coins = 0;
+    }
+
+    public User(String userId, String email, String username, String avatar, Boolean isActive) {
+        this.userId = userId;
+        this.email = email;
+        this.username = username;
+        this.avatar = avatar;
+        this.isActive = isActive;
         this.level = 1;
         this.title = "Beginner";
         this.powerPoints = 0;
@@ -47,8 +75,8 @@ public class User {
 
     public void setUsername(String username){ this.username = username;}
 
-    public String getAvatarUrl() { return avatar; }
-    public void setAvatarUrl(String avatar) {  this.avatar = avatar;}
+    public String getAvatar() { return avatar; }
+    public void setAvatar(String avatar) { this.avatar = avatar; }
 
     public boolean isActive() { return isActive; }
     public void setActive(boolean active) { isActive = active; }
@@ -71,9 +99,57 @@ public class User {
     public List<String> getBadges() { return badges; }
     public void setBadges(List<String> badges) { this.badges = badges; }
 
-    public List<String> getEquipment() { return equipment; }
-    public void setEquipment(List<String> equipment) { this.equipment = equipment; }
+    public List<UserEquipment> getEquipment() {
+        if (equipment == null) {
+            equipment = new ArrayList<>();
+        }
+        return equipment;
+    }
 
+    public void setEquipment(List<UserEquipment> equipment) {
+        this.equipment = equipment;
+    }
+    public List<String> getFriendIds() {
+        if (friendIds == null) {
+            friendIds = new ArrayList<>();
+        }
+        return friendIds;
+    }
+
+    public void setFriendIds(List<String> friendIds) {
+        this.friendIds = friendIds;
+    }
     public String getQrCode() { return qrCode; }
     public void setQrCode(String qrCode) { this.qrCode = qrCode; }
+
+    public List<UserEquipment> getActiveEquipment() {
+        List<UserEquipment> activeList = new ArrayList<>();
+        if (equipment != null) {
+            for (UserEquipment item : equipment) {
+                if (item.isActive()) {
+                    activeList.add(item);
+                }
+            }
+        }
+        return activeList;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + userId + '\'' +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", level=" + level +
+                ", title='" + title + '\'' +
+                ", experiencePoints=" + experiencePoints +
+                ", powerPoints=" + powerPoints +
+                ", coins=" + coins +
+                ", badges=" + badges +
+                ", equipment=" + equipment  +
+                ", friends =" +friendIds+
+                '}';
+    }
+
 }

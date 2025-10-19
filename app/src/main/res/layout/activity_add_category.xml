@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp">
+
+    <!-- Naslov stranice -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Create Category"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="@color/purple_200"
+        android:letterSpacing="0.05"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:gravity="center"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Naziv kategorije -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/tilCategoryName"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etCategoryName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Category name"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Odabir boje -->
+    <TextView
+        android:id="@+id/tvPickColor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pick a color:"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:layout_marginTop="20dp"
+        app:layout_constraintTop_toBottomOf="@id/tilCategoryName"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <!-- Paleta osnovnih boja -->
+    <HorizontalScrollView
+        android:id="@+id/colorScrollMain"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/tvPickColor"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:id="@+id/colorPaletteMain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <View android:id="@+id/colorRed"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="#FF0000"
+                android:background="@drawable/color_circle"
+                android:layout_margin="8dp"/>
+
+            <View android:id="@+id/colorBlue"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="#2196F3"
+                android:background="@drawable/color_circle"
+                android:layout_margin="8dp"/>
+
+            <View android:id="@+id/colorGreen"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="#4CAF50"
+                android:background="@drawable/color_circle"
+                android:layout_margin="8dp"/>
+
+            <View android:id="@+id/colorYellow"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="#FFEB3B"
+                android:background="@drawable/color_circle"
+                android:layout_margin="8dp"/>
+
+            <View android:id="@+id/colorPurple"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="#9C27B0"
+                android:background="@drawable/color_circle"
+                android:layout_margin="8dp"/>
+
+            <View android:id="@+id/colorOrange"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="#FF9800"
+                android:background="@drawable/color_circle"
+                android:layout_margin="8dp"/>
+
+            <View android:id="@+id/colorTeal"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="#009688"
+                android:background="@drawable/color_circle"
+                android:layout_margin="8dp"/>
+
+            <View android:id="@+id/colorPink"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="#E91E63"
+                android:background="@drawable/color_circle"
+                android:layout_margin="8dp"/>
+
+            <View android:id="@+id/colorBrown"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="#795548"
+                android:background="@drawable/color_circle"
+                android:layout_margin="8dp"/>
+
+            <View android:id="@+id/colorGray"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="#9E9E9E"
+                android:background="@drawable/color_circle"
+                android:layout_margin="8dp"/>
+
+            <View android:id="@+id/colorBlack"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="#000000"
+                android:background="@drawable/color_circle"
+                android:layout_margin="8dp"/>
+
+            <View android:id="@+id/colorWhite"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:backgroundTint="#E0E0E0"
+            android:background="@drawable/color_circle"
+            android:layout_margin="8dp"/>
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Naslov za dodatne boje (početno skriven) -->
+    <TextView
+        android:id="@+id/tvMoreColors"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="More colors:"
+        android:textSize="16sp"
+        android:textStyle="italic"
+        android:textColor="@color/white"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/colorScrollMain"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <!-- Paleta dodatnih boja (početno skrivena) -->
+    <HorizontalScrollView
+        android:id="@+id/colorScrollExtra"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvMoreColors"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:id="@+id/colorPaletteExtra"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"/>
+    </HorizontalScrollView>
+
+    <!-- Dugme + / - za prikaz dodatnih boja -->
+    <ImageView
+        android:id="@+id/colorMore"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@android:drawable/ic_input_add"
+        android:background="@drawable/color_circle"
+        android:padding="10dp"
+        android:layout_marginTop="12dp"
+        app:tint="@color/purple_500"
+        app:layout_constraintTop_toBottomOf="@id/colorScrollExtra"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Dugme za čuvanje -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSaveCategory"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Save Category"
+        android:textAllCaps="false"
+        android:layout_marginTop="28dp"
+        app:cornerRadius="25dp"
+        app:layout_constraintTop_toBottomOf="@id/colorMore"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

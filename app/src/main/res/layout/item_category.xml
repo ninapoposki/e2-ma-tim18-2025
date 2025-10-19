@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="6dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="@color/purple_100"
+    app:cardBackgroundColor="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="12dp">
+
+        <!-- Boja kategorije -->
+        <View
+            android:id="@+id/viewCategoryColor"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/color_circle"
+            android:backgroundTint="#FF9800"/>
+
+        <!-- Naziv kategorije -->
+        <TextView
+            android:id="@+id/tvCategoryName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Work"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/purple_700" />
+
+        <!-- Dugme Edit -->
+        <ImageButton
+            android:id="@+id/btnEditCategory"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Edit"
+            android:padding="6dp"
+            app:srcCompat="@android:drawable/ic_menu_edit"
+            app:tint="@color/purple_500" />
+
+        <!-- Dugme Delete -->
+        <ImageButton
+            android:id="@+id/btnDeleteCategory"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Delete"
+            android:padding="6dp"
+            app:srcCompat="@android:drawable/ic_menu_delete"
+            app:tint="@color/red" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

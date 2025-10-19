@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.habitforge.presentation.activity.ui.home.HomeFragment"
+        android:label="@string/menu_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.example.habitforge.presentation.activity.ui.gallery.GalleryFragment"
+        android:label="@string/menu_profile"
+        tools:layout="@layout/fragment_gallery" />
+
+    <fragment
+        android:id="@+id/nav_equipment"
+        android:name="com.example.habitforge.presentation.activity.ui.equipment.EquipmentFragment"
+        android:label="@string/menu_equipment"
+        tools:layout="@layout/fragment_equipment" />
+    <fragment
+        android:id="@+id/nav_user_list"
+        android:name="com.example.habitforge.presentation.activity.ui.userlist.UserListFragment"
+        android:label="User List">
+
+        <action
+            android:id="@+id/action_userListFragment_to_galleryFragment"
+            app:destination="@id/nav_profile" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_bossfight"
+        android:name="com.example.habitforge.presentation.activity.ui.bossfight.BossFightFragment"
+        android:label="@string/menu_bossfight"
+        tools:layout="@layout/fragment_boss_fight" />
+    <fragment
+        android:id="@+id/nav_user_progress"
+        android:name="com.example.habitforge.presentation.activity.ui.progress.UserProgressFragment"
+        android:label="@string/menu_userProgress"
+        tools:layout="@layout/fragment_user_progress" />
+    <fragment
+        android:id="@+id/nav_friend_request"
+        android:name="com.example.habitforge.presentation.activity.ui.friendRequest.FriendRequestFragment"
+        android:label="@string/menu_friend_request"
+        tools:layout="@layout/fragment_friend_request" />
+    <fragment
+        android:id="@+id/nav_alliance"
+        android:name="com.example.habitforge.presentation.activity.ui.alliance.AllianceFragment"
+        android:label="@string/menu_alliance"
+        tools:layout="@layout/fragment_alliance" />
+
+
+</navigation>
