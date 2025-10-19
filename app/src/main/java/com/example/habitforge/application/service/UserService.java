@@ -3,13 +3,15 @@ package com.example.habitforge.application.service;
 import android.content.Context;
 
 import com.example.habitforge.application.model.User;
+import com.example.habitforge.application.session.SessionManager;
+import com.example.habitforge.data.database.UserLocalDataSource;
 import com.example.habitforge.data.repository.UserRepository;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class UserService {
     private final UserRepository userRepository;
-
 
     public UserService(Context context) {
         this.userRepository = new UserRepository(context);
@@ -53,6 +55,11 @@ public class UserService {
     public void activateUser(String userId, OnCompleteListener<Void> listener) {
         userRepository.activateUser(userId, listener);
     }
+
+    public void addExperienceToCurrentUser(Context context, int xp) {
+        userRepository.addExperienceToUser(context, xp, task -> {});
+    }
+
 //koriscenje odece
     public void useClothing(User user, String equipmentId, Runnable onSuccess) {
         userRepository.useClothing(user, equipmentId, onSuccess);

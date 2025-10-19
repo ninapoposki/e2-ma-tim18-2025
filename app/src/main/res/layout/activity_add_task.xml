@@ -269,15 +269,6 @@
             android:backgroundTint="@color/purple_400"
             android:textColor="@color/white"
             android:layout_marginTop="24dp" />
-        <!--    za prikaz svih za sad-->
-        <Button
-            android:id="@+id/btnViewTasks"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="View All Tasks"
-            android:textAllCaps="false"
-            android:textSize="16sp"
-            android:layout_marginTop="12dp"
-            android:backgroundTint="@color/purple_400" />
+
     </LinearLayout>
 </ScrollView>

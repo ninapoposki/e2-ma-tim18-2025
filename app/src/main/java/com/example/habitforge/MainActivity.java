@@ -53,12 +53,12 @@ public class MainActivity extends AppCompatActivity {
         initializer.initializeEquipment();
 
 
-        Button btnOpenAddCategory = findViewById(R.id.btnOpenAddCategory);
-
-        btnOpenAddCategory.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, com.example.habitforge.presentation.activity.AddCategoryActivity.class);
-            startActivity(intent);
-        });
+//        Button btnOpenAddCategory = findViewById(R.id.btnOpenAddCategory);
+//
+//        btnOpenAddCategory.setOnClickListener(v -> {
+//            Intent intent = new Intent(MainActivity.this, com.example.habitforge.presentation.activity.AddCategoryActivity.class);
+//            startActivity(intent);
+//        });
 
     }
 }

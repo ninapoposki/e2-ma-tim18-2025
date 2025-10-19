@@ -12,4 +12,10 @@
     <color name="red">#E53935</color>
     <color name="gray">#9E9E9E</color>
     <color name="blue">#80CFFF</color>
+    <color name="pastel_blue">#90CAF9</color>
+    <color name="pastel_purple">#B39DDB</color>
+    <color name="pastel_green">#A5D6A7</color>
+    <color name="pastel_orange">#FFCC80</color>
+    <color name="pastel_cream">#FFF5E1</color>
+
 </resources>

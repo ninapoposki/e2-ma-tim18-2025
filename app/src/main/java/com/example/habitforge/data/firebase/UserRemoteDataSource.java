@@ -163,5 +163,10 @@ public class UserRemoteDataSource {
         }
         return false;
     }
+    // --- GET FIRESTORE INSTANCE ---
+    public FirebaseFirestore getFirestore() {
+        return db;
+    }
+
 }
 

@@ -12,6 +12,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HabitForge">
         <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+
+        <activity
             android:name=".presentation.activity.ShopActivity"
             android:exported="false"
             android:theme="@style/Theme.HabitForge" />
@@ -25,38 +35,37 @@
             android:exported="false"
             android:label="@string/title_activity_login" />
         <activity
+            android:name=".presentation.activity.RegistrationActivity"
+            android:exported="false" />
+        <activity
             android:name=".presentation.activity.AddTaskActivity"
-            android:exported="false" /> <!-- <activity -->
-        <!-- android:name=".presentation.activity.RegistrationActivity" -->
-        <!-- android:exported="false" /> -->
-        <activity android:name=".presentation.activity.RegistrationActivity" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".presentation.activity.AddCategoryActivity"
             android:exported="false" />
         <activity
             android:name=".presentation.activity.TaskCalendarActivity"
-            android:exported="false" /> <!-- &lt;!&ndash; Ovo je launcher aktivnost &ndash;&gt; -->
-        <!-- <activity android:name=".presentation.activity.AddTaskActivity" -->
-        <!-- android:exported="true"> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.MAIN" /> -->
-        <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-        <!-- </intent-filter> -->
-        <!-- </activity> -->
+            android:exported="false" />
         <activity
             android:name=".presentation.activity.TaskDetailsActivity"
             android:exported="false"
             android:label="Task Details"
             android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
+
+
+        <activity
+            android:name=".presentation.activity.AddCategoryActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.activity.CategoryListActivity"
+            android:exported="false"
+            android:label="Categories" />
+
+        <activity
+            android:name=".presentation.activity.TaskListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".presentation.activity.FullTaskInfoActivity"
+            android:exported="false" />
+
     </application>
 
 </manifest>

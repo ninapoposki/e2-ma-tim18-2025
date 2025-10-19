@@ -26,7 +26,7 @@ public class CategoryLocalDataSource {
         cv.put("id", c.getId());
         cv.put("name", c.getName());
         cv.put("color", c.getColor());
-        db.insert(DatabaseHelper.T_CATEGORIES, null, cv);
+        db.insertWithOnConflict(DatabaseHelper.T_CATEGORIES, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
         db.close();
     }
 
