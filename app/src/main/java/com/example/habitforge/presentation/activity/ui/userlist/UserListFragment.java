@@ -4,6 +4,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,6 +32,10 @@ public class UserListFragment extends Fragment implements UserListAdapter.OnUser
 
     private UserListViewModel viewModel;
     private UserListAdapter adapter;
+    private EditText editAllianceName;
+    private TextView buttonCreateAlliance;
+    private List<String> selectedUserIds = new ArrayList<>(); // ID-jevi prijatelja koji su odabrani
+
 
     @Nullable
     @Override
@@ -52,10 +60,7 @@ public class UserListFragment extends Fragment implements UserListAdapter.OnUser
 
         viewModel.getUsersLiveData().observe(getViewLifecycleOwner(), users -> adapter.submitList(users));
         viewModel.fetchAllUsersExceptCurrent(currentUserId);
-//ovo radi prvo
-//        viewModel.loadFriendsAndPending(currentUserId, (friendIds, pendingIds) -> {
-//            adapter.updateFriendData(friendIds, pendingIds);
-//        });
+
         viewModel.loadFriendsAndAllRequests(currentUserId, (friendIds, pendingSentIds, incomingIds) -> {
             // Kombinujemo sve ID-jeve koje treba sakriti dugme:
             List<String> hideButtonIds = new ArrayList<>(friendIds);
@@ -65,6 +70,46 @@ public class UserListFragment extends Fragment implements UserListAdapter.OnUser
             adapter.updateFriendData(hideButtonIds); // prilagodi adapter metodu da prima samo jednu listu
         });
 
+        viewModel.getAllianceCreationStatus().observe(getViewLifecycleOwner(), status -> {
+            Toast.makeText(getContext(), status, Toast.LENGTH_SHORT).show();
+
+            if (status.equals("Alliance created and invites sent")) {
+                editAllianceName.setText("");
+                adapter.getSelectedUserIds().clear();
+                adapter.notifyDataSetChanged();
+            }
+        });
+
+        Button buttonStart = view.findViewById(R.id.button_start_create_alliance);
+        LinearLayout layoutCreate = view.findViewById(R.id.layout_create_alliance);
+
+        editAllianceName = view.findViewById(R.id.edit_alliance_name);
+        buttonCreateAlliance = view.findViewById(R.id.button_create_alliance);
+        buttonStart.setOnClickListener(v -> {
+
+
+            viewModel.hasAlliance(currentUserId, hasAlliance -> {
+                if (hasAlliance) {
+                    // Već ima savez
+                    Toast.makeText(getContext(),
+                            "You are member of alliance or have one. You can not create new one.",
+                            Toast.LENGTH_SHORT).show();
+                } else {
+
+
+            layoutCreate.setVisibility(View.VISIBLE);
+            adapter.setShowCheckboxes(true); // dodaćemo ovo u adapter
+            adapter.notifyDataSetChanged();
+            buttonStart.setVisibility(View.GONE);
+                }
+            });
+        });
+        buttonCreateAlliance.setOnClickListener(v ->{ createAlliance();
+                layoutCreate.setVisibility(View.GONE);
+        buttonStart.setVisibility(View.VISIBLE);
+        adapter.setShowCheckboxes(false);
+        adapter.clearSelections();
+        });
 
     }
 
@@ -94,5 +139,15 @@ public class UserListFragment extends Fragment implements UserListAdapter.OnUser
             }
         });
     }
+
+    private void createAlliance() {
+        String allianceName = editAllianceName.getText().toString().trim();
+        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        List<String> invitedIds = adapter.getSelectedUserIds();
+
+        viewModel.createAlliance(allianceName, currentUserId, invitedIds);
+    }
+
+
 
 }

@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.habitforge.application.model.Alliance;
+import com.example.habitforge.application.model.AllianceInvite;
 import com.example.habitforge.application.model.FriendRequest;
 import com.example.habitforge.application.model.UserEquipment;
 import com.example.habitforge.application.model.enums.EquipmentType;
@@ -685,6 +687,67 @@ public class UserRepository {
             }
         });
     }
+    public void hasAlliance(String userId, AllianceCheckCallback callback) {
+        remoteDb.getFirestore().collection("users").document(userId).get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        String allianceId = document.getString("allianceId");
+                        boolean hasAlliance = allianceId != null && !allianceId.isEmpty();
+                        callback.onResult(hasAlliance);
+                    } else {
+                        callback.onResult(false);
+                    }
+                })
+                .addOnFailureListener(e -> callback.onResult(false));
+    }
+
+    public interface AllianceCheckCallback {
+        void onResult(boolean hasAlliance);
+    }
+
+
+
+
+    public interface AllianceCallback {
+        void onSuccess(String allianceId);
+        void onFailure(Exception e);
+    }
+
+    public interface GenericCallback {
+        void onComplete(boolean success);
+    }
+
+    // Kreiranje saveza
+    public void createAlliance(String name, String leaderId, AllianceCallback callback) {
+        Alliance alliance = new Alliance(name, leaderId);
+        remoteDb.getFirestore()
+                .collection("alliances")
+                .add(alliance)
+                .addOnSuccessListener(docRef -> {
+                    alliance.setId(docRef.getId());
+                    docRef.update("id", docRef.getId());
+                    callback.onSuccess(docRef.getId());
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    // Update korisnika sa allianceId
+    public void updateUserAlliance(String userId, String allianceId, GenericCallback callback) {
+        remoteDb.getFirestore().collection("users")
+                .document(userId)
+                .update("allianceId", allianceId)
+                .addOnCompleteListener(task -> callback.onComplete(task.isSuccessful()));
+    }
+
+    // Poziv prijatelju
+    public void sendAllianceInvite(String fromUserId, String toUserId, String allianceId, GenericCallback callback) {
+        AllianceInvite invite = new AllianceInvite(fromUserId, toUserId, allianceId);
+        remoteDb.getFirestore()
+                .collection("allianceInvites")
+                .add(invite)
+                .addOnCompleteListener(task -> callback.onComplete(task.isSuccessful()));
+    }
+
 
 
 

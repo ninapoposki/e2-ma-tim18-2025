@@ -110,5 +110,59 @@ public class UserListViewModel extends AndroidViewModel {
     }
 
 
+    private final MutableLiveData<String> allianceCreationStatus = new MutableLiveData<>();
+    public LiveData<String> getAllianceCreationStatus() {
+        return allianceCreationStatus;
+    }
+
+    public void createAlliance(String allianceName, String leaderId, List<String> invitedIds) {
+        if (allianceName == null || allianceName.trim().isEmpty()) {
+            allianceCreationStatus.postValue("Alliance name cannot be empty");
+            return;
+        }
+
+        if (invitedIds == null || invitedIds.isEmpty()) {
+            allianceCreationStatus.postValue("Select at least one friend");
+            return;
+        }
+
+            userRepository.createAlliance(allianceName, leaderId, new UserRepository.AllianceCallback() {
+                @Override
+                public void onSuccess(String allianceId) {
+                    // Ažuriraj lidera saveza
+                    userRepository.updateUserAlliance(leaderId, allianceId, success -> {
+                        if (!success) {
+                            allianceCreationStatus.postValue("Failed to update leader's alliance");
+                            return;
+                        }
+
+                        // Pošalji pozive svim prijateljima
+                        for (String uid : invitedIds) {
+                            userRepository.sendAllianceInvite(leaderId, uid, allianceId, new UserRepository.GenericCallback() {
+                                @Override
+                                public void onComplete(boolean success) {
+                                    // ovde možeš kasnije dodati push notifikaciju
+                                }
+                            });
+                        }
+
+                        allianceCreationStatus.postValue("Alliance created and invites sent");
+                    });
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    allianceCreationStatus.postValue("Failed to create alliance: " + e.getMessage());
+                }
+            });
+    }
+
+    public void hasAlliance(String userId, UserRepository.AllianceCheckCallback callback) {
+        userRepository.hasAlliance(userId, callback);
+    }
+
+    public interface AllianceCheckCallback {
+        void onResult(boolean hasAlliance);
+    }
 
 }

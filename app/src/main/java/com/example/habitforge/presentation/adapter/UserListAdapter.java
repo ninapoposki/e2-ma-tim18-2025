@@ -3,6 +3,7 @@ package com.example.habitforge.presentation.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,7 +22,16 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
     private List<User> users = new ArrayList<>();
     private final OnUserClickListener listener;
     private List<String> currentUserFriendIds = new ArrayList<>();
-    private List<String> pendingFriendRequestUserIds = new ArrayList<>();
+    private List<String> selectedUserIds = new ArrayList<>();
+    private boolean showCheckboxes = false;
+
+    public void setShowCheckboxes(boolean show) {
+        this.showCheckboxes = show;
+    }
+
+    public List<String> getSelectedUserIds() {
+        return selectedUserIds;
+    }
 
 
     public interface OnUserClickListener {
@@ -76,18 +86,26 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
         } else {
             holder.avatar.setImageResource(R.drawable.avatar1);
         }
-        //ovo radi prvo
-//        if (currentUserFriendIds.contains(user.getUserId()) ||
-//                pendingFriendRequestUserIds.contains(user.getUserId())) {
-//            holder.addFriendButton.setVisibility(View.GONE);
-//        } else {
-//            holder.addFriendButton.setVisibility(View.VISIBLE);
-//        }
+
         if (currentUserFriendIds.contains(user.getUserId())) {
             holder.addFriendButton.setVisibility(View.GONE);
         } else {
             holder.addFriendButton.setVisibility(View.VISIBLE);
         }
+        //holder.textName.setText(user.getUsername());
+        holder.selectCheckbox.setVisibility(showCheckboxes ? View.VISIBLE : View.GONE);
+
+        holder.selectCheckbox.setOnCheckedChangeListener(null); // reset da ne bi recikliralo
+        holder.selectCheckbox.setChecked(selectedUserIds.contains(user.getUserId()));
+
+        holder.selectCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                selectedUserIds.add(user.getUserId());
+            } else {
+                selectedUserIds.remove(user.getUserId());
+            }
+        });
+
 
 
         // Klik na korisnika
@@ -101,12 +119,10 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
         return users.size();
     }
 
-    // U adapteru ovo radi prvo
-//    public void updateFriendData(List<String> friendIds, List<String> pendingIds) {
-//        this.currentUserFriendIds = friendIds != null ? friendIds : new ArrayList<>();
-//        this.pendingFriendRequestUserIds = pendingIds != null ? pendingIds : new ArrayList<>();
-//        notifyDataSetChanged();
-//    }
+    public void clearSelections() {
+        selectedUserIds.clear();
+        notifyDataSetChanged();
+    }
     public List<String> getCurrentUserFriendIds() {
         return currentUserFriendIds;
     }
@@ -121,6 +137,8 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
         ImageView avatar;
         TextView username, email, title;
         ImageButton addFriendButton;
+        CheckBox selectCheckbox;
+
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -129,6 +147,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
             email = itemView.findViewById(R.id.text_email);
             title = itemView.findViewById(R.id.text_title);
             addFriendButton = itemView.findViewById(R.id.button_add_friend);
+            selectCheckbox = itemView.findViewById(R.id.checkbox_select_user);
         }
     }
 }

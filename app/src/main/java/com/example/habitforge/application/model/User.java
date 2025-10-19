@@ -25,6 +25,16 @@ public class User {
 
     private String qrCode;
 
+    private String allianceId; // ID saveza u kojem je korisnik, null ako nije u savezu
+
+    public String getAllianceId() {
+        return allianceId;
+    }
+
+    public void setAllianceId(String allianceId) {
+        this.allianceId = allianceId;
+    }
+
     // --- KONSTRUKTORI ---
     public User() {}
 
