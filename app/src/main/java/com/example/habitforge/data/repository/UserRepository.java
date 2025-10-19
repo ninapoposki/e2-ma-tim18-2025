@@ -179,7 +179,7 @@ public class UserRepository {
         user.setEquipment(equipmentList);
         updateUser(user);
     }
-    public void useWeapon(User user, String equipmentId, Runnable onSuccess) {
+    public void useClothing(User user, String equipmentId, Runnable onSuccess) {
         if (user == null || user.getEquipment() == null) return;
 
         List<UserEquipment> equipmentList = user.getEquipment();
@@ -187,7 +187,7 @@ public class UserRepository {
         for (int i = 0; i < equipmentList.size(); i++) {
             UserEquipment item = equipmentList.get(i);
 
-            if (item.getEquipmentId().equals(equipmentId) && item.getType() == EquipmentType.WEAPON) {
+            if (item.getEquipmentId().equals(equipmentId) && item.getType() == EquipmentType.CLOTHING) {
                 // Umanji trajanje
                 item.setDuration(item.getDuration() - 1);
 
@@ -210,6 +210,30 @@ public class UserRepository {
                 }
 
                 break; // prekid jer smo našli oružje
+            }
+        }
+    }
+
+    public void useAllActivePotions(User user, Runnable onSuccess) {
+        if (user == null || user.getEquipment() == null) return;
+
+        boolean changed = false;
+
+        for (UserEquipment item : user.getEquipment()) {
+            if (item.getType() == EquipmentType.POTION
+                    && item.isActive()
+                    && !item.isUsedInNextBossFight()) {
+                item.setUsedInNextBossFight(true);
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            try {
+                remoteDb.saveUserDocument(user); // snimi sve izmene u Firestore
+                if (onSuccess != null) onSuccess.run(); // callback da fragment osveži UI
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

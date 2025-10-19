@@ -82,10 +82,16 @@ public class EquipmentFragment extends Fragment {
                         // Osveži samo taj item u RecyclerView-u
                         adapter.notifyItemChanged(position);
                     });
-
-           // userService.useWeapon(currentUser, item.getEquipmentId(), () -> {
+//         OVAKO CE SE ISKORISTITI ODECA I SMANJICE TRAJANJE ZA 1
+           // userService.useClothing(currentUser, item.getEquipmentId(), () -> {
 //                adapter.notifyDataSetChanged();
 //            });
+
+            // OVAKO CE SE U BORBI POTROSITI SVI AKTIVIRANI NAPICI "
+//            userService.useAllActivePotions(currentUser, () -> {
+//                adapter.notifyDataSetChanged(); // osveži RecyclerView
+//            });
+
         });
 
         // Postavi adapter na RecyclerView

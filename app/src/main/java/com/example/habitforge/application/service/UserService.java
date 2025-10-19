@@ -53,8 +53,13 @@ public class UserService {
     public void activateUser(String userId, OnCompleteListener<Void> listener) {
         userRepository.activateUser(userId, listener);
     }
-
-    public void useWeapon(User user, String equipmentId, Runnable onSuccess) {
-        userRepository.useWeapon(user, equipmentId, onSuccess);
+//koriscenje odece
+    public void useClothing(User user, String equipmentId, Runnable onSuccess) {
+        userRepository.useClothing(user, equipmentId, onSuccess);
     }
+//Nakon aktivacije jednokratnih napitaka, njihovo dejstvo će biti potrošeno u prvoj narednoj borbi sa bosom.
+    public void useAllActivePotions(User user, Runnable onSuccess) {
+        userRepository.useAllActivePotions(user, onSuccess);
+    }
+
 }
