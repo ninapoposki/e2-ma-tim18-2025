@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -16,7 +17,7 @@
         android:contentDescription="User Avatar"
         android:layout_marginEnd="12dp"
         android:scaleType="centerCrop"
-        android:background="@drawable/profile_photo"/>
+        android:background="@drawable/profile_photo" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -31,7 +32,7 @@
             android:text="Username"
             android:textStyle="bold"
             android:textSize="18sp"
-            android:textColor="#000"/>
+            android:textColor="#000" />
 
         <TextView
             android:id="@+id/text_email"
@@ -39,7 +40,7 @@
             android:layout_height="wrap_content"
             android:text="email@example.com"
             android:textSize="14sp"
-            android:textColor="#666"/>
+            android:textColor="#666" />
 
         <TextView
             android:id="@+id/text_title"
@@ -47,7 +48,16 @@
             android:layout_height="wrap_content"
             android:text="Beginner"
             android:textSize="14sp"
-            android:textColor="#444"/>
+            android:textColor="#444" />
+
+        <ImageButton
+            android:id="@+id/button_add_friend"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_add_friend"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Add Friend"
+            app:tint="@color/purple_200" />
     </LinearLayout>
 
 </LinearLayout>

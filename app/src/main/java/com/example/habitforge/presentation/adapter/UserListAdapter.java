@@ -3,6 +3,7 @@ package com.example.habitforge.presentation.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,9 +20,13 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
 
     private List<User> users = new ArrayList<>();
     private final OnUserClickListener listener;
+    private List<String> currentUserFriendIds = new ArrayList<>();
+    private List<String> pendingFriendRequestUserIds = new ArrayList<>();
+
 
     public interface OnUserClickListener {
         void onUserClick(User user);
+        void onSendFriendRequest(User user);
     }
 
     public UserListAdapter(OnUserClickListener listener) {
@@ -33,6 +38,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
         this.users = list != null ? list : new ArrayList<>();
         notifyDataSetChanged();
     }
+
 
     @NonNull
     @Override
@@ -70,9 +76,24 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
         } else {
             holder.avatar.setImageResource(R.drawable.avatar1);
         }
+        //ovo radi prvo
+//        if (currentUserFriendIds.contains(user.getUserId()) ||
+//                pendingFriendRequestUserIds.contains(user.getUserId())) {
+//            holder.addFriendButton.setVisibility(View.GONE);
+//        } else {
+//            holder.addFriendButton.setVisibility(View.VISIBLE);
+//        }
+        if (currentUserFriendIds.contains(user.getUserId())) {
+            holder.addFriendButton.setVisibility(View.GONE);
+        } else {
+            holder.addFriendButton.setVisibility(View.VISIBLE);
+        }
+
 
         // Klik na korisnika
         holder.itemView.setOnClickListener(v -> listener.onUserClick(user));
+        holder.addFriendButton.setOnClickListener(v -> listener.onSendFriendRequest(user));
+
     }
 
     @Override
@@ -80,9 +101,26 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
         return users.size();
     }
 
+    // U adapteru ovo radi prvo
+//    public void updateFriendData(List<String> friendIds, List<String> pendingIds) {
+//        this.currentUserFriendIds = friendIds != null ? friendIds : new ArrayList<>();
+//        this.pendingFriendRequestUserIds = pendingIds != null ? pendingIds : new ArrayList<>();
+//        notifyDataSetChanged();
+//    }
+    public List<String> getCurrentUserFriendIds() {
+        return currentUserFriendIds;
+    }
+    public void updateFriendData(List<String> hiddenIds) {
+        this.currentUserFriendIds = hiddenIds != null ? hiddenIds : new ArrayList<>();
+        notifyDataSetChanged();
+    }
+
+
+
     static class UserViewHolder extends RecyclerView.ViewHolder {
         ImageView avatar;
         TextView username, email, title;
+        ImageButton addFriendButton;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -90,6 +128,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
             username = itemView.findViewById(R.id.text_username);
             email = itemView.findViewById(R.id.text_email);
             title = itemView.findViewById(R.id.text_title);
+            addFriendButton = itemView.findViewById(R.id.button_add_friend);
         }
     }
 }

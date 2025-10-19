@@ -157,12 +157,24 @@
             android:layout_marginTop="8dp" />
 
         <TextView
-            android:id="@+id/text_equipment"
-            android:layout_width="wrap_content"
+            android:id="@+id/text_equipment_notice"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Nema opreme"
-            android:textColor="#333"
-            android:layout_marginBottom="20dp" />
+            android:text="Vidite samo aktivnu opremu korisnika."
+            android:textColor="@android:color/darker_gray"
+            android:textStyle="italic"
+            android:textSize="14sp"
+            android:visibility="gone"
+            android:padding="8dp"
+            android:gravity="center_horizontal" />
+
+        <LinearLayout
+            android:id="@+id/layout_equipment_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp" />
+
 
         <!-- QR kod -->
         <ImageView

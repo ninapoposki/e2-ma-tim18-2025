@@ -70,7 +70,7 @@ public class EquipmentFragment extends Fragment {
     }
 
     private void displayEquipment(List<UserEquipment> equipmentList){
-        adapter = new UserEquipmentAdapter(equipmentList, (item, position) -> {
+        adapter = new UserEquipmentAdapter(requireContext(),equipmentList, (item, position) -> {
             // Aktiviraj item
             item.setActive(true);
 

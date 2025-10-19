@@ -17,5 +17,13 @@
             android:id="@+id/nav_user_list"
             android:icon="@drawable/ic_menu_equipment"
             android:title="Other users"/>
+        <item
+            android:id="@+id/nav_user_progress"
+            android:icon="@drawable/ic_menu_equipment"
+            android:title="My progress"/>
+        <item
+            android:id="@+id/nav_friend_request"
+            android:icon="@drawable/ic_menu_equipment"
+            android:title="Friend requests"/>
     </group>
 </menu>

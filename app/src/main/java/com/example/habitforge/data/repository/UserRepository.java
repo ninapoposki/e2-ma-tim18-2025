@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.habitforge.application.model.FriendRequest;
 import com.example.habitforge.application.model.UserEquipment;
 import com.example.habitforge.application.model.enums.EquipmentType;
 import com.example.habitforge.application.session.SessionManager;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 public class UserRepository {
 
@@ -181,6 +183,14 @@ public class UserRepository {
                 } else {
                     cloudUser.setEquipment(new ArrayList<>());
                 }
+                List<String> friendIdsList = new ArrayList<>();
+                if (snapshot.contains("friendIds") && snapshot.get("friendIds") != null) {
+                    List<Object> rawList = (List<Object>) snapshot.get("friendIds");
+                    for (Object o : rawList) {
+                        if (o != null) friendIdsList.add(o.toString());
+                    }
+                }
+                cloudUser.setFriendIds(friendIdsList);
 
                 // Sačuvaj u lokalnu bazu
                // localDb.insertUser(cloudUser);
@@ -274,7 +284,6 @@ public class UserRepository {
         }
     }
 
-
     // Metoda koja dodaje oružje od bossa
     public void receiveEquipmentByBoss(User user, UserEquipment newItem) {
         if (user == null || newItem == null) return;
@@ -341,7 +350,84 @@ public class UserRepository {
     }
 
 
+    // --- PROVERA I AZURIRANJE LEVELA ---
+    public void checkAndUpdateLevel(String userId) {
+        if (userId == null || userId.isEmpty()) return;
 
+        getUserById(userId, new UserCallback() {
+            @Override
+            public void onSuccess(User user) {
+                if (user == null) return;
+
+                int currentLevel = user.getLevel();
+                int currentXP = user.getExperiencePoints();
+
+                // XP potreban za prvi nivo
+                int xpNeeded = 200;
+                int ppReward = 40;
+
+                // Ako je već iznad level 1, računamo XP za sledeće nivoe
+                for (int i = 1; i < currentLevel; i++) {
+                    xpNeeded = calculateNextLevelXP(xpNeeded);
+                    ppReward = calculateNextLevelPP(ppReward);
+                }
+
+                boolean leveledUp = false;
+
+                // Proveravamo da li korisnik može da pređe nivo više puta
+                while (currentXP >= xpNeeded) {
+                    currentLevel++;        // povecaj level
+                    leveledUp = true;
+
+                    // Dodaj nagradu za prelazak nivoa (može da bude coins)
+                    int coinsReward = calculateCoinsForLevel(currentLevel);
+                    user.setCoins(user.getCoins() + coinsReward);
+                    user.setLevel(currentLevel);
+                    user.setPowerPoints(user.getPowerPoints() + ppReward);
+
+                    // Dodeli novu titulu
+                    user.setTitle(getTitleForLevel(currentLevel));
+
+                    // Izračunaj XP potreban za sledeći nivo
+                    xpNeeded = calculateNextLevelXP(xpNeeded);
+                }
+
+                if (leveledUp) {
+                    // Sačuvaj promene u bazi
+                    updateUser(user);
+                }
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.e("UserRepo", "User not found for level check.", e);
+            }
+        });
+    }
+
+
+    // --- Pomoćne metode ---
+    private int calculateNextLevelXP(int previousXP) {
+        double nextXP = previousXP * 2 + previousXP / 2.0;
+        return ((int) (Math.ceil(nextXP / 100))) * 100;  // zaokružuje na sledeću stotinu
+    }
+
+    private int calculateCoinsForLevel(int level) {
+        return 100 * level; // primer, može da se menja
+    }
+
+    private String getTitleForLevel(int level) {
+        switch (level) {
+            case 1: return "Beginner";
+            case 2: return "Apprentice";
+            case 3: return "Warrior";
+            default: return "Hero Level " + level;
+        }
+    }
+
+    private int calculateNextLevelPP(int previousPP) {
+        return (int) Math.round(previousPP * 1.75);
+    }
 
 
     // --- SVI KORISNICI ---
@@ -426,14 +512,181 @@ public class UserRepository {
                         .update("experiencePoints", newXp)
                         .addOnSuccessListener(aVoid -> {
                             Log.i("UserRepo", "✅ XP updated: " + newXp);
+                            checkAndUpdateLevel(userId);
                             callback.onComplete(null);
                         })
                         .addOnFailureListener(e -> Log.e("UserRepo", "❌ XP update failed", e));
+
             } else {
                 Log.e("UserRepo", "User not found in Firestore for XP update.");
             }
         });
     }
+
+    // --- FRIEND REQUESTS ---
+    public void sendFriendRequest(String fromUserId, String toUserId, FriendRequestCallback  callback) {
+        FriendRequest request = new FriendRequest(fromUserId, toUserId, System.currentTimeMillis());
+        remoteDb.getFirestore()
+                .collection("friendRequests")
+                .add(request)
+                .addOnSuccessListener(documentReference -> {
+                    List<FriendRequest> list = new ArrayList<>();
+                    list.add(request);  // stavi u listu
+                    callback.onSuccess(list);  // uspeh
+                })
+                .addOnFailureListener(e -> {
+                    callback.onFailure(e);  // greška
+                });
+    }
+
+    public void getFriendRequestsForUser(String userId, FriendRequestCallback callback) {
+        remoteDb.getFirestore()
+                .collection("friendRequests")
+                .whereEqualTo("toUserId", userId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        List<FriendRequest> requests = new ArrayList<>();
+                        for (DocumentSnapshot doc : task.getResult()) {
+                            FriendRequest fr = doc.toObject(FriendRequest.class);
+                            fr.setId(doc.getId());
+                            requests.add(fr);
+                        }
+                        callback.onSuccess(requests);
+                    } else {
+                        callback.onFailure(task.getException());
+                    }
+                });
+    }
+
+    public void acceptFriendRequest(FriendRequest request, OnCompleteListener<Void> callback) {
+        // 1. Dodaj u friend list oba korisnika
+        getUserById(request.getFromUserId(), new UserCallback() {
+            @Override
+            public void onSuccess(User fromUser) {
+                getUserById(request.getToUserId(), new UserCallback() {
+                    @Override
+                    public void onSuccess(User toUser) {
+                        fromUser.getFriendIds().add(toUser.getUserId());
+                        toUser.getFriendIds().add(fromUser.getUserId());
+                        updateUser(fromUser);
+                        updateUser(toUser);
+
+                        // 2. Obriši zahtev
+                        remoteDb.getFirestore()
+                                .collection("friendRequests")
+                                .document(request.getId())
+                                .delete()
+                                .addOnCompleteListener(callback);
+                    }
+                    @Override
+                    public void onFailure(Exception e) { callback.onComplete(null); }
+                });
+            }
+            @Override
+            public void onFailure(Exception e) { callback.onComplete(null); }
+        });
+    }
+
+    public void declineFriendRequest(FriendRequest request, OnCompleteListener<Void> callback) {
+        remoteDb.getFirestore()
+                .collection("friendRequests")
+                .document(request.getId())
+                .delete()
+                .addOnCompleteListener(callback);
+    }
+
+    public void getCurrentUserFriends(String currentUserId, UserIdsCallback callback) {
+        getUserById(currentUserId, new UserCallback() {
+            @Override
+            public void onSuccess(User user) {
+                callback.onResult(user.getFriendIds());
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onResult(new ArrayList<>());
+            }
+        });
+    }
+
+    public void getPendingFriendRequests(String currentUserId, UserIdsCallback callback) {
+        remoteDb.getFirestore()
+                .collection("friendRequests")
+                .whereEqualTo("fromUserId", currentUserId) // zahtevi koje je poslao trenutni user
+                .get()
+                .addOnCompleteListener(task -> {
+                    List<String> pendingIds = new ArrayList<>();
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        for (DocumentSnapshot doc : task.getResult()) {
+                            FriendRequest fr = doc.toObject(FriendRequest.class);
+                            pendingIds.add(fr.getToUserId()); // UID korisnika kome je poslat zahtev
+                        }
+                    }
+                    callback.onResult(pendingIds);
+                });
+    }
+    public void getPendingAndIncomingFriendRequests(String currentUserId, BiConsumer<List<String>, List<String>> callback) {
+        // Lista za zahteve koje smo poslali
+        remoteDb.getFirestore()
+                .collection("friendRequests")
+                .whereEqualTo("fromUserId", currentUserId)
+                .get()
+                .addOnCompleteListener(taskSent -> {
+                    List<String> pendingIds = new ArrayList<>();
+                    if (taskSent.isSuccessful() && taskSent.getResult() != null) {
+                        for (DocumentSnapshot doc : taskSent.getResult()) {
+                            FriendRequest fr = doc.toObject(FriendRequest.class);
+                            pendingIds.add(fr.getToUserId());
+                        }
+                    }
+
+                    // Sada uzmemo i incoming zahteve
+                    remoteDb.getFirestore()
+                            .collection("friendRequests")
+                            .whereEqualTo("toUserId", currentUserId)
+                            .get()
+                            .addOnCompleteListener(taskReceived -> {
+                                List<String> incomingIds = new ArrayList<>();
+                                if (taskReceived.isSuccessful() && taskReceived.getResult() != null) {
+                                    for (DocumentSnapshot doc : taskReceived.getResult()) {
+                                        FriendRequest fr = doc.toObject(FriendRequest.class);
+                                        incomingIds.add(fr.getFromUserId());
+                                    }
+                                }
+
+                                // prosleđujemo obe liste callback-u
+                                callback.accept(pendingIds, incomingIds);
+                            });
+                });
+    }
+
+
+    public interface UserIdsCallback {
+        void onResult(List<String> ids);
+    }
+
+
+    // Callback interface
+    public interface FriendRequestCallback {
+        void onSuccess(List<FriendRequest> requests);
+        void onFailure(Exception e);
+    }
+    public void getUsernameById(String userId, UserCallback callback) {
+        getUserById(userId, new UserCallback() {
+            @Override
+            public void onSuccess(User user) {
+                callback.onSuccess(user);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                callback.onFailure(e);
+            }
+        });
+    }
+
+
 
     public interface UserCallback {
         void onSuccess(User user);

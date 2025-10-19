@@ -25,7 +25,9 @@
     <string name="menu_profile">My profile</string>
     <string name="menu_equipment">Equipment</string>
     <string name="menu_userList">Other users</string>
+    <string name="menu_userProgress">My progress</string>
     <string name="shop">Equipment shop</string>
+    <string name="menu_friend_request">Friend Requests</string>
 
     <string name="drawer_open">Open drawer</string>
     <string name="drawer_close">Close drawer</string>
