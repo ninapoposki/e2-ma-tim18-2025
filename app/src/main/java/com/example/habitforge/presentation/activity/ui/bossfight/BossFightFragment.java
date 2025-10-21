@@ -7,6 +7,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -204,6 +205,10 @@ private void calculateUserPower() {
     }
 
     tvUserPower.setText(userTotalPP + " PP");
+    Log.d("BOSS_PP", "Base PP: " + currentUser.getPowerPoints());
+    Log.d("BOSS_PP", "Active equipment count: " + (activeEquipment != null ? activeEquipment.size() : 0));
+    Log.d("BOSS_PP", "Final calculated PP: " + userTotalPP);
+
     updateUserPPBar();
 }
 
@@ -605,16 +610,19 @@ private void updateUI() {
 //    }
 
 private void performAttackWithChance(int hitChance) {
+    Log.d("BOSS_ATTACK", "Step 1: performAttackWithChance started");
     userService.useAllActivePotions(currentUser, () -> {
+        Log.d("BOSS_ATTACK", "Step 2: Potions applied");
         userService.useAllActiveClothing(currentUser, () -> {
+            Log.d("BOSS_ATTACK", "Step 3: Clothing applied");
             calculateUserPower();
             updateUserPPBar();
-
+            Log.d("BOSS_ATTACK", "Step 4: Proceeding to continueAttackFlow");
             continueAttackFlow(hitChance);
         });
     });
-
 }
+
 
 
     private void continueAttackFlow(int hitChance) {
@@ -701,11 +709,14 @@ private void performAttackWithChance(int hitChance) {
         }
     }
 
+   // VEROVATNOCA
     private void calculateRewards(boolean fullVictory) {
         // Calculate coins
         int baseCoins = 200;
-        int levelMultiplier = (int) Math.pow(1.2, currentBoss.getLevel() - 1);
-        coinsReward = baseCoins * levelMultiplier;
+        //dobijeni coinsi
+        double levelMultiplier = Math.pow(1.2, currentBoss.getLevel() - 1);
+        coinsReward = (int) (baseCoins * levelMultiplier);
+
 
         if (!fullVictory) {
             coinsReward /= 2; // Half rewards for partial victory
@@ -769,22 +780,29 @@ private void performAttackWithChance(int hitChance) {
         }
     }
 
+//    private void saveRewardsToUser() {
+//        String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
+//        if (userId == null) return;
+//
+//        Map<String, Object> updates = new HashMap<>();
+//        updates.put("coins", currentUser.getCoins() + coinsReward);
+//
+//        db.collection("users").document(userId)
+//                .update(updates)
+//                .addOnSuccessListener(aVoid -> {
+//                    // Optionally add equipment to inventory if itemReward exists
+//                    if (itemReward != null) {
+//                        addItemToInventory(userId);
+//                    }
+//                });
+//
+//    }
+
     private void saveRewardsToUser() {
-        String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
-        if (userId == null) return;
+        userService.saveRewards(currentUser, coinsReward, itemReward, currentBoss.getLevel());
 
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("coins", currentUser.getCoins() + coinsReward);
-
-        db.collection("users").document(userId)
-                .update(updates)
-                .addOnSuccessListener(aVoid -> {
-                    // Optionally add equipment to inventory if itemReward exists
-                    if (itemReward != null) {
-                        addItemToInventory(userId);
-                    }
-                });
     }
+
 
     private void addItemToInventory(String userId) {
         // Create new equipment item and add to user's inventory
@@ -869,38 +887,6 @@ private void performAttackWithChance(int hitChance) {
         }
     }
 
-//    @Override
-//    public void onSensorChanged(SensorEvent event) {
-//        if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
-//
-//        float x = event.values[0];
-//        float y = event.values[1];
-//        float z = event.values[2];
-//
-//        float acceleration = (x * x + y * y + z * z)
-//                / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
-//
-//        long currentTime = System.currentTimeMillis();
-//
-//        if (acceleration > 2.5) { // manja vrednost = osetljiviji
-//            if (currentTime - lastShakeTime > 1200) {
-//                lastShakeTime = currentTime;
-//
-//                if (!chestOpened && cardReward.getVisibility() == View.VISIBLE) {
-//                    openChest();
-//                    return;
-//                }
-//
-//                if (shakeForAttackEnabled && cardAttack.getVisibility() == View.VISIBLE
-//                        && !bossDefeated && currentBoss != null && currentBoss.getAttemptsLeft() > 0) {
-//
-//                    Toast.makeText(requireContext(), "⚔️ Shake attack!", Toast.LENGTH_SHORT).show();
-//
-//                    performAttack();
-//                }
-//            }
-//        }
-//    }
 
 
     @Override

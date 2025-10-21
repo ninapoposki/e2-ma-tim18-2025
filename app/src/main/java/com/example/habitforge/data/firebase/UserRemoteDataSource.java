@@ -79,7 +79,9 @@ package com.example.habitforge.data.firebase;
 
 import android.util.Log;
 
+import com.example.habitforge.application.model.Equipment;
 import com.example.habitforge.application.model.UserEquipment;
+import com.example.habitforge.application.model.enums.EquipmentType;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -166,6 +168,41 @@ public class UserRemoteDataSource {
             currentUser.sendEmailVerification();
         }
     }
+
+    public void saveRewardsAndEquipment(User user, int coinsReward, String itemReward, int bossLevel) {
+        if (user == null || user.getUserId() == null) return;
+
+        String userId = user.getUserId();
+
+        db.collection("users").document(userId)
+                .update("coins", user.getCoins() + coinsReward)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("Firestore", "✅ Coins updated successfully");
+
+                    // Ako postoji nagrada (item)
+                    if (itemReward != null) {
+                        UserEquipment newItem = new UserEquipment();
+                        newItem.setId(java.util.UUID.randomUUID().toString());
+                        newItem.setEquipmentId(itemReward.contains("Armor") ? "clothingReward" + bossLevel : "weaponReward" + bossLevel);
+                        newItem.setType(itemReward.contains("Armor") ? EquipmentType.CLOTHING : EquipmentType.WEAPON);
+                        newItem.setEffect(itemReward.contains("Armor") ? 0.1 : 0.2);
+                        newItem.setDuration(2);
+                        newItem.setActive(true);
+                        newItem.setUsedInNextBossFight(false);
+                        newItem.setLevel(0);
+
+                        db.collection("users")
+                                .document(userId)
+                                .update("equipment", FieldValue.arrayUnion(newItem))
+                                .addOnSuccessListener(v -> Log.d("Firestore", "🎁 Equipment reward added: " + itemReward))
+                                .addOnFailureListener(e -> Log.e("Firestore", "❌ Failed to add equipment", e));
+                    }
+
+                })
+                .addOnFailureListener(e -> Log.e("Firestore", "❌ Failed to save rewards", e));
+    }
+
+
 
     // --- PROVERA AKTIVACIJE ---
     public boolean checkEmailVerified() {

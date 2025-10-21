@@ -90,6 +90,15 @@ public class UserService {
         userRepository.resetUsedPotions(user,onSuccess);
     }
 
+    public void receiveEquipmentByBoss(User user, UserEquipment newItem){
+        userRepository.receiveEquipmentByBoss(user,newItem);
+    }
+
+    public void saveRewards(User user, int coinsReward, String itemReward, int bossLevel) {
+        userRepository.saveRewards(user, coinsReward, itemReward, bossLevel);
+    }
+
+
 
 
 

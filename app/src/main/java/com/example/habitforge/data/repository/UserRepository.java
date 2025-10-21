@@ -285,33 +285,24 @@ public class UserRepository {
     }
 
     public void useAllActiveClothing(User user, Runnable onSuccess) {
-        if (user == null || user.getEquipment() == null) return;
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        List<UserEquipment> equipmentList = user.getEquipment();
-        boolean changed = false;
+        db.collection("users")
+                .document(user.getUserId())
+                .collection("equipment")
+                .whereEqualTo("isActive", true)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        doc.getReference().update("isActive", false);
+                    }
 
-        for (int i = 0; i < equipmentList.size(); i++) {
-            UserEquipment item = equipmentList.get(i);
-
-            if (item.getType() == EquipmentType.CLOTHING && item.isActive()) {
-                item.setDuration(item.getDuration() - 1);
-                changed = true;
-
-                if (item.getDuration() <= 0) {
-                    item.setActive(false);
-                }
-            }
-        }
-
-        if (changed) {
-            try {
-                remoteDb.saveUserDocument(user);
-                if (onSuccess != null) onSuccess.run();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+                    Log.d("USER_SERVICE", "All active clothing used.");
+                    if (onSuccess != null) onSuccess.run();
+                })
+                .addOnFailureListener(e -> Log.e("USER_SERVICE", "Failed to use clothing", e));
     }
+
     public void resetUsedPotions(User user, Runnable onSuccess) {
 
         if (user == null || user.getEquipment() == null) return;
@@ -338,33 +329,24 @@ public class UserRepository {
 
 
     public void useAllActivePotions(User user, Runnable onSuccess) {
-        if (user == null || user.getEquipment() == null) return;
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        boolean changed = false;
-
-        for (UserEquipment item : user.getEquipment()) {
-            if (item.getType() == EquipmentType.POTION && item.isActive()) {
-                // 🔹 Napitak važi tokom cele borbe, pa ga NE postavljamo na usedInNextBossFight odmah
-                // Umesto toga, možemo smanjiti trajanje (ako ga ima)
-                if (item.getDuration() > 0) {
-                    item.setDuration(item.getDuration() - 1);
-                    changed = true;
-                    if (item.getDuration() <= 0) {
-                        item.setActive(false); // deaktiviraj ako istekne
+        db.collection("users")
+                .document(user.getUserId())
+                .collection("potions")
+                .whereEqualTo("isActive", true)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        doc.getReference().update("isActive", false);
                     }
-                }
-            }
-        }
 
-        if (changed) {
-            try {
-                remoteDb.saveUserDocument(user); // snimi izmene
-                if (onSuccess != null) onSuccess.run(); // callback za UI osveženje
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+                    Log.d("USER_SERVICE", "All active potions used.");
+                    if (onSuccess != null) onSuccess.run();
+                })
+                .addOnFailureListener(e -> Log.e("USER_SERVICE", "Failed to use potions", e));
     }
+
 
 
 
@@ -1209,6 +1191,10 @@ public void getCurrentBoss(String userId, BossCallback callback) {
                     callback.onSuccess(messages);
                 });
     }
+    public void saveRewards(User user, int coinsReward, String itemReward, int bossLevel) {
+        remoteDb.saveRewardsAndEquipment(user, coinsReward, itemReward, bossLevel);
+    }
+
 
     public interface AllianceMessageCallback {
         void onSuccess(List<AllianceMessage> messages);
