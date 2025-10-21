@@ -224,6 +224,7 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         // TextWatcher za dinamičku validaciju
+        
         TextWatcher afterTextChangedListener = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
