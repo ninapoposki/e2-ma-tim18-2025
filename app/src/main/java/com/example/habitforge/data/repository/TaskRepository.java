@@ -10,6 +10,7 @@ import com.example.habitforge.data.database.TaskLocalDataSource;
 import com.example.habitforge.data.firebase.TaskRemoteDataSource;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -132,79 +133,102 @@ public class TaskRepository {
     }
     // --- CHECK QUOTA BEFORE ADDING TASK ---
     public void addTaskWithQuotaCheck(Task task, OnCompleteListener<Void> callback) {
+        Log.d("TaskQuota", "addTaskWithQuotaCheck() called for task: " + task.getName());
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        int quota = getQuotaForTask(task);
         long startOfPeriod = getStartOfPeriod(task);
 
-        db.collection("users")
-                .document(task.getUserId())
-                .collection("tasks")
-                .whereEqualTo("difficulty", task.getDifficulty().name())
-                .whereEqualTo("priority", task.getPriority().name())
+        // provera taskova sa istom tezinom ili koji imaju istu bitnost
+        db.collection("tasks")
                 .whereGreaterThanOrEqualTo("createdAt", startOfPeriod)
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
-                    // ✅ LOG mora biti ovde
-                    Log.d("TaskQuota", "Found " + querySnapshot.size() + " tasks for "
-                            + task.getDifficulty() + " + " + task.getPriority());
+                    int difficultyCount = 0;
+                    int priorityCount = 0;
+
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        Log.d("TaskQuota", "Existing task ID: " + doc.getId());
+                        Task existing = doc.toObject(Task.class);
+                        if (existing != null) {
+                            if (existing.getDifficulty() == task.getDifficulty()) {
+                                difficultyCount++;
+                            }
+                            if (existing.getPriority() == task.getPriority()) {
+                                priorityCount++;
+                            }
+                        }
                     }
 
-                    int existingCount = querySnapshot.size();
-                    boolean exceeds = existingCount >= quota;
-                    task.setExceedsQuota(exceeds);
+                    boolean exceedsDifficulty = difficultyCount >= getQuotaForDifficulty(task.getDifficulty());
+                    boolean exceedsPriority = priorityCount >= getQuotaForPriority(task.getPriority());
 
-                    if (!exceeds) {
-                        task.calculateXp();
+                    task.setExceedsQuota(exceedsDifficulty || exceedsPriority);
+
+                    int difficultyXp = (task.getDifficulty() != null) ? task.getDifficulty().getXp() : 0;
+                    int priorityXp = (task.getPriority() != null) ? task.getPriority().getXp() : 0;
+
+                    if (!exceedsDifficulty && !exceedsPriority) {
+                        task.setXp(difficultyXp + priorityXp);   // ništa nije prešao
+                    } else if (exceedsDifficulty && !exceedsPriority) {
+                        task.setXp(priorityXp);                  // prešao težinu → samo bitnost
+                    } else if (!exceedsDifficulty && exceedsPriority) {
+                        task.setXp(difficultyXp);                // prešao bitnost → samo težina
                     } else {
-                        task.setXp(0);
+                        task.setXp(0);                           // prešao obe → ništa
                     }
 
+
+                    Log.d("TaskQuota", "Difficulty count=" + difficultyCount +
+                            ", Priority count=" + priorityCount +
+                            ", exceedsDifficulty=" + exceedsDifficulty +
+                            ", exceedsPriority=" + exceedsPriority);
                     addTask(task, callback);
                 })
                 .addOnFailureListener(e -> {
+                    Log.e("TaskQuota", "Error checking quota: ", e);
                     task.setExceedsQuota(false);
                     task.calculateXp();
                     addTask(task, callback);
                 });
     }
 
-
-    /** Quota limits based on difficulty + priority */
-    private int getQuotaForTask(Task task) {
-        TaskDifficulty difficulty = task.getDifficulty();
-        TaskPriority priority = task.getPriority();
-
-        if ((difficulty == TaskDifficulty.VERY_EASY && priority == TaskPriority.NORMAL) ||
-                (difficulty == TaskDifficulty.EASY && priority == TaskPriority.IMPORTANT)) {
-            return 5; // per day
-        } else if (difficulty == TaskDifficulty.HARD && priority == TaskPriority.EXTREMELY_IMPORTANT) {
-            return 2; // per day
-        } else if (difficulty == TaskDifficulty.EXTREMELY_HARD) {
-            return 1; // per week
-        } else if (priority == TaskPriority.SPECIAL) {
-            return 1; // per month
-        }
+    /** Kvota po težini */
+    private int getQuotaForDifficulty(TaskDifficulty difficulty) {
+        if (difficulty == TaskDifficulty.EASY || difficulty == TaskDifficulty.VERY_EASY)
+            return 5; // dnevno
+        else if (difficulty == TaskDifficulty.HARD)
+            return 2; // dnevno
+        else if (difficulty == TaskDifficulty.EXTREMELY_HARD)
+            return 1; // nedeljno
         return 5;
     }
 
-    /** Time range for quota evaluation */
+    /** Kvota po bitnosti */
+    private int getQuotaForPriority(TaskPriority priority) {
+        if (priority == TaskPriority.IMPORTANT)
+            return 5; // dnevno
+        else if (priority == TaskPriority.EXTREMELY_IMPORTANT)
+            return 2; // dnevno
+        else if (priority == TaskPriority.SPECIAL)
+            return 1; // mesečno
+        return 5;
+    }
+
+    /** Period za proveru kvote */
     private long getStartOfPeriod(Task task) {
         Calendar cal = Calendar.getInstance();
-        TaskDifficulty difficulty = task.getDifficulty();
-        TaskPriority priority = task.getPriority();
+        TaskDifficulty diff = task.getDifficulty();
+        TaskPriority prio = task.getPriority();
 
-        if (difficulty == TaskDifficulty.EXTREMELY_HARD) {
-            cal.add(Calendar.DAY_OF_YEAR, -7);
-        } else if (priority == TaskPriority.SPECIAL) {
-            cal.add(Calendar.MONTH, -1);
+        if (diff == TaskDifficulty.EXTREMELY_HARD || prio == TaskPriority.SPECIAL) {
+            if (diff == TaskDifficulty.EXTREMELY_HARD) cal.add(Calendar.DAY_OF_YEAR, -7);
+            if (prio == TaskPriority.SPECIAL) cal.add(Calendar.MONTH, -1);
         } else {
             cal.add(Calendar.DAY_OF_YEAR, -1);
         }
         return cal.getTimeInMillis();
     }
+
 
 
 
