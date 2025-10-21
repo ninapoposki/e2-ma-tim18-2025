@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.habitforge.R;
 import com.example.habitforge.application.model.Equipment;
 import com.example.habitforge.application.model.UserEquipment;
+import com.example.habitforge.application.model.enums.EquipmentType;
 import com.example.habitforge.application.service.EquipmentService;
 
 import java.util.List;
@@ -28,13 +29,18 @@ public class UserEquipmentAdapter extends RecyclerView.Adapter<UserEquipmentAdap
     private final OnEquipmentActivateListener listener;
     private final EquipmentService equipmentService;
     private final Context context;
-
-    public UserEquipmentAdapter(Context context, List<UserEquipment> equipmentList, OnEquipmentActivateListener listener) {
+    private final OnEquipmentUpgradeListener upgradeListener;
+    public UserEquipmentAdapter(Context context, List<UserEquipment> equipmentList, OnEquipmentActivateListener listener,  OnEquipmentUpgradeListener upgradeListener) {
         this.context = context;
         this.equipmentList = equipmentList;
         this.listener = listener;
+        this.upgradeListener = upgradeListener;
         this.equipmentService = new EquipmentService(context);
     }
+    public interface OnEquipmentUpgradeListener {
+        void onUpgrade(UserEquipment item, int position);
+    }
+
 
     @NonNull
     @Override
@@ -61,6 +67,12 @@ public class UserEquipmentAdapter extends RecyclerView.Adapter<UserEquipmentAdap
                 } else {
                    // holder.imageView.setImageResource(R.drawable.ic_default_equipment);
                 }
+
+                if (EquipmentType.WEAPON.equals(equipment.getType())) {
+                    holder.btnUpgrade.setVisibility(View.VISIBLE);
+                } else {
+                    holder.btnUpgrade.setVisibility(View.GONE);
+                }
             }
 
             @Override
@@ -73,6 +85,11 @@ public class UserEquipmentAdapter extends RecyclerView.Adapter<UserEquipmentAdap
         holder.btnActivate.setVisibility(userEq.isActive() ? View.GONE : View.VISIBLE);
 
         holder.btnActivate.setOnClickListener(v -> listener.onActivate(userEq, position));
+        holder.btnUpgrade.setOnClickListener(v -> {
+            if (upgradeListener != null) {
+                upgradeListener.onUpgrade(userEq, position);
+            }
+        });
     }
 
     @Override
@@ -83,7 +100,7 @@ public class UserEquipmentAdapter extends RecyclerView.Adapter<UserEquipmentAdap
     static class EquipmentViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
         TextView tvName, tvActivated;
-        Button btnActivate;
+        Button btnActivate, btnUpgrade;
 
         EquipmentViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -91,6 +108,7 @@ public class UserEquipmentAdapter extends RecyclerView.Adapter<UserEquipmentAdap
             tvName = itemView.findViewById(R.id.tvEquipmentName);
             tvActivated = itemView.findViewById(R.id.tvActivated);
             btnActivate = itemView.findViewById(R.id.btnActivate);
+            btnUpgrade = itemView.findViewById(R.id.btnUpgrade);
         }
     }
 }

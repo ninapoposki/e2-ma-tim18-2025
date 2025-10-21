@@ -26,6 +26,15 @@ public class User {
     private String qrCode;
 
     private String allianceId; // ID saveza u kojem je korisnik, null ako nije u savezu
+    private String fcmToken;
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
 
     public String getAllianceId() {
         return allianceId;
@@ -49,6 +58,7 @@ public class User {
         this.powerPoints = 0;
         this.experiencePoints = 0;
         this.coins = 0;
+        this.fcmToken = null;
     }
 
     public User(String userId, String email, String username, String avatar, Boolean isActive) {

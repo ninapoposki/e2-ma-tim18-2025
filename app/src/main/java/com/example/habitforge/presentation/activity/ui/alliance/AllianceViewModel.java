@@ -8,8 +8,12 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.habitforge.application.model.Alliance;
+import com.example.habitforge.application.model.AllianceMessage;
 import com.example.habitforge.application.model.User;
 import com.example.habitforge.data.repository.UserRepository;
+import com.google.firebase.firestore.ListenerRegistration;
+
+import java.util.List;
 
 public class AllianceViewModel extends AndroidViewModel {
 
@@ -18,6 +22,13 @@ public class AllianceViewModel extends AndroidViewModel {
     private final MutableLiveData<Alliance> allianceLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
 
+    private final MutableLiveData<List<AllianceMessage>> messagesLiveData = new MutableLiveData<>();
+
+    public LiveData<List<AllianceMessage>> getMessagesLiveData() {
+        return messagesLiveData;
+    }
+    private ListenerRegistration messagesListener;
+
     public AllianceViewModel(@NonNull Application application) {
         super(application);
         userRepository = new UserRepository(application.getApplicationContext());
@@ -25,6 +36,9 @@ public class AllianceViewModel extends AndroidViewModel {
 
     public LiveData<Alliance> getAllianceLiveData() {
         return allianceLiveData;
+    }
+    public void getUserById(String userId, UserRepository.UserCallback callback) {
+        userRepository.getUserById(userId, callback);
     }
 
     public LiveData<String> getErrorLiveData() {
@@ -60,4 +74,44 @@ public class AllianceViewModel extends AndroidViewModel {
             }
         });
     }
+
+    public void disbandAlliance(String allianceId, UserRepository.GenericCallback callback) {
+        userRepository.disbandAlliance(allianceId, callback);
+    }
+
+
+    public void sendAllianceMessage(String allianceId, String senderId, String senderName, String content) {
+        AllianceMessage msg = new AllianceMessage(allianceId, senderId, senderName, content);
+        userRepository.sendAllianceMessage(msg, success -> {
+            if (!success) {
+                errorLiveData.postValue("Failed to send message");
+            }
+        });
+    }
+
+    public void getUsername(String userId, UserRepository.UserCallback callback) {
+        userRepository.getUsernameById(userId, callback);
+    }
+
+    public void listenAllianceMessages(String allianceId) {
+        if (messagesListener != null) messagesListener.remove();
+        messagesListener = userRepository.listenAllianceMessages(allianceId, new UserRepository.AllianceMessageCallback() {
+            @Override
+            public void onSuccess(List<AllianceMessage> messages) {
+                messagesLiveData.postValue(messages);
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                errorLiveData.postValue("Failed to load messages: " + e.getMessage());
+            }
+        });
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        if (messagesListener != null) messagesListener.remove();
+    }
+
 }

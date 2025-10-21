@@ -1,27 +1,44 @@
 package com.example.habitforge.data.repository;
 
+import static androidx.core.content.ContentProviderCompat.requireContext;
+
 import android.content.Context;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.example.habitforge.application.model.Alliance;
 import com.example.habitforge.application.model.AllianceInvite;
+import com.example.habitforge.application.model.AllianceMessage;
 import com.example.habitforge.application.model.FriendRequest;
 import com.example.habitforge.application.model.UserEquipment;
 import com.example.habitforge.application.model.enums.EquipmentType;
+import com.example.habitforge.application.model.enums.TaskDifficulty;
+import com.example.habitforge.application.model.enums.TaskPriority;
 import com.example.habitforge.application.session.SessionManager;
+import com.example.habitforge.utils.FcmSender;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.example.habitforge.application.model.User;
 import com.example.habitforge.data.database.UserLocalDataSource;
 import com.example.habitforge.data.firebase.UserRemoteDataSource;
+import com.google.firebase.firestore.WriteBatch;
 
+import org.json.JSONObject;
+
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,9 +50,12 @@ public class UserRepository {
     private final UserLocalDataSource localDb;
     private final UserRemoteDataSource remoteDb;
 
+    private final TaskRepository taskRepository;
+
     public UserRepository(Context context) {
         this.localDb = new UserLocalDataSource(context);
         this.remoteDb = new UserRemoteDataSource();
+        taskRepository = new TaskRepository(context);
     }
 
     // --- REGISTRACIJA ---
@@ -71,6 +91,63 @@ public class UserRepository {
     public void login(String email, String password, OnCompleteListener<AuthResult> callback) {
         remoteDb.signInUser(email, password, callback);
     }
+    public void updateUserFcmToken(String userId, String fcmToken) {
+        remoteDb.getFirestore()
+                .collection("users")
+                .document(userId)
+                .update("fcmToken", fcmToken)
+                .addOnSuccessListener(aVoid -> Log.d("FCM", "FCM token updated for user: " + userId))
+                .addOnFailureListener(e -> Log.e("FCM", "Failed to update FCM token for user: " + userId, e));
+    }
+
+
+//    public void loginAndSavePlayerId(String email, String password, GenericCallback callback) {
+//        login(email, password, task -> {
+//            if (task.isSuccessful()) {
+//                String userId = task.getResult().getUser().getUid();
+//
+//                // ✅ Novi način - uzimanje OneSignal subscription ID-ja (playerId)
+//                String playerId = OneSignal.getUser().getPushSubscription().getId();
+//
+//                if (playerId != null && !playerId.isEmpty()) {
+//                    saveOneSignalPlayerId(userId, playerId, callback);
+//                } else {
+//                    callback.onComplete(false);
+//                }
+//            } else {
+//                callback.onComplete(false);
+//            }
+//        });
+//    }
+//public void loginAndSavePlayerId(String email, String password, GenericCallback callback) {
+//    login(email, password, task -> {
+//        if (task.isSuccessful()) {
+//            String userId = task.getResult().getUser().getUid();
+//
+//            // ⚠️ Stari Java SDK 5.1.8
+//            // Dobijanje playerId kroz PermissionSubscriptionState
+//            OneSignal.PermissionSubscriptionState status = OneSignal.getPermissionSubscriptionState();
+//            if (status != null && status.getSubscriptionStatus() != null) {
+//                String playerId = status.getSubscriptionStatus().getUserId();
+//
+//                if (playerId != null && !playerId.isEmpty()) {
+//                    saveOneSignalPlayerId(userId, playerId, callback);
+//                    return;
+//                }
+//            }
+//
+//            // Ako playerId još nije spreman, čekaš da se registruje
+//            // Opcija: mali delay i retry
+//            new Handler(Looper.getMainLooper()).postDelayed(() -> loginAndSavePlayerId(email, password, callback), 1500);
+//
+//        } else {
+//            callback.onComplete(false);
+//        }
+//    });
+//}
+
+
+
 //    public void signInUser(String email, String password, OnCompleteListener<AuthResult> callback) {
 //        remoteDb.signInUser(email, password, authTask -> {
 //            if (authTask.isSuccessful() && authTask.getResult() != null) {
@@ -92,32 +169,6 @@ public class UserRepository {
 //    }
 //
 
-
-   //  --- PREUZIMANJE KORISNIKA ---
-   // --- GET USER BY ID ---
-//   public void getUserById(String userId, UserCallback callback) {
-//       // prvo iz lokalne baze
-//       User cachedUser = localDb.getUserById(userId);
-//       if (cachedUser != null) {
-//           callback.onSuccess(cachedUser);
-//           return;
-//       }
-//
-//       // iz Firestore
-//       remoteDb.fetchUserDocument(userId, remoteTask -> {
-//           if (remoteTask.isSuccessful() && remoteTask.getResult() != null && remoteTask.getResult().exists()) {
-//               User cloudUser = remoteTask.getResult().toObject(User.class);
-//               if (cloudUser != null) {
-//                   localDb.insertUser(cloudUser);
-//                   callback.onSuccess(cloudUser);
-//               } else {
-//                   callback.onFailure(new Exception("User not found"));
-//               }
-//           } else {
-//               callback.onFailure(remoteTask.getException());
-//           }
-//       });
-//   }
 
     public void getUserById(String userId, UserCallback callback) {
 
@@ -334,27 +385,42 @@ public class UserRepository {
 
         int cost = (int)(0.6 * potentialCoinsFromBoss);
 
-        if (user.getCoins() < cost) {
-            // Nema dovoljno novčića
-            //Toast.makeText(context, "Nemaš dovoljno novčića za unapređenje!", Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (user.getCoins() < cost) {
+//            // Nema dovoljno novčića
+//            //Toast.makeText(context, "Nemaš dovoljno novčića za unapređenje!", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
 
         // Oduzmi novčiće
         user.setCoins(user.getCoins() - cost);
 
         // Povećaj efekat i level
-        weapon.setEffect(weapon.getEffect() + 0.0001);
-        weapon.setLevel(weapon.getLevel() + 1);
+        //weapon.setEffect(weapon.getEffect() + 0.0001);
+       // weapon.setLevel(weapon.getLevel() + 1);
 
         // Sačuvaj promene
-        remoteDb.addEquipmentItem(user, weapon);
-      //  userRepository.updateUser(user); // ili update cele liste
+      //  remoteDb.addEquipmentItem(user, weapon);
+        for (UserEquipment ue : user.getEquipment()) {
+            if (ue.getEquipmentId().equals(weapon.getEquipmentId())) {
+                ue.setLevel(ue.getLevel() + 1);
+                ue.setEffect(ue.getEffect() + 0.0001);
+                break;
+            }
+        }
+
+        // Updatuj Firestore
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(user.getUserId())
+                .update("equipment", user.getEquipment())
+                .addOnSuccessListener(aVoid -> {
+                    // opcionalno: callback ili log
+                })
+                .addOnFailureListener(e -> e.printStackTrace());
     }
 
 
     // --- PROVERA I AZURIRANJE LEVELA ---
-    public void checkAndUpdateLevel(String userId) {
+    public void checkAndUpdateLevel(String userId, String taskId) {
         if (userId == null || userId.isEmpty()) return;
 
         getUserById(userId, new UserCallback() {
@@ -390,6 +456,26 @@ public class UserRepository {
 
                     // Dodeli novu titulu
                     user.setTitle(getTitleForLevel(currentLevel));
+                    //OVDE PREUZMI TASK U PROMENLJIVU LOKALNU
+                    int finalCurrentLevel = currentLevel;
+//                    taskRepository.getTaskById(taskId, result -> {
+//                        if (result.isSuccessful() && result.getResult() != null) {
+//
+//                            TaskDifficulty diff = result.getResult().getDifficulty();
+//                            TaskPriority prio = result.getResult().getPriority();
+//
+//                            int level = finalCurrentLevel;
+//                            int xpPriority = prio.getXp();
+//                            int xpDifficulty = diff.getXp();
+//                            for (int i = 1; i < level; i++) {
+//                                xpPriority = Math.round(xpPriority + xpPriority / 2.0f);
+//                                xpDifficulty = Math.round(xpDifficulty + xpDifficulty / 2.0f);
+//                            }
+//                            int new_xp = xpPriority+ xpDifficulty;
+//                            addExperienceToUser( new_xp, taskId, task->{});
+//                        }});
+
+
 
                     // Izračunaj XP potreban za sledeći nivo
                     xpNeeded = calculateNextLevelXP(xpNeeded);
@@ -492,8 +578,34 @@ public class UserRepository {
         }
     }
 
+    private void calculateTaskXp(String taskId, int userLevel, OnSuccessListener<Integer> callback) {
+        taskRepository.getTaskById(taskId, result -> {
+            if (result.isSuccessful() && result.getResult() != null) {
+                TaskDifficulty diff = result.getResult().getDifficulty();
+                TaskPriority prio = result.getResult().getPriority();
+
+                int xpPriority = prio.getXp();
+                int xpDifficulty = diff.getXp();
+
+                for (int i = 1; i < userLevel; i++) {
+                    xpPriority = Math.round(xpPriority + xpPriority / 2.0f);
+                    xpDifficulty = Math.round(xpDifficulty + xpDifficulty / 2.0f);
+                }
+
+                int totalXp = xpPriority + xpDifficulty;
+                Log.i("UserRepo", "✅ Izračunat XP: " + totalXp + " (Level: " + userLevel + ")");
+                callback.onSuccess(totalXp);
+
+            } else {
+                Log.e("UserRepo", "❌ Task not found for XP calculation.");
+                callback.onSuccess(0); // fallback
+            }
+        });
+    }
+
+
     // --- DODAJ XP KORISNIKU ---
-    public void addExperienceToUser(Context context, int gainedXp, OnCompleteListener<Void> callback) {
+    public void addExperienceToUser(Context context, int gainedXp,String taskId, OnCompleteListener<Void> callback) {
         SessionManager sessionManager = new SessionManager(context);
         String userId = sessionManager.getUserId();
 
@@ -502,30 +614,67 @@ public class UserRepository {
             return;
         }
 
-        remoteDb.fetchUserDocument(userId, remoteTask -> {
-            if (remoteTask.isSuccessful() && remoteTask.getResult() != null && remoteTask.getResult().exists()) {
-                DocumentSnapshot doc = remoteTask.getResult();
-                int currentXp = doc.contains("experiencePoints") ? doc.getLong("experiencePoints").intValue() : 0;
-                int newXp = currentXp + gainedXp;
 
-                // Ažuriraj XP u Firestore
-                remoteDb.getFirestore()
-                        .collection("users")
-                        .document(userId)
-                        .update("experiencePoints", newXp)
-                        .addOnSuccessListener(aVoid -> {
-                            Log.i("UserRepo", "✅ XP updated: " + newXp);
-                            checkAndUpdateLevel(userId);
-                            callback.onComplete(null);
-                        })
-                        .addOnFailureListener(e -> Log.e("UserRepo", "❌ XP update failed", e));
+        getUserById(userId, new UserCallback() {
+            @Override
+            public void onSuccess(User user) {
+                int userLevel = user.getLevel();
 
-            } else {
-                Log.e("UserRepo", "User not found in Firestore for XP update.");
+                // ✅ Izračunaj XP za zadatak na osnovu levela
+                calculateTaskXp(taskId, userLevel, totalXp -> {
+
+                    // ✅ Kad dobiješ XP, dodaj ga korisniku
+                    remoteDb.fetchUserDocument(userId, remoteTask -> {
+                        if (remoteTask.isSuccessful() && remoteTask.getResult() != null && remoteTask.getResult().exists()) {
+                            DocumentSnapshot doc = remoteTask.getResult();
+                            int currentXp = doc.contains("experiencePoints") ? doc.getLong("experiencePoints").intValue() : 0;
+                            int newXp = currentXp + totalXp;
+
+                            remoteDb.getFirestore()
+                                    .collection("users")
+                                    .document(userId)
+                                    .update("experiencePoints", newXp)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.i("UserRepo", "✅ XP updated for " + user.getUsername() + ": " + newXp);
+                                        checkAndUpdateLevel(userId, taskId);
+                                        callback.onComplete(null);
+                                    })
+                                    .addOnFailureListener(e -> Log.e("UserRepo", "❌ XP update failed", e));
+
+                        } else {
+                            Log.e("UserRepo", "User not found in Firestore for XP update.");
+                        }
+                    });
+                });
+//        remoteDb.fetchUserDocument(userId, remoteTask -> {
+//            if (remoteTask.isSuccessful() && remoteTask.getResult() != null && remoteTask.getResult().exists()) {
+//                DocumentSnapshot doc = remoteTask.getResult();
+//                int currentXp = doc.contains("experiencePoints") ? doc.getLong("experiencePoints").intValue() : 0;
+//                int newXp = currentXp + gainedXp;
+//
+//                // Ažuriraj XP u Firestore
+//                remoteDb.getFirestore()
+//                        .collection("users")
+//                        .document(userId)
+//                        .update("experiencePoints", newXp)
+//                        .addOnSuccessListener(aVoid -> {
+//                            Log.i("UserRepo", "✅ XP updated: " + newXp);
+//                            checkAndUpdateLevel(userId, taskId);
+//                            callback.onComplete(null);
+//                        })
+//                        .addOnFailureListener(e -> Log.e("UserRepo", "❌ XP update failed", e));
+//
+//            } else {
+//                Log.e("UserRepo", "User not found in Firestore for XP update.");
+//            }
+//        });
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+
             }
         });
-
-
     }
     //Šansa da korisnikov napad uspe se obračunava po procentu uspešnosti rešavanja
     //zadataka
@@ -789,14 +938,71 @@ public class UserRepository {
                 .addOnCompleteListener(task -> callback.onComplete(task.isSuccessful()));
     }
 
-    // Poziv prijatelju
-    public void sendAllianceInvite(String fromUserId, String toUserId, String allianceId, GenericCallback callback) {
+    // Poziv prijatelju ona koja radi
+//    public void sendAllianceInvite(String fromUserId, String toUserId, String allianceId, GenericCallback callback) {
+//        AllianceInvite invite = new AllianceInvite(fromUserId, toUserId, allianceId);
+//        remoteDb.getFirestore()
+//                .collection("allianceInvites")
+//                .add(invite)
+//                .addOnCompleteListener(task ->{
+//                    if (task.isSuccessful()) {
+//
+//
+//                        Log.d("AllianceDebug", "Invite added: " + toUserId);
+//                    } else {
+//                        Log.e("AllianceDebug", "Failed to add invite: " + toUserId, task.getException());
+//                    }
+//                    callback.onComplete(task.isSuccessful());
+//
+//                });
+//    }
+    public void sendAllianceInvite(Context context, String fromUserId, String toUserId, String allianceId, GenericCallback callback) {
         AllianceInvite invite = new AllianceInvite(fromUserId, toUserId, allianceId);
+
         remoteDb.getFirestore()
                 .collection("allianceInvites")
                 .add(invite)
-                .addOnCompleteListener(task -> callback.onComplete(task.isSuccessful()));
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d("AllianceDebug", "Invite added: " + toUserId);
+
+                        // Dohvati username pošiljaoca
+                        getUsernameById(fromUserId, new UserCallback() {
+                            @Override
+                            public void onSuccess(User fromUser) {
+                                String senderName = fromUser.getUsername();
+
+                                // Dohvati FCM token primaoca
+                                remoteDb.getFirestore()
+                                        .collection("users")
+                                        .document(toUserId)
+                                        .get()
+                                        .addOnSuccessListener(doc -> {
+                                            if (doc.exists() && doc.contains("fcmToken")) {
+                                                String fcmToken = doc.getString("fcmToken");
+                                                // Pošalji notifikaciju
+                                                FcmSender.sendFcmNotification(context, fcmToken,
+                                                        "Poziv u savez",
+                                                        senderName + " te je pozvao/la u savez!");
+                                            }
+                                        });
+
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                                Log.e("AllianceDebug", "Failed to get sender username", e);
+                            }
+                        });
+
+                    } else {
+                        Log.e("AllianceDebug", "Failed to add invite: " + toUserId, task.getException());
+                    }
+                    callback.onComplete(task.isSuccessful());
+                });
     }
+
+
 
     public void getAllianceById(String allianceId, AlliancePageCallback callback) {
         remoteDb.getFirestore().collection("alliances")
@@ -819,7 +1025,77 @@ public class UserRepository {
     }
 
 
+    public void disbandAlliance(String allianceId, GenericCallback callback) {
+        // Prvo nađi sve korisnike koji su u tom savezu
+        remoteDb.getFirestore().collection("users")
+                .whereEqualTo("allianceId", allianceId)
+                .get()
+                .addOnSuccessListener(query -> {
+                    for (DocumentSnapshot doc : query.getDocuments()) {
+                        doc.getReference().update("allianceId", null);
+                    }
 
+                    // Sada obriši savez
+                    remoteDb.getFirestore().collection("alliances")
+                            .document(allianceId)
+                            .delete()
+                            .addOnSuccessListener(unused -> //callback.onComplete(true))
+                            {
+                                // Nakon brisanja saveza, obriši i sve pozive
+                                remoteDb.getFirestore().collection("allianceInvites")
+                                        .whereEqualTo("allianceId", allianceId)
+                                        .get()
+                                        .addOnSuccessListener(inviteQuery -> {
+                                            WriteBatch batch = remoteDb.getFirestore().batch();
+                                            for (DocumentSnapshot inviteDoc : inviteQuery.getDocuments()) {
+                                                batch.delete(inviteDoc.getReference());
+                                            }
+                                            batch.commit()
+                                                    .addOnSuccessListener(aVoid -> callback.onComplete(true))
+                                                    .addOnFailureListener(e -> callback.onComplete(false));
+                                        })
+                                        .addOnFailureListener(e -> callback.onComplete(false));
+                            })
+                            .addOnFailureListener(e -> callback.onComplete(false));
+                })
+                .addOnFailureListener(e -> callback.onComplete(false));
+    }
+
+
+    public void sendAllianceMessage(AllianceMessage message, GenericCallback callback) {
+        remoteDb.getFirestore()
+                .collection("allianceMessages")
+                .add(message)
+                .addOnSuccessListener(docRef -> callback.onComplete(true))
+                .addOnFailureListener(e -> callback.onComplete(false));
+    }
+
+    // Listener za dobijanje poruka za saveza
+    public ListenerRegistration listenAllianceMessages(String allianceId, AllianceMessageCallback callback) {
+        return remoteDb.getFirestore()
+                .collection("allianceMessages")
+                .whereEqualTo("allianceId", allianceId)
+                .orderBy("timestamp", Query.Direction.ASCENDING)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        callback.onFailure(error);
+                        return;
+                    }
+
+                    List<AllianceMessage> messages = new ArrayList<>();
+                    for (DocumentSnapshot doc : value.getDocuments()) {
+                        AllianceMessage msg = doc.toObject(AllianceMessage.class);
+                        msg.setId(doc.getId());
+                        messages.add(msg);
+                    }
+                    callback.onSuccess(messages);
+                });
+    }
+
+    public interface AllianceMessageCallback {
+        void onSuccess(List<AllianceMessage> messages);
+        void onFailure(Exception e);
+    }
 
     public interface UserCallback {
         void onSuccess(User user);

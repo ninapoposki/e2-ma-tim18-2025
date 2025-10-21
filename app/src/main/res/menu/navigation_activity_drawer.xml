@@ -33,6 +33,10 @@
             android:id="@+id/nav_alliance"
             android:icon="@drawable/ic_menu_equipment"
             android:title="Alliance"/>
+        <item
+            android:id="@+id/nav_qr"
+            android:icon="@drawable/ic_menu_equipment"
+            android:title="Scan QR"/>
 
 
     </group>

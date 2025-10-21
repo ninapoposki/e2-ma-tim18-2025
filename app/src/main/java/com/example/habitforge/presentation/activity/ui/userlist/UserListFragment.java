@@ -77,6 +77,10 @@ public class UserListFragment extends Fragment implements UserListAdapter.OnUser
                 editAllianceName.setText("");
                 adapter.getSelectedUserIds().clear();
                 adapter.notifyDataSetChanged();
+
+
+                adapter.setShowCheckboxes(false);
+                    adapter.clearSelections();
             }
         });
 
@@ -106,9 +110,9 @@ public class UserListFragment extends Fragment implements UserListAdapter.OnUser
         });
         buttonCreateAlliance.setOnClickListener(v ->{ createAlliance();
                 layoutCreate.setVisibility(View.GONE);
-        buttonStart.setVisibility(View.VISIBLE);
-        adapter.setShowCheckboxes(false);
-        adapter.clearSelections();
+       buttonStart.setVisibility(View.VISIBLE);
+//        adapter.setShowCheckboxes(false);
+//        adapter.clearSelections(); SAD ZAKOMENTARISALA
         });
 
     }
@@ -143,9 +147,10 @@ public class UserListFragment extends Fragment implements UserListAdapter.OnUser
     private void createAlliance() {
         String allianceName = editAllianceName.getText().toString().trim();
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        List<String> invitedIds = adapter.getSelectedUserIds();
+        //List<String> invitedIds = adapter.getSelectedUserIds();
+        List<String> invitedIds = new ArrayList<>(adapter.getSelectedUserIds());
 
-        viewModel.createAlliance(allianceName, currentUserId, invitedIds);
+        viewModel.createAlliance(requireContext(), allianceName, currentUserId, invitedIds);
     }
 
 

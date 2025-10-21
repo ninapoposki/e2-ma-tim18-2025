@@ -52,6 +52,9 @@ public class UserService {
         userRepository.login(email, password, callback);
     }
 
+//    public void loginUserAndSavePlayerId(String email, String password, UserRepository.GenericCallback callback) {
+//        userRepository.loginAndSavePlayerId(email, password, callback);
+//    }
     public boolean isUserActivated() {
         return userRepository.isUserActivated();
     }
@@ -60,8 +63,8 @@ public class UserService {
         userRepository.activateUser(userId, listener);
     }
 
-    public void addExperienceToCurrentUser(Context context, int xp) {
-        userRepository.addExperienceToUser(context, xp, task -> {});
+    public void addExperienceToCurrentUser(Context context, int xp, String taskId) {
+        userRepository.addExperienceToUser(context, xp, taskId, task -> {});
     }
 
 //koriscenje odece
@@ -82,7 +85,10 @@ public class UserService {
         userRepository.getUserSuccessRate(userId, callback);
     }
 
-
+    public void upgradeWeapon(User user, UserEquipment weapon, int potentialCoinsFromBoss) {
+        // Poziva repo direktno
+        userRepository.upgradeWeapon(user, weapon, potentialCoinsFromBoss);
+    }
 
 
 

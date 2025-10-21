@@ -25,7 +25,7 @@ public class TaskRepository {
     private final TaskRemoteDataSource remoteDb;
 
 
-    private TaskRepository(Context context) {
+    public TaskRepository(Context context) {
         this.localDb = new TaskLocalDataSource(context);
         this.remoteDb = new TaskRemoteDataSource();
     }

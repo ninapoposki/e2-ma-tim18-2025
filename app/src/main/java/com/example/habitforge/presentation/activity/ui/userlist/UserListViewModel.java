@@ -1,12 +1,16 @@
 package com.example.habitforge.presentation.activity.ui.userlist;
 
 import android.app.Application;
+import android.content.Context;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.habitforge.MainActivity;
 import com.example.habitforge.application.model.FriendRequest;
 import com.example.habitforge.application.model.User;
 import com.example.habitforge.data.repository.UserRepository;
@@ -115,7 +119,7 @@ public class UserListViewModel extends AndroidViewModel {
         return allianceCreationStatus;
     }
 
-    public void createAlliance(String allianceName, String leaderId, List<String> invitedIds) {
+    public void createAlliance(Context context, String allianceName, String leaderId, List<String> invitedIds) {
         if (allianceName == null || allianceName.trim().isEmpty()) {
             allianceCreationStatus.postValue("Alliance name cannot be empty");
             return;
@@ -138,12 +142,24 @@ public class UserListViewModel extends AndroidViewModel {
 
                         // Pošalji pozive svim prijateljima
                         for (String uid : invitedIds) {
-                            userRepository.sendAllianceInvite(leaderId, uid, allianceId, new UserRepository.GenericCallback() {
-                                @Override
-                                public void onComplete(boolean success) {
-                                    // ovde možeš kasnije dodati push notifikaciju
+//                            userRepository.sendAllianceInvite(leaderId, uid, allianceId, new UserRepository.GenericCallback() {
+//                                @Override
+//                                public void onComplete(boolean success) {
+//                                    Log.d("AllianceDebug", "Invited ids: " + invitedIds.toString());
+//
+//                                    // ovde možeš kasnije dodati push notifikaciju
+//                                }
+//                            });
+                            userRepository.sendAllianceInvite(context, leaderId, uid, allianceId, success1 -> {
+                                if (success1) {
+                                    Log.d("AllianceDebug", "Invited ids: " + invitedIds.toString());
+                                    //Toast.makeText(this, "Invite poslat!", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Log.d("AllianceDebug", "Error" + invitedIds.toString());
+                                 //   Toast.makeText(this, "Greška pri slanju invite!", Toast.LENGTH_SHORT).show();
                                 }
                             });
+
                         }
 
                         allianceCreationStatus.postValue("Alliance created and invites sent");
