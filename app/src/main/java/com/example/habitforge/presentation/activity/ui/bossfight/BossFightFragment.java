@@ -605,46 +605,52 @@ private void updateUI() {
 //    }
 
 private void performAttackWithChance(int hitChance) {
-    calculateUserPower();
-    userService.useAllActivePotions(currentUser, null);
-    userService.useAllActiveClothing(currentUser, null);
+    userService.useAllActivePotions(currentUser, () -> {
+        userService.useAllActiveClothing(currentUser, () -> {
+            calculateUserPower();
+            updateUserPPBar();
 
-    // koristi broj pokušaja iz samog bossa
-    int attemptsLeft = currentBoss.getAttemptsLeft() - 1;
-    currentBoss.setAttemptsLeft(attemptsLeft);
+            continueAttackFlow(hitChance);
+        });
+    });
 
-    Random random = new Random();
-    int roll = random.nextInt(100);
-
-    if (roll < hitChance) {
-        int damage = userTotalPP;
-        currentBoss.takeDamage(damage);
-
-        tvAttackResult.setText("💥 You hit for −" + damage + " HP!");
-        tvAttackResult.setTextColor(getResources().getColor(R.color.purple_500, null));
-        tvAttackResult.setVisibility(View.VISIBLE);
-        animateBossHit();
-
-        if (currentBoss.getCurrentHP() <= 0) {
-            bossDefeated = true;
-            handleBossDefeated();
-        }
-    } else {
-        tvAttackResult.setText("❌ Missed!");
-        tvAttackResult.setTextColor(getResources().getColor(R.color.gray, null));
-        tvAttackResult.setVisibility(View.VISIBLE);
-        animateBossDodge();
-    }
-
-    saveBossProgress();
-    updateUI();
-
-    if (currentBoss.getAttemptsLeft() <= 0 && !bossDefeated) {
-        handleAttemptsExhausted();
-    }
 }
 
 
+    private void continueAttackFlow(int hitChance) {
+        if (attemptsLeft <= 0 || currentBoss == null || bossDefeated) return;
+
+        Random random = new Random();
+        int roll = random.nextInt(100);
+
+        attemptsLeft = currentBoss.getAttemptsLeft() - 1;
+        currentBoss.setAttemptsLeft(attemptsLeft);
+
+        if (roll < hitChance) {
+            int damage = userTotalPP;
+            currentBoss.takeDamage(damage);
+            tvAttackResult.setText("💥 You hit for −" + damage + " HP!");
+            tvAttackResult.setTextColor(getResources().getColor(R.color.purple_500, null));
+            animateBossHit();
+
+            if (currentBoss.getCurrentHP() <= 0) {
+                bossDefeated = true;
+                handleBossDefeated();
+            }
+        } else {
+            tvAttackResult.setText("❌ Missed!");
+            tvAttackResult.setTextColor(getResources().getColor(R.color.gray, null));
+            animateBossDodge();
+        }
+
+        tvAttackResult.setVisibility(View.VISIBLE);
+        saveBossProgress();
+        updateUI();
+
+        if (currentBoss.getAttemptsLeft() <= 0 && !bossDefeated) {
+            handleAttemptsExhausted();
+        }
+    }
 
 
 

@@ -226,19 +226,67 @@ public class UserRepository {
         List<UserEquipment> equipmentList = user.getEquipment();
         boolean changed = false;
 
-        // prolazimo kroz sve aktivne CLOTHING
         for (int i = 0; i < equipmentList.size(); i++) {
             UserEquipment item = equipmentList.get(i);
 
             if (item.getType() == EquipmentType.CLOTHING && item.isActive()) {
-                // umanji trajanje
                 item.setDuration(item.getDuration() - 1);
                 changed = true;
 
-                // ako je duration pao na 0 ili manje, ukloni
                 if (item.getDuration() <= 0) {
-                    equipmentList.remove(i);
-                    i--; // obavezno smanji i, jer se lista pomerila
+                    item.setActive(false);
+                }
+            }
+        }
+
+        if (changed) {
+            try {
+                remoteDb.saveUserDocument(user);
+                if (onSuccess != null) onSuccess.run();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public void resetUsedPotions(User user, Runnable onSuccess) {
+        if (user == null || user.getEquipment() == null) return;
+
+        boolean changed = false;
+
+        for (UserEquipment item : user.getEquipment()) {
+            if (item.getType() == EquipmentType.POTION && item.isActive()) {
+                item.setUsedInNextBossFight(true);
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            try {
+                remoteDb.saveUserDocument(user);
+                if (onSuccess != null) onSuccess.run();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+
+    public void useAllActivePotions(User user, Runnable onSuccess) {
+        if (user == null || user.getEquipment() == null) return;
+
+        boolean changed = false;
+
+        for (UserEquipment item : user.getEquipment()) {
+            if (item.getType() == EquipmentType.POTION && item.isActive()) {
+                // 🔹 Napitak važi tokom cele borbe, pa ga NE postavljamo na usedInNextBossFight odmah
+                // Umesto toga, možemo smanjiti trajanje (ako ga ima)
+                if (item.getDuration() > 0) {
+                    item.setDuration(item.getDuration() - 1);
+                    changed = true;
+                    if (item.getDuration() <= 0) {
+                        item.setActive(false); // deaktiviraj ako istekne
+                    }
                 }
             }
         }
@@ -253,30 +301,6 @@ public class UserRepository {
         }
     }
 
-
-    public void useAllActivePotions(User user, Runnable onSuccess) {
-        if (user == null || user.getEquipment() == null) return;
-
-        boolean changed = false;
-
-        for (UserEquipment item : user.getEquipment()) {
-            if (item.getType() == EquipmentType.POTION
-                    && item.isActive()
-                    && !item.isUsedInNextBossFight()) {
-                item.setUsedInNextBossFight(true);
-                changed = true;
-            }
-        }
-
-        if (changed) {
-            try {
-                remoteDb.saveUserDocument(user); // snimi sve izmene u Firestore
-                if (onSuccess != null) onSuccess.run(); // callback da fragment osveži UI
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
 
     // Metoda koja dodaje oružje od bossa

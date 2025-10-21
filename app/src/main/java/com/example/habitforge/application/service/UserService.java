@@ -82,6 +82,10 @@ public class UserService {
         userRepository.getUserSuccessRate(userId, callback);
     }
 
+    public void resetUsedPotions(User user, Runnable onSuccess){
+        userRepository.resetUsedPotions(user,onSuccess);
+    }
+
 
 
 
