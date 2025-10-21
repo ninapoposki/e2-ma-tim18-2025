@@ -44,6 +44,10 @@ public class RegistrationActivity extends AppCompatActivity {
         findViewById(R.id.btnAvatar4).setOnClickListener(v -> selectedAvatar = "avatar4");
         findViewById(R.id.btnAvatar5).setOnClickListener(v -> selectedAvatar = "avatar5");
 
+
+
+
+
         btnRegister.setOnClickListener(v -> validateAndRegister());
     }
 

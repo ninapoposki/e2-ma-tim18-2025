@@ -80,5 +80,7 @@ dependencies {
     implementation 'com.google.auth:google-auth-library-oauth2-http:1.22.0'
     implementation platform('com.google.firebase:firebase-bom:32.2.2') // najnoviji BoM
     implementation 'com.google.firebase:firebase-messaging'
+    implementation 'org.json:json:20211205' // ako ti org.json nije dostupan
+
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
 }

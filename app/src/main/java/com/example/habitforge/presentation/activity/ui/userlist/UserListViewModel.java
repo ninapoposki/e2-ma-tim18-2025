@@ -14,6 +14,7 @@ import com.example.habitforge.MainActivity;
 import com.example.habitforge.application.model.FriendRequest;
 import com.example.habitforge.application.model.User;
 import com.example.habitforge.data.repository.UserRepository;
+import com.example.habitforge.utils.FcmSender;
 import com.google.android.gms.tasks.OnCompleteListener;
 
 import java.util.ArrayList;
@@ -152,6 +153,10 @@ public class UserListViewModel extends AndroidViewModel {
 //                            });
                             userRepository.sendAllianceInvite(context, leaderId, uid, allianceId, success1 -> {
                                 if (success1) {
+                                    String fcmToken = "<OVDE_DOHVATI_TOKEN_KORISNIKA>";
+                                    FcmSender.sendFcmNotification(context, fcmToken,
+                                            "Invitation to Alliance",
+                                            "You have been invited to join " + allianceName + "!");
                                     Log.d("AllianceDebug", "Invited ids: " + invitedIds.toString());
                                     //Toast.makeText(this, "Invite poslat!", Toast.LENGTH_SHORT).show();
                                 } else {

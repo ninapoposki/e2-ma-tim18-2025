@@ -2,6 +2,7 @@ package com.example.habitforge;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
@@ -19,6 +20,8 @@ import com.example.habitforge.data.database.UserLocalDataSource;
 import com.example.habitforge.presentation.activity.RegistrationActivity;
 import com.example.habitforge.presentation.activity.ui.login.LoginActivity;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import android.content.Intent;
 import android.os.Bundle;

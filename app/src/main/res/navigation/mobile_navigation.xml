@@ -56,6 +56,11 @@
         android:name="com.example.habitforge.presentation.activity.ui.QR.QrScanFragment"
         android:label="@string/menu_alliance"
         tools:layout="@layout/fragment_qr_scan" />
+    <fragment
+        android:id="@+id/alliance_req"
+        android:name="com.example.habitforge.presentation.activity.ui.allianceReq.AllianceInvitesFragment"
+        android:label="@string/menu_alliance"
+        tools:layout="@layout/fragment_alliance_invites" />
 
 
 </navigation>

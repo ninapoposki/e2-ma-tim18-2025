@@ -37,6 +37,10 @@
             android:id="@+id/nav_qr"
             android:icon="@drawable/ic_menu_equipment"
             android:title="Scan QR"/>
+        <item
+            android:id="@+id/alliance_req"
+            android:icon="@drawable/ic_menu_equipment"
+            android:title="Alliance Requests"/>
 
 
     </group>

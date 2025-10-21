@@ -131,8 +131,8 @@
 
             <ImageButton
                 android:id="@+id/btnAvatar2"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
                 android:scaleType="fitCenter"
                 android:src="@drawable/avatar2"
                 android:background="?attr/selectableItemBackgroundBorderless"

@@ -13,9 +13,12 @@ public class FcmSender {
     private static final String FCM_URL = "https://fcm.googleapis.com/v1/projects/" + PROJECT_ID + "/messages:send";
 
     public static void sendFcmNotification(Context context, String fcmToken, String title, String body) {
+       // String accessToken = FcmTokenGenerator.getAccessToken(context);
         String accessToken = FcmTokenGenerator.getAccessToken(context);
-        if (accessToken == null) return;
-
+        if (accessToken == null) {
+            Log.e("FCM", "Can't get access token");
+            return;
+        }
         try {
             JSONObject message = new JSONObject();
             JSONObject notification = new JSONObject();

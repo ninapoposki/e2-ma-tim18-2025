@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:gravity="center"
@@ -5,10 +6,19 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <!-- Skener, kontrolisana veličina -->
+    <com.journeyapps.barcodescanner.DecoratedBarcodeView
+        android:id="@+id/barcode_scanner"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_gravity="center" />
+
     <Button
         android:id="@+id/btnScanQr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Scan QR Code" />
+        android:text="Pokreni skener"
+        android:layout_marginTop="16dp" />
 
 </LinearLayout>
+

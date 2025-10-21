@@ -27,7 +27,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -388,16 +390,28 @@ public class UserRepository {
     public void upgradeWeapon(User user, UserEquipment weapon, int potentialCoinsFromBoss) {
         if (user == null || weapon == null) return;
 
-        int cost = (int)(0.6 * potentialCoinsFromBoss);
+        //int cost = (int)(0.6 * potentialCoinsFromBoss);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(user.getUserId())
+                .get()
+                .addOnSuccessListener(doc -> {
+                            if (!doc.exists()) return;
 
-//        if (user.getCoins() < cost) {
-//            // Nema dovoljno novčića
-//            //Toast.makeText(context, "Nemaš dovoljno novčića za unapređenje!", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
+                            User user_ = doc.toObject(User.class);
+                            if (user_ == null) return;
+
+                            int userLevel = user_.getLevel();
+                            int potentialCoins = calculateCoinsReward(userLevel, true);
+                            int cost = (int) (0.6 * potentialCoins);
+
+                            if (user.getCoins() < cost) {
+                                Log.d("UpgradeWeapon", "Nemaš dovoljno novčića za unapređenje!");
+                                return;
+                            }
 
         // Oduzmi novčiće
         user.setCoins(user.getCoins() - cost);
+                    updateUser(user);
 
         // Povećaj efekat i level
         //weapon.setEffect(weapon.getEffect() + 0.0001);
@@ -414,15 +428,15 @@ public class UserRepository {
         }
 
         // Updatuj Firestore
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
         db.collection("users").document(user.getUserId())
                 .update("equipment", user.getEquipment())
                 .addOnSuccessListener(aVoid -> {
                     // opcionalno: callback ili log
                 })
                 .addOnFailureListener(e -> e.printStackTrace());
+    });
     }
-
 
     // --- PROVERA I AZURIRANJE LEVELA ---
     public void checkAndUpdateLevel(String userId, String taskId) {
@@ -454,33 +468,25 @@ public class UserRepository {
                     leveledUp = true;
 
                     // Dodaj nagradu za prelazak nivoa (može da bude coins)
-                    int coinsReward = calculateCoinsForLevel(currentLevel);
-                    user.setCoins(user.getCoins() + coinsReward);
-                    user.setLevel(currentLevel);
-                    user.setPowerPoints(user.getPowerPoints() + ppReward);
-
-                    // Dodeli novu titulu
-                    user.setTitle(getTitleForLevel(currentLevel));
-                    //OVDE PREUZMI TASK U PROMENLJIVU LOKALNU
                     int finalCurrentLevel = currentLevel;
-//                    taskRepository.getTaskById(taskId, result -> {
-//                        if (result.isSuccessful() && result.getResult() != null) {
-//
-//                            TaskDifficulty diff = result.getResult().getDifficulty();
-//                            TaskPriority prio = result.getResult().getPriority();
-//
-//                            int level = finalCurrentLevel;
-//                            int xpPriority = prio.getXp();
-//                            int xpDifficulty = diff.getXp();
-//                            for (int i = 1; i < level; i++) {
-//                                xpPriority = Math.round(xpPriority + xpPriority / 2.0f);
-//                                xpDifficulty = Math.round(xpDifficulty + xpDifficulty / 2.0f);
-//                            }
-//                            int new_xp = xpPriority+ xpDifficulty;
-//                            addExperienceToUser( new_xp, taskId, task->{});
-//                        }});
+                    int finalPpReward = ppReward;
+                    calculateCoinsForPreviousLevelBoss(userId, currentLevel, coinsReward -> {
+                                if (coinsReward > 0) {
+                                    user.setCoins(user.getCoins() + coinsReward);
+                                    Log.d("BossReward", "Korisnik nagrađen sa " + coinsReward + " novčića za bossa iz nivoa " + (finalCurrentLevel - 1));
+                                } else {
+                                    Log.d("BossReward", "Nema nagrade — boss iz prethodnog nivoa nije poražen ili već isplaćen.");
+                                }
 
 
+                                user.setLevel(finalCurrentLevel);
+                                user.setPowerPoints(user.getPowerPoints() + finalPpReward);
+
+                                // Dodeli novu titulu
+                                user.setTitle(getTitleForLevel(finalCurrentLevel));
+
+                        updateUser(user);
+                            });
 
                     // Izračunaj XP potreban za sledeći nivo
                     xpNeeded = calculateNextLevelXP(xpNeeded);
@@ -506,8 +512,59 @@ public class UserRepository {
         return ((int) (Math.ceil(nextXP / 100))) * 100;  // zaokružuje na sledeću stotinu
     }
 
-    private int calculateCoinsForLevel(int level) {
-        return 100 * level; // primer, može da se menja
+    private void calculateCoinsForPreviousLevelBoss(String userId, int currentLevel, CoinsCallback callback) {
+        if (currentLevel <= 1) {
+            // Nema prethodnog nivoa
+            callback.onResult(0);
+            return;
+        }
+
+        int previousLevel = currentLevel - 1;
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users")
+                .document(userId)
+                .collection("bosses")
+                .whereEqualTo("level", previousLevel)
+                .get()
+                .addOnSuccessListener(query -> {
+                    if (query.isEmpty()) {
+                        // Nema bossa za prethodni nivo → nema nagrade
+                        callback.onResult(0);
+                        return;
+                    }
+
+                    var bossDoc = query.getDocuments().get(0);
+                    Boolean defeated = bossDoc.getBoolean("defeated");
+                    Boolean claimed = bossDoc.getBoolean("claimed"); // da ne dobije 2x
+
+                    if (defeated != null && defeated && (claimed == null || !claimed)) {
+                        int coinsReward =calculateCoinsReward(previousLevel, true);
+
+
+                        // ✅ Obeleži da je nagrada preuzeta
+                        bossDoc.getReference().update("claimed", true);
+
+                        callback.onResult(coinsReward);
+                    } else {
+                        callback.onResult(0);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    e.printStackTrace();
+                    callback.onResult(0);
+                });
+    }
+    public interface CoinsCallback {
+        void onResult(int coins);
+    }
+
+    private int calculateCoinsReward(int bossLevel, boolean fullVictory) {
+        int baseReward = 200;
+        int levelMultiplier = (int) Math.pow(1.2, bossLevel - 1);
+        int coinsReward = baseReward * levelMultiplier;
+        if (!fullVictory) coinsReward /= 2;
+        return coinsReward;
     }
 
     private String getTitleForLevel(int level) {
@@ -1153,6 +1210,100 @@ public void getCurrentBoss(String userId, BossCallback callback) {
                 })
                 .addOnFailureListener(e -> callback.onComplete(false));
     }
+    public void getAllianceInvites(String toUserId, InvitesCallback callback) {
+        remoteDb.getFirestore().collection("allianceInvites")
+                .whereEqualTo("toUserId", toUserId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<AllianceInvite> list = new ArrayList<>();
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        AllianceInvite invite = doc.toObject(AllianceInvite.class);
+                        invite.setId(doc.getId());
+
+                        // Dohvati username pošiljaoca
+                        String fromUserId = invite.getFromUserId();
+                        getUsernameById(fromUserId, new UserCallback() {
+                            @Override
+                            public void onSuccess(User user) {
+                               // invite.s(user.getUsername());
+                                // notify može biti pozvan u adapteru nakon loadInvites
+                            }
+
+                            @Override
+                            public void onFailure(Exception e) {
+                               //// invite.setFromUsername("Unknown");
+                            }
+                        });
+
+                        list.add(invite);
+                    }
+                    callback.onSuccess(list);
+                })
+                .addOnFailureListener(callback::onFailure);
+    }
+
+    public void onDeclineInvite(String inviteId, GenericCallback callback) {
+        remoteDb.getFirestore().collection("allianceInvites")
+                .document(inviteId)
+                .delete()
+                .addOnCompleteListener(task -> callback.onComplete(task.isSuccessful()));
+    }
+    public void removeMemberFromAlliance(String allianceId, String userId, GenericCallback callback) {
+        DocumentReference allianceRef = remoteDb.getFirestore().collection("alliances").document(allianceId);
+        allianceRef.update("memberIds", FieldValue.arrayRemove(userId))
+                .addOnCompleteListener(task -> callback.onComplete(task.isSuccessful()));
+    }
+    public void onAcceptInvite(String allianceId, String userId, GenericCallback callback) {
+        DocumentReference allianceRef = remoteDb.getFirestore().collection("alliances").document(allianceId);
+        allianceRef.update("memberIds", FieldValue.arrayUnion(userId))
+                .addOnCompleteListener(task -> callback.onComplete(task.isSuccessful()));
+    }
+    // Dodavanje korisnika u savez
+    public void addMemberToAlliance(String allianceId, String userId, GenericCallback callback) {
+        remoteDb.getFirestore()
+                .collection("alliances")
+                .document(allianceId)
+                .update("memberIds", com.google.firebase.firestore.FieldValue.arrayUnion(userId))
+                .addOnCompleteListener(task -> callback.onComplete(task.isSuccessful()));
+    }
+    // Brisanje poziva
+    public void deleteInvite(String inviteId, GenericCallback callback) {
+        remoteDb.getFirestore()
+                .collection("allianceInvites")
+                .document(inviteId)
+                .delete()
+                .addOnCompleteListener(task -> callback.onComplete(task.isSuccessful()));
+    }
+
+    public void getAllianceByUserId(String userId, AllianceCheckCallback callback) {
+        remoteDb.getFirestore().collection("users")
+                .document(userId)
+                .get()
+                .addOnSuccessListener(doc -> {
+
+                    if (doc.exists() && doc.contains("allianceId")) {
+                        String allianceId = doc.getString("allianceId");
+                        remoteDb.getFirestore().collection("alliances")
+                                .document(allianceId)
+                                .get()
+                                .addOnSuccessListener(allianceDoc -> {
+                                    if (allianceDoc.exists()) {
+                                        Alliance alliance = allianceDoc.toObject(Alliance.class);
+                                        callback.onResult(true);
+                                    } else callback.onResult(false);
+                                });
+                    } else callback.onResult(false);
+                });
+    }
+
+
+
+
+    public interface InvitesCallback {
+        void onSuccess(List<AllianceInvite> invites);
+        void onFailure(Exception e);
+    }
+
 
 
     public void sendAllianceMessage(AllianceMessage message, GenericCallback callback) {
@@ -1184,6 +1335,8 @@ public void getCurrentBoss(String userId, BossCallback callback) {
                     callback.onSuccess(messages);
                 });
     }
+
+
 
     public interface AllianceMessageCallback {
         void onSuccess(List<AllianceMessage> messages);

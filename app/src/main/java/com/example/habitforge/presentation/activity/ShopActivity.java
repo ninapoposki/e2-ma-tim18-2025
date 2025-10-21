@@ -17,6 +17,8 @@ import com.example.habitforge.application.model.Equipment;
 import com.example.habitforge.application.model.User;
 import com.example.habitforge.application.model.UserEquipment;
 import com.example.habitforge.application.model.enums.EquipmentType;
+import com.example.habitforge.application.service.EquipmentService;
+import com.example.habitforge.data.repository.EquipmentRepository;
 import com.example.habitforge.data.repository.UserRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -33,12 +35,16 @@ public class ShopActivity extends AppCompatActivity {
     private LinearLayout equipmentContainer;
     private UserRepository userRepository;
     private User currentUser;
+    private EquipmentService equipmentService;
+
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shop);
+        equipmentService = new EquipmentService(this);
+
 
 /// /
         userRepository = new UserRepository(this);
@@ -134,57 +140,85 @@ public class ShopActivity extends AppCompatActivity {
                // if (currentUser == null) return;
 
                 // 1️⃣ Proveri da li korisnik ima dovoljno novčića
-                long cena = (long) (currentUser.getCoins() * eq.getPriceMultiplier());
-                if (currentUser.getCoins() < cena) {
-                    Toast.makeText(this, "Nemaš dovoljno novčića!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+               // long cena = (long) (currentUser.getCoins() * eq.getPriceMultiplier());
 
-                // 2️⃣ Napravi UserEquipment objekat iz Equipment-a, prema tipu
-                UserEquipment newItem;
-                switch (eq.getType()) {
-                    case POTION:
-                        newItem = new UserEquipment(
-                                UUID.randomUUID().toString(),   // id
-                                eq.getId(),
-                                eq.getType()   // EquipmentType
-                        );
-                        break;
 
-                    case CLOTHING:
-                        newItem = new UserEquipment(
-                                UUID.randomUUID().toString(),    // id
-                                eq.getId(),
-                                eq.getType(),    // EquipmentType
-                                eq.getBonus(),   // effect
-                                eq.getDuration() // duration
-                        );
-                        break;
 
-                    case WEAPON:
-                        newItem = new UserEquipment(
-                                UUID.randomUUID().toString(),    // id
-                                eq.getId(),
-                                eq.getType(),    // EquipmentType
-                                eq.getBonus(),   // effect
-                                1                // level (početni)
-                        );
-                        break;
+                equipmentService.calculateEquipmentPriceFromBoss(uid, eq.getId(), true, new EquipmentService.PriceCallback() {
+                    @Override
+                    public void onSuccess(double price) {
+                        long cena = Math.round(price);
 
-                    default:
-                        throw new IllegalStateException("Nepoznat tip opreme: " + eq.getType());
-                }
+                        if (currentUser == null) {
+                            Toast.makeText(ShopActivity.this, "Korisnik nije učitan!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
-                //Dodaj opremu korisniku
-                userRepository.addEquipmentToUser(currentUser, newItem);
-               // userRepository.receiveEquipmentByBoss(currentUser, newItem);
+                        if (cena <= 0) {
+                            Toast.makeText(ShopActivity.this, "Boss nije aktivan — cena je 0.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
-                //Oduzmi novčiće i sačuvaj
-                currentUser.setCoins((int) (currentUser.getCoins() - cena));
-                userRepository.updateUser(currentUser);
 
-                Toast.makeText(this, "Kupio si " + eq.getName() + "!", Toast.LENGTH_SHORT).show();
-            });
+                        if (currentUser.getCoins() < cena) {
+                            Toast.makeText(ShopActivity.this, "Nemaš dovoljno novčića!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+
+                        // 2️⃣ Napravi UserEquipment objekat iz Equipment-a, prema tipu
+                        UserEquipment newItem;
+                        switch (eq.getType()) {
+                            case POTION:
+                                newItem = new UserEquipment(
+                                        UUID.randomUUID().toString(),   // id
+                                        eq.getId(),
+                                        eq.getType()   // EquipmentType
+                                );
+                                break;
+
+                            case CLOTHING:
+                                newItem = new UserEquipment(
+                                        UUID.randomUUID().toString(),    // id
+                                        eq.getId(),
+                                        eq.getType(),    // EquipmentType
+                                        eq.getBonus(),   // effect
+                                        eq.getDuration() // duration
+                                );
+                                break;
+
+                            case WEAPON:
+                                newItem = new UserEquipment(
+                                        UUID.randomUUID().toString(),    // id
+                                        eq.getId(),
+                                        eq.getType(),    // EquipmentType
+                                        eq.getBonus(),   // effect
+                                        1                // level (početni)
+                                );
+                                break;
+
+                            default:
+                                throw new IllegalStateException("Nepoznat tip opreme: " + eq.getType());
+                        }
+
+                        //Dodaj opremu korisniku
+                        userRepository.addEquipmentToUser(currentUser, newItem);
+                        // userRepository.receiveEquipmentByBoss(currentUser, newItem);
+
+                        //Oduzmi novčiće i sačuvaj
+                        currentUser.setCoins((int) (currentUser.getCoins() - cena));
+                        userRepository.updateUser(currentUser);
+
+                        Toast.makeText(ShopActivity.this, "Kupio si " + eq.getName() + "!", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Toast.makeText(ShopActivity.this, "Greška pri računanju cene: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+
+                });
+                    });
 
             equipmentContainer.addView(itemView);
         }
