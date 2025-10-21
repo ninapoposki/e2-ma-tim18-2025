@@ -27,6 +27,7 @@ import com.example.habitforge.application.model.Boss;
 import com.example.habitforge.application.model.Equipment;
 import com.example.habitforge.application.model.User;
 import com.example.habitforge.application.model.UserEquipment;
+import com.example.habitforge.application.model.enums.EquipmentType;
 import com.example.habitforge.application.service.BossService;
 import com.example.habitforge.application.service.UserService;
 
@@ -74,6 +75,7 @@ public class BossFightFragment extends Fragment implements SensorEventListener {
     private Sensor accelerometer;
     private long lastShakeTime = 0;
     private static final int SHAKE_THRESHOLD = 800;
+    private boolean shakeForAttackEnabled = true;
 
     @Nullable
     @Override
@@ -96,7 +98,9 @@ public class BossFightFragment extends Fragment implements SensorEventListener {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
         userService = new UserService(requireContext());
-        bossService = new BossService();
+//        bossService = new BossService();
+        UserRepository userRepository = new UserRepository(requireContext());
+        bossService = new BossService(db, userRepository);
 
         // Bind UI components
         tvBossTitle = view.findViewById(R.id.tvBossTitle);
@@ -157,23 +161,51 @@ public class BossFightFragment extends Fragment implements SensorEventListener {
         });
     }
 
-    private void calculateUserPower() {
-        if (currentUser == null) return;
+//    private void calculateUserPower() {
+//        if (currentUser == null) return;
+//
+//        userTotalPP = currentUser.getPowerPoints();
+//
+//        // Add equipment bonuses
+//        List<UserEquipment> activeEquipment = currentUser.getActiveEquipment();
+//        if (activeEquipment != null) {
+//            for (UserEquipment equipment : activeEquipment) {
+//                userTotalPP += equipment.getPowerBonus();
+//            }
+//            displayEquipment(activeEquipment);
+//        }
+//
+//        tvUserPower.setText(userTotalPP + " PP");
+//        updateUserPPBar();
+//    }
+private void calculateUserPower() {
+    if (currentUser == null) return;
 
-        userTotalPP = currentUser.getPowerPoints();
+    userTotalPP = currentUser.getPowerPoints();
 
-        // Add equipment bonuses
-        List<UserEquipment> activeEquipment = currentUser.getActiveEquipment();
-        if (activeEquipment != null) {
-            for (UserEquipment equipment : activeEquipment) {
+    List<UserEquipment> activeEquipment = currentUser.getActiveEquipment();
+    if (activeEquipment != null) {
+        for (UserEquipment equipment : activeEquipment) {
+            if (EquipmentType.POTION.equals(equipment.getType())) {
+                // Potion3 i Potion4 uvek dodaj
+                if ("potion3".equals(equipment.getEquipmentId()) || "potion4".equals(equipment.getEquipmentId())) {
+                    userTotalPP += equipment.getPowerBonus();
+                }
+                // Ostale potione samo ako userInNextBossFight == false
+                else if (!equipment.isUsedInNextBossFight()) {
+                    userTotalPP += equipment.getPowerBonus();
+                }
+            } else {
                 userTotalPP += equipment.getPowerBonus();
             }
-            displayEquipment(activeEquipment);
         }
 
-        tvUserPower.setText(userTotalPP + " PP");
-        updateUserPPBar();
+        displayEquipment(activeEquipment);
     }
+
+    tvUserPower.setText(userTotalPP + " PP");
+    updateUserPPBar();
+}
 
 //    private void displayEquipment(List<UserEquipment> equipment) {
 //        llEquipmentIcons.removeAllViews();
@@ -302,41 +334,114 @@ private void displayEquipment(List<UserEquipment> equipmentList) {
         pbUserPP.setProgress(progress);
     }
 
+//    private void loadCurrentBoss() {
+//        if (currentBoss != null && !currentBoss.isDefeated()) {
+//            Toast.makeText(requireContext(), "⚠️ The same boss returns!", Toast.LENGTH_SHORT).show();
+//            updateUI();
+//            return;
+//        }
+//
+//        String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
+//        if (userId == null) return;
+//
+//        int userLevel = currentUser.getLevel();
+//
+//        db.collection("users").document(userId).collection("bosses")
+//                .document("currentBoss")
+//                .get()
+//                .addOnSuccessListener(document -> {
+//                    if (document.exists()) {
+//                        currentBoss = document.toObject(Boss.class);
+//
+//                        if (currentBoss != null && !currentBoss.isDefeated()) {
+//                            attemptsLeft = document.getLong("attemptsLeft") != null ?
+//                                    document.getLong("attemptsLeft").intValue() : totalAttempts;
+//                            updateUI();
+//                            return;
+//                        }
+//                        else if (currentBoss != null && currentBoss.isDefeated()) {
+//                            createNewBoss(currentBoss.getLevel() + 1);
+//                            return;
+//                        }
+//                    }
+//                    createNewBoss(1);
+//
+//                });
+//
+//    }
+//private void loadCurrentBoss() {
+//    if (currentBoss != null && !currentBoss.isDefeated()) {
+//        if (currentUser.getLevel() > currentBoss.getLevel()) {
+//            attemptsLeft = totalAttempts;
+//
+//            currentBoss.setCurrentHP(currentBoss.getMaxHP());
+//
+//            saveBossProgress(); // sačuvaj sve promene (HP + attempts)
+//            Toast.makeText(requireContext(), "⚔️ The same boss returns refreshed!", Toast.LENGTH_SHORT).show();
+//        } else {
+//            Toast.makeText(requireContext(), "⚠️ The same boss returns (no new attempts).", Toast.LENGTH_SHORT).show();
+//        }
+//
+//        updateUI();
+//        return;
+//    }
+//
+//
+//    String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
+//    if (userId == null) return;
+//
+//    db.collection("users").document(userId).collection("bosses")
+//            .document("currentBoss")
+//            .get()
+//            .addOnSuccessListener(document -> {
+//                if (document.exists()) {
+//                    currentBoss = document.toObject(Boss.class);
+//
+//                    if (currentBoss != null && !currentBoss.isDefeated()) {
+//                        // ako boss postoji ali nije poražen, koristi ono što već ima (ili resetuj ako je novi nivo)
+//                        if (currentUser.getLevel() > currentBoss.getLevel()) {
+//                            attemptsLeft = totalAttempts;
+//                            saveBossProgress();
+//                            Toast.makeText(requireContext(), "⚔️ Boss reappears with full attempts!", Toast.LENGTH_SHORT).show();
+//                        } else {
+//                            attemptsLeft = document.getLong("attemptsLeft") != null ?
+//                                    document.getLong("attemptsLeft").intValue() : totalAttempts;
+//                        }
+//                        updateUI();
+//                        return;
+//                    } else if (currentBoss != null && currentBoss.isDefeated()) {
+//                        createNewBoss(currentBoss.getLevel() + 1);
+//                        return;
+//                    }
+//                }
+//                createNewBoss(1);
+//            });
+//}-OVO JE BILA PRAVILNA
+
     private void loadCurrentBoss() {
-        if (currentBoss != null && !currentBoss.isDefeated()) {
-            Toast.makeText(requireContext(), "⚠️ The same boss returns!", Toast.LENGTH_SHORT).show();
-            updateUI();
-            return;
-        }
+        bossService.loadCurrentBoss(currentUser, new BossService.BossLoadCallback() {
+            @Override
+            public void onLoaded(Boss boss, boolean refreshed) {
+                currentBoss = boss;
+                attemptsLeft = boss.getAttemptsLeft() > 0 ? boss.getAttemptsLeft() : totalAttempts;
 
-        String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
-        if (userId == null) return;
+                if (refreshed) {
+                    Toast.makeText(requireContext(), "⚔️ Boss refreshed!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(requireContext(), "⚠️ Boss still active.", Toast.LENGTH_SHORT).show();
+                }
 
-        int userLevel = currentUser.getLevel();
+                updateUI();
+            }
 
-        db.collection("users").document(userId).collection("bosses")
-                .document("currentBoss")
-                .get()
-                .addOnSuccessListener(document -> {
-                    if (document.exists()) {
-                        currentBoss = document.toObject(Boss.class);
-
-                        if (currentBoss != null && !currentBoss.isDefeated()) {
-                            attemptsLeft = document.getLong("attemptsLeft") != null ?
-                                    document.getLong("attemptsLeft").intValue() : totalAttempts;
-                            updateUI();
-                            return;
-                        }
-                        else if (currentBoss != null && currentBoss.isDefeated()) {
-                            createNewBoss(currentBoss.getLevel() + 1);
-                            return;
-                        }
-                    }
-                    createNewBoss(1);
-
-                });
-
+            @Override
+            public void onError(Exception e) {
+                Toast.makeText(requireContext(), "Error loading boss data!", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
+
 
     private void createNewBoss(int level) {
         int bossHP = calculateBossHP(level);
@@ -353,41 +458,90 @@ private void displayEquipment(List<UserEquipment> equipmentList) {
         return prevHP * 2 + prevHP / 2; // nextHP = prevHP * 2.5
     }
 
-    private void updateUI() {
-        if (currentBoss == null) return;
+//    private void updateUI() {
+//        if (currentBoss == null) return;
+//
+//        // Boss title
+//        String bossEmoji = getBossEmoji(currentBoss.getLevel());
+//        tvBossTitle.setText("Boss Level " + currentBoss.getLevel() + " " + bossEmoji);
+//
+//        // 🔹 Uzimamo realan success rate iz Firestore-a
+//        if (currentUser != null) {
+//            userService.getSuccessRate(currentUser.getUserId(), new UserRepository.SuccessRateCallback() {
+//                @Override
+//                public void onSuccess(int rate) {
+//                    tvHitChance.setText("Hit chance: " + rate + "%");
+//                }
+//
+//                @Override
+//                public void onFailure(Exception e) {
+//                    tvHitChance.setText("Hit chance: 50%");
+//                }
+//            });
+//        } else {
+//            tvHitChance.setText("Hit chance: 50%");
+//        }
+//
+//        // Boss HP
+//        tvBossHP.setText(currentBoss.getCurrentHP() + " / " + currentBoss.getMaxHP());
+//        int hpPercent = (currentBoss.getCurrentHP() * 100) / currentBoss.getMaxHP();
+//        pbBossHP.setProgress(hpPercent);
+//
+//        // Attempts
+//        tvAttemptsLeft.setText("Attempts: " + attemptsLeft + "/" + totalAttempts);
+//
+//        // Enable/disable attack button
+//        btnAttack.setEnabled(attemptsLeft > 0 && !bossDefeated);
+//    }
+private void updateUI() {
+    if (currentBoss == null) return;
 
-        // Boss title
-        String bossEmoji = getBossEmoji(currentBoss.getLevel());
-        tvBossTitle.setText("Boss Level " + currentBoss.getLevel() + " " + bossEmoji);
+    String bossEmoji = getBossEmoji(currentBoss.getLevel());
+    tvBossTitle.setText("Boss Level " + currentBoss.getLevel() + " " + bossEmoji);
 
-        // 🔹 Uzimamo realan success rate iz Firestore-a
-        if (currentUser != null) {
-            userService.getSuccessRate(currentUser.getUserId(), new UserRepository.SuccessRateCallback() {
-                @Override
-                public void onSuccess(int rate) {
-                    tvHitChance.setText("Hit chance: " + rate + "%");
-                }
+    if (currentUser != null) {
+        userService.getSuccessRate(currentUser.getUserId(), new UserRepository.SuccessRateCallback() {
+            @Override
+            public void onSuccess(int rate) {
+                tvHitChance.setText("Hit chance: " + rate + "%");
+            }
 
-                @Override
-                public void onFailure(Exception e) {
-                    tvHitChance.setText("Hit chance: 50%");
-                }
-            });
-        } else {
-            tvHitChance.setText("Hit chance: 50%");
-        }
-
-        // Boss HP
-        tvBossHP.setText(currentBoss.getCurrentHP() + " / " + currentBoss.getMaxHP());
-        int hpPercent = (currentBoss.getCurrentHP() * 100) / currentBoss.getMaxHP();
-        pbBossHP.setProgress(hpPercent);
-
-        // Attempts
-        tvAttemptsLeft.setText("Attempts: " + attemptsLeft + "/" + totalAttempts);
-
-        // Enable/disable attack button
-        btnAttack.setEnabled(attemptsLeft > 0 && !bossDefeated);
+            @Override
+            public void onFailure(Exception e) {
+                tvHitChance.setText("Hit chance: 50%");
+            }
+        });
+    } else {
+        tvHitChance.setText("Hit chance: 50%");
     }
+
+    // HP traka
+    tvBossHP.setText(currentBoss.getCurrentHP() + " / " + currentBoss.getMaxHP());
+    int hpPercent = (currentBoss.getCurrentHP() * 100) / currentBoss.getMaxHP();
+    pbBossHP.setProgress(hpPercent);
+
+    // Attempts
+    tvAttemptsLeft.setText("Attempts: " + currentBoss.getAttemptsLeft() + "/" + totalAttempts);
+
+    // ⚔️ Boss može da se napada samo ako nije poražen i ima pokušaje
+    boolean canFight = !currentBoss.isDefeated() && currentBoss.getAttemptsLeft() > 0;
+
+    btnAttack.setEnabled(canFight);
+
+    if (!canFight) {
+        if (currentBoss.isDefeated()) {
+            tvAttackResult.setText("✅ Boss defeated! Proceed to next level.");
+            tvAttackResult.setTextColor(getResources().getColor(R.color.pastel_green, null));
+        } else {
+            tvAttackResult.setText("💀 No attempts left! Try again after next level.");
+            tvAttackResult.setTextColor(getResources().getColor(R.color.gray, null));
+        }
+        tvAttackResult.setVisibility(View.VISIBLE);
+    } else {
+        tvAttackResult.setVisibility(View.INVISIBLE);
+    }
+}
+
 
 
     private String getBossEmoji(int level) {
@@ -411,42 +565,85 @@ private void displayEquipment(List<UserEquipment> equipmentList) {
             }
         });
     }
-    private void performAttackWithChance(int hitChance) {
-        userService.useAllActivePotions(currentUser, null);
-        userService.useAllActiveClothing(currentUser, null);
-        calculateUserPower(); // samo jednom, čisto
+//    private void performAttackWithChance(int hitChance) {
+////        userService.useAllActivePotions(currentUser, null);
+////        userService.useAllActiveClothing(currentUser, null);
+//        calculateUserPower(); // samo jednom, čisto
+//        userService.useAllActivePotions(currentUser, null);
+//        userService.useAllActiveClothing(currentUser, null);
+//
+//        attemptsLeft--;
+//
+//        Random random = new Random();
+//        int roll = random.nextInt(100);
+//
+//        if (roll < hitChance) {
+//            int damage = userTotalPP;
+//            currentBoss.takeDamage(damage);
+//
+//            tvAttackResult.setText("💥 You hit for −" + damage + " HP!");
+//            tvAttackResult.setTextColor(getResources().getColor(R.color.purple_500, null));
+//            animateBossHit();
+//
+//            if (currentBoss.getCurrentHP() <= 0) {
+//                bossDefeated = true;
+//                handleBossDefeated();
+//            }
+//        } else {
+//            tvAttackResult.setText("❌ Missed!");
+//            tvAttackResult.setTextColor(getResources().getColor(R.color.gray, null));
+//            animateBossDodge();
+//        }
+//
+//        tvAttackResult.setVisibility(View.VISIBLE);
+//        updateUI();
+//        saveBossProgress();
+//
+//        if (attemptsLeft <= 0 && !bossDefeated) {
+//            handleAttemptsExhausted();
+//        }
+//    }
 
-        attemptsLeft--;
+private void performAttackWithChance(int hitChance) {
+    calculateUserPower();
+    userService.useAllActivePotions(currentUser, null);
+    userService.useAllActiveClothing(currentUser, null);
 
-        Random random = new Random();
-        int roll = random.nextInt(100);
+    // koristi broj pokušaja iz samog bossa
+    int attemptsLeft = currentBoss.getAttemptsLeft() - 1;
+    currentBoss.setAttemptsLeft(attemptsLeft);
 
-        if (roll < hitChance) {
-            int damage = userTotalPP;
-            currentBoss.takeDamage(damage);
+    Random random = new Random();
+    int roll = random.nextInt(100);
 
-            tvAttackResult.setText("💥 You hit for −" + damage + " HP!");
-            tvAttackResult.setTextColor(getResources().getColor(R.color.purple_500, null));
-            animateBossHit();
+    if (roll < hitChance) {
+        int damage = userTotalPP;
+        currentBoss.takeDamage(damage);
 
-            if (currentBoss.getCurrentHP() <= 0) {
-                bossDefeated = true;
-                handleBossDefeated();
-            }
-        } else {
-            tvAttackResult.setText("❌ Missed!");
-            tvAttackResult.setTextColor(getResources().getColor(R.color.gray, null));
-            animateBossDodge();
-        }
-
+        tvAttackResult.setText("💥 You hit for −" + damage + " HP!");
+        tvAttackResult.setTextColor(getResources().getColor(R.color.purple_500, null));
         tvAttackResult.setVisibility(View.VISIBLE);
-        updateUI();
-        saveBossProgress();
+        animateBossHit();
 
-        if (attemptsLeft <= 0 && !bossDefeated) {
-            handleAttemptsExhausted();
+        if (currentBoss.getCurrentHP() <= 0) {
+            bossDefeated = true;
+            handleBossDefeated();
         }
+    } else {
+        tvAttackResult.setText("❌ Missed!");
+        tvAttackResult.setTextColor(getResources().getColor(R.color.gray, null));
+        tvAttackResult.setVisibility(View.VISIBLE);
+        animateBossDodge();
     }
+
+    saveBossProgress();
+    updateUI();
+
+    if (currentBoss.getAttemptsLeft() <= 0 && !bossDefeated) {
+        handleAttemptsExhausted();
+    }
+}
+
 
 
 
@@ -600,13 +797,14 @@ private void displayEquipment(List<UserEquipment> equipmentList) {
         bossData.put("level", currentBoss.getLevel());
         bossData.put("currentHP", currentBoss.getCurrentHP());
         bossData.put("maxHP", currentBoss.getMaxHP());
-        bossData.put("defeated", bossDefeated);
-        bossData.put("attemptsLeft", attemptsLeft);
-
+        bossData.put("defeated", currentBoss.isDefeated());
+        bossData.put("attemptsLeft", currentBoss.getAttemptsLeft());
+        currentBoss.setRefreshedForLevel(currentUser.getLevel());
         db.collection("users").document(userId)
                 .collection("bosses")
-                .document("currentBoss")
+                .document("boss_" + currentBoss.getLevel())
                 .set(bossData);
+
     }
 
     private void startNextBoss() {
@@ -661,6 +859,40 @@ private void displayEquipment(List<UserEquipment> equipmentList) {
             }
         }
     }
+
+//    @Override
+//    public void onSensorChanged(SensorEvent event) {
+//        if (event.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
+//
+//        float x = event.values[0];
+//        float y = event.values[1];
+//        float z = event.values[2];
+//
+//        float acceleration = (x * x + y * y + z * z)
+//                / (SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
+//
+//        long currentTime = System.currentTimeMillis();
+//
+//        if (acceleration > 2.5) { // manja vrednost = osetljiviji
+//            if (currentTime - lastShakeTime > 1200) {
+//                lastShakeTime = currentTime;
+//
+//                if (!chestOpened && cardReward.getVisibility() == View.VISIBLE) {
+//                    openChest();
+//                    return;
+//                }
+//
+//                if (shakeForAttackEnabled && cardAttack.getVisibility() == View.VISIBLE
+//                        && !bossDefeated && currentBoss != null && currentBoss.getAttemptsLeft() > 0) {
+//
+//                    Toast.makeText(requireContext(), "⚔️ Shake attack!", Toast.LENGTH_SHORT).show();
+//
+//                    performAttack();
+//                }
+//            }
+//        }
+//    }
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {

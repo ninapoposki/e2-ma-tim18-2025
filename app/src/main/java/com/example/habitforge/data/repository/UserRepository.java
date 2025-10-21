@@ -4,6 +4,9 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
+import com.example.habitforge.application.model.Boss;
 import com.example.habitforge.application.model.UserEquipment;
 import com.example.habitforge.application.model.enums.EquipmentType;
 import com.example.habitforge.application.session.SessionManager;
@@ -14,6 +17,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.example.habitforge.application.model.User;
 import com.example.habitforge.data.database.UserLocalDataSource;
@@ -436,15 +440,14 @@ public class UserRepository {
 
 
     }
-    //Šansa da korisnikov napad uspe se obračunava po procentu uspešnosti rešavanja
-    //zadataka
+
+    // Šansa da korisnikov napad uspe se obračunava po procentu uspešnosti rešavanja zadataka
     public void getUserSuccessRate(String userId, SuccessRateCallback callback) {
         if (userId == null) {
             callback.onFailure(new Exception("User ID is null"));
             return;
         }
 
-        // Uzmemo sve zadatke korisnika iz Firestore-a
         remoteDb.getFirestore()
                 .collection("tasks")
                 .whereEqualTo("userId", userId)
@@ -460,9 +463,12 @@ public class UserRepository {
 
                     for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                         String status = doc.getString("status");
+                        Boolean exceedsQuota = doc.getBoolean("exceedsQuota");
 
-                        if (status == null) continue;
+                        // Ako nema status ili ako je task prešao kvotu — preskačemo ga
+                        if (status == null || Boolean.TRUE.equals(exceedsQuota)) continue;
 
+                        // Uračunavamo samo aktivne (nepauzirane/neotkazane)
                         if (!status.equals("PAUSED") && !status.equals("CANCELED")) {
                             total++;
                             if (status.equals("COMPLETED")) completed++;
@@ -474,6 +480,92 @@ public class UserRepository {
                 })
                 .addOnFailureListener(callback::onFailure);
     }
+
+    //za reward nakon borbe
+    public void addCoinsAndReward(String userId, int currentCoins, int coinsReward, @Nullable String itemReward,
+                                  Runnable onSuccess, Runnable onFailure) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        int newCoins = currentCoins + coinsReward;
+
+        db.collection("users").document(userId)
+                .update("coins", newCoins)
+                .addOnSuccessListener(aVoid -> {
+                    if (itemReward != null) {
+                        Map<String, Object> newItem = new HashMap<>();
+                        newItem.put("name", itemReward);
+                        newItem.put("acquiredAt", System.currentTimeMillis());
+                        db.collection("users").document(userId)
+                                .collection("inventory")
+                                .add(newItem);
+                    }
+                    onSuccess.run();
+                })
+                .addOnFailureListener(e -> onFailure.run());
+    }
+
+//    public void getCurrentBoss(String userId, BossCallback callback) {
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//
+//        db.collection("users").document(userId)
+//                .collection("bosses")
+//                .document("currentBoss")
+//                .get()
+//                .addOnSuccessListener(document -> {
+//                    if (document.exists()) {
+//                        Boss boss = document.toObject(Boss.class);
+//                        callback.onSuccess(boss);
+//                    } else {
+//                        callback.onSuccess(null); // Boss ne postoji još
+//                    }
+//                })
+//                .addOnFailureListener(callback::onFailure);
+//    }
+public void getCurrentBoss(String userId, BossCallback callback) {
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    db.collection("users").document(userId)
+            .collection("bosses")
+            .get()
+            .addOnSuccessListener(query -> {
+                Boss activeBoss = null;
+                int maxLevelDefeated = 0;
+
+                for (var doc : query.getDocuments()) {
+                    Boss b = doc.toObject(Boss.class);
+                    if (b == null) continue;
+
+                    if (!b.isDefeated()) activeBoss = b;
+                    else if (b.getLevel() > maxLevelDefeated) maxLevelDefeated = b.getLevel();
+                }
+
+                if (activeBoss != null) {
+                    callback.onSuccess(activeBoss);
+                    return;
+                }
+
+                // 🔹 Ako nema aktivnog bossa — kreiraj sledećeg
+                int nextLevel = Math.max(1, maxLevelDefeated + 1);
+                int bossHP = calculateBossHP(nextLevel);
+                Boss newBoss = new Boss(nextLevel, bossHP, bossHP);
+                db.collection("users").document(userId)
+                        .collection("bosses")
+                        .document("boss_" + nextLevel)
+                        .set(newBoss)
+                        .addOnSuccessListener(aVoid -> callback.onSuccess(newBoss))
+                        .addOnFailureListener(callback::onFailure);
+            })
+            .addOnFailureListener(callback::onFailure);
+}
+
+
+
+    public interface BossCallback {
+        void onSuccess(@Nullable Boss boss);
+        void onFailure(Exception e);
+    }
+
+
+
 
     public interface SuccessRateCallback {
         void onSuccess(int rate);
@@ -487,6 +579,11 @@ public class UserRepository {
     public interface UserCallback {
         void onSuccess(User user);
         void onFailure(Exception e);
+    }
+    public int calculateBossHP(int level) {
+        if (level == 1) return 200;
+        int prevHP = calculateBossHP(level - 1);
+        return prevHP * 2 + prevHP / 2;
     }
 }
 

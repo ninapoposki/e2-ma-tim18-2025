@@ -6,13 +6,25 @@ public class Boss {
     private int maxHP;
     private boolean defeated;
 
-    public Boss() {}
+    private int attemptsLeft;
+
+    private int refreshedForLevel;
+
+
+
+    public Boss() {
+        this.level = 1;
+        this.defeated = false;
+        this.attemptsLeft = 5;
+    }
 
     public Boss(int level, int currentHP, int maxHP) {
         this.level = level;
         this.currentHP = currentHP;
         this.maxHP = maxHP;
         this.defeated = false;
+        this.attemptsLeft=5;
+        this.refreshedForLevel=0;
     }
 
     public int getLevel() { return level; }
@@ -26,6 +38,14 @@ public class Boss {
 
     public boolean isDefeated() { return defeated; }
     public void setDefeated(boolean defeated) { this.defeated = defeated; }
+
+    public int getAttemptsLeft() { return attemptsLeft; }
+    public void setAttemptsLeft(int attemptsLeft) { this.attemptsLeft = attemptsLeft; }
+
+
+    public int getRefreshedForLevel() { return refreshedForLevel; }
+    public void setRefreshedForLevel(int refreshedForLevel) { this.refreshedForLevel = refreshedForLevel; }
+
 
     public void takeDamage(int damage) {
         this.currentHP = Math.max(0, this.currentHP - damage);
