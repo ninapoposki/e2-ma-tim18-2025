@@ -200,7 +200,7 @@ private void updateTaskStatus(Task task, TaskStatus newStatus) {
 
     if (newStatus == TaskStatus.COMPLETED) {
         task.calculateXp();
-        userService.addExperienceToCurrentUser(this, task.getXp());
+        userService.addExperienceToCurrentUser(this, task.getXp(), task.getId());
 
     } else if (newStatus == TaskStatus.CANCELED || newStatus == TaskStatus.PAUSED) {
         task.setXp(0);

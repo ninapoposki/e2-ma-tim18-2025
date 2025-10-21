@@ -21,8 +21,28 @@ public class User {
     private int coins;
     private List<String> badges;
     private List<UserEquipment> equipment = new ArrayList<>();
+    private List<String> friendIds = new ArrayList<>();
 
     private String qrCode;
+
+    private String allianceId; // ID saveza u kojem je korisnik, null ako nije u savezu
+    private String fcmToken;
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
+    public String getAllianceId() {
+        return allianceId;
+    }
+
+    public void setAllianceId(String allianceId) {
+        this.allianceId = allianceId;
+    }
 
     // --- KONSTRUKTORI ---
     public User() {}
@@ -38,6 +58,7 @@ public class User {
         this.powerPoints = 0;
         this.experiencePoints = 0;
         this.coins = 0;
+        this.fcmToken = null;
     }
 
     public User(String userId, String email, String username, String avatar, Boolean isActive) {
@@ -98,7 +119,16 @@ public class User {
     public void setEquipment(List<UserEquipment> equipment) {
         this.equipment = equipment;
     }
+    public List<String> getFriendIds() {
+        if (friendIds == null) {
+            friendIds = new ArrayList<>();
+        }
+        return friendIds;
+    }
 
+    public void setFriendIds(List<String> friendIds) {
+        this.friendIds = friendIds;
+    }
     public String getQrCode() { return qrCode; }
     public void setQrCode(String qrCode) { this.qrCode = qrCode; }
 
@@ -128,6 +158,7 @@ public class User {
                 ", coins=" + coins +
                 ", badges=" + badges +
                 ", equipment=" + equipment  +
+                ", friends =" +friendIds+
                 '}';
     }
 

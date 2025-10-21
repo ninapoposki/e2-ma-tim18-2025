@@ -1,0 +1,54 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Titula -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Beginner"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_gravity="center_horizontal"/>
+
+    <!-- Level -->
+    <TextView
+        android:id="@+id/tvLevel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Level 1"
+        android:textSize="18sp"
+        android:layout_marginTop="8dp"
+        android:layout_gravity="center_horizontal"/>
+
+    <!-- Power Points -->
+    <TextView
+        android:id="@+id/tvPP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PP: 40"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp"/>
+
+    <!-- XP progress bar -->
+    <TextView
+        android:id="@+id/tvXPInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="XP: 150 / 200"
+        android:layout_marginTop="16dp"/>
+
+    <ProgressBar
+        android:id="@+id/progressXP"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:progress="0"
+        android:max="100"
+        android:layout_marginTop="4dp"/>
+
+</LinearLayout>

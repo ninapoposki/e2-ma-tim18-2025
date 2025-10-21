@@ -7,7 +7,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -15,8 +17,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.habitforge.R;
+import com.example.habitforge.application.model.Equipment;
 import com.example.habitforge.application.model.User;
 import com.example.habitforge.application.model.UserEquipment;
+import com.example.habitforge.application.service.EquipmentService;
 import com.example.habitforge.application.session.SessionManager;
 import com.example.habitforge.data.repository.UserRepository;
 import com.example.habitforge.databinding.FragmentGalleryBinding;
@@ -30,12 +34,14 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class GalleryFragment extends Fragment {
 
     private FragmentGalleryBinding binding;
     private UserRepository userRepository;
+   private EquipmentService equipmentService;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -45,6 +51,8 @@ public class GalleryFragment extends Fragment {
         View root = binding.getRoot();
 
         userRepository = new UserRepository(requireContext());
+        equipmentService = new EquipmentService(requireContext());
+
         GalleryViewModel galleryViewModel =
                 new ViewModelProvider(this).get(GalleryViewModel.class);
 
@@ -103,10 +111,19 @@ public class GalleryFragment extends Fragment {
                 binding.textPp.setText(String.valueOf(user.getPowerPoints()));
                 binding.textCoins.setText(String.valueOf(user.getCoins()));
                 binding.textBadges.setText(user.getBadges() != null ? user.getBadges().toString() : "Nema bedževa");
-                binding.textEquipment.setText(user.getEquipment() != null ? user.getEquipment().toString() : "Nema opreme");
+               // binding.textEquipment.setText(user.getEquipment() != null ? user.getEquipment().toString() : "Nema opreme");
 
                 setAvatarImage(user.getAvatar());
                 generateQrCode(user.getUserId());
+
+                if (!isOwnProfile) {
+                    binding.textEquipmentNotice.setVisibility(View.VISIBLE);
+                } else {
+                    binding.textEquipmentNotice.setVisibility(View.GONE);
+                }
+
+                displayUserEquipment(user, isOwnProfile);
+
                 binding.textPp.setVisibility(isOwnProfile ? View.VISIBLE : View.GONE);
                 binding.labelPp.setVisibility(isOwnProfile ? View.VISIBLE : View.GONE);
 
@@ -191,6 +208,50 @@ public class GalleryFragment extends Fragment {
                 Toast.makeText(getContext(), "Stara lozinka nije tačna", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+
+    private void displayUserEquipment(User user, boolean isOwnProfile) {
+        LinearLayout equipmentContainer = binding.layoutEquipmentContainer;
+        equipmentContainer.removeAllViews();
+
+        List<UserEquipment> equipmentList = user.getEquipment();
+        if (equipmentList == null || equipmentList.isEmpty()) {
+            Toast.makeText(getContext(), "Nema opreme za prikaz", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        for (UserEquipment ue : equipmentList) {
+            // Ako nije moj profil i oprema nije aktivna -> preskoči
+            if (!isOwnProfile && !ue.isActive()) continue;
+
+            // Poziv servisa da dobijemo detalje o opremi
+            equipmentService.getEquipmentById(ue.getEquipmentId(), new EquipmentService.EquipmentCallback() {
+                @Override
+                public void onSuccess(Equipment equipment) {
+                    // Kada dobijemo opremu, pravimo dinamički prikaz (slika + ime)
+                    View equipmentView = LayoutInflater.from(getContext())
+                            .inflate(R.layout.item_equipment_card, equipmentContainer, false);
+
+                    ImageView image = equipmentView.findViewById(R.id.image_equipment);
+                    TextView name = equipmentView.findViewById(R.id.text_equipment_name);
+
+                    name.setText(equipment.getName());
+
+                    int resId = getResources().getIdentifier(equipment.getImage(), "drawable", requireContext().getPackageName());
+                    if (resId != 0) {
+                        image.setImageResource(resId);
+                    }
+
+                    equipmentContainer.addView(equipmentView);
+                }
+
+                @Override
+                public void onFailure(Exception e) {
+                    Log.e("GalleryFragment", "Greška pri učitavanju opreme: " + e.getMessage());
+                }
+            });
+        }
     }
 
 

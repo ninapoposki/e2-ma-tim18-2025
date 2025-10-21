@@ -671,12 +671,15 @@ private void performAttackWithChance(int hitChance) {
     }
 
     private void handleBossDefeated() {
+        userService.resetUsedPotions(currentUser, null);
         calculateRewards(true);
         showRewardScreen();
         saveRewardsToUser();
     }
 
     private void handleAttemptsExhausted() {
+        userService.resetUsedPotions(currentUser, null);
+
         if (currentBoss.getCurrentHP() <= currentBoss.getMaxHP() * 0.5) {
             // Partial rewards if boss HP <= 50%
             calculateRewards(false);

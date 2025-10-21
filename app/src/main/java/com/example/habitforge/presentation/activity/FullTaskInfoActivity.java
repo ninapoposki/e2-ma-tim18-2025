@@ -272,7 +272,7 @@ public class FullTaskInfoActivity extends AppCompatActivity {
         // xp logika
         if (newStatus == TaskStatus.COMPLETED) {
             task.calculateXp();
-             userService.addExperienceToCurrentUser(this, task.getXp());
+             userService.addExperienceToCurrentUser(this, task.getXp(), task.getId());
         }
         else if (newStatus == TaskStatus.CANCELED || newStatus == TaskStatus.PAUSED) {
             task.setXp(0); // ne racuna se u XP

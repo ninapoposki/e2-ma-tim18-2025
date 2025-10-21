@@ -70,7 +70,7 @@ public class EquipmentFragment extends Fragment {
     }
 
     private void displayEquipment(List<UserEquipment> equipmentList){
-        adapter = new UserEquipmentAdapter(equipmentList, (item, position) -> {
+        adapter = new UserEquipmentAdapter(requireContext(),equipmentList, (item, position) -> {
             // Aktiviraj item
             item.setActive(true);
 
@@ -82,17 +82,14 @@ public class EquipmentFragment extends Fragment {
                         // Osveži samo taj item u RecyclerView-u
                         adapter.notifyItemChanged(position);
                     });
-//         OVAKO CE SE ISKORISTITI ODECA I SMANJICE TRAJANJE ZA 1
-//            userService.useAllActiveClothing(currentUser, () -> {
-//                adapter.notifyDataSetChanged();
-//            });
 
-            // OVAKO CE SE U BORBI POTROSITI SVI AKTIVIRANI NAPICI "
-//            userService.useAllActivePotions(currentUser, () -> {
-//                adapter.notifyDataSetChanged(); // osveži RecyclerView
-//            });
-
-        });
+        },
+                (item, position) -> {
+                    // Upgrade
+                    int coinsFromBoss = 1000; // primer, ovde možeš uzeti realnu vrednost
+                    userService.upgradeWeapon(currentUser, item, coinsFromBoss);
+                }
+        );
 
         // Postavi adapter na RecyclerView
         binding.recyclerEquipment.setAdapter(adapter);
@@ -111,6 +108,13 @@ public class EquipmentFragment extends Fragment {
 //                    adapter.notifyItemChanged(position);
 //                });
 //    }
+
+    private void updateEquipmentInFirebase(UserEquipment item, int position){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("users").document(currentUser.getUserId())
+                .update("equipment", currentUser.getEquipment())
+                .addOnSuccessListener(aVoid -> adapter.notifyItemChanged(position));
+    }
 
     @Override
     public void onDestroyView() {

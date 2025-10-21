@@ -60,8 +60,8 @@ public class UserService {
         userRepository.activateUser(userId, listener);
     }
 
-    public void addExperienceToCurrentUser(Context context, int xp) {
-        userRepository.addExperienceToUser(context, xp, task -> {});
+    public void addExperienceToCurrentUser(Context context, int xp, String taskId) {
+        userRepository.addExperienceToUser(context, xp, taskId, task -> {});
     }
 
 //koriscenje odece
@@ -82,6 +82,10 @@ public class UserService {
         userRepository.getUserSuccessRate(userId, callback);
     }
 
+    public void upgradeWeapon(User user, UserEquipment weapon, int potentialCoinsFromBoss) {
+        // Poziva repo direktno
+        userRepository.upgradeWeapon(user, weapon, potentialCoinsFromBoss);
+    }
     public void resetUsedPotions(User user, Runnable onSuccess){
         userRepository.resetUsedPotions(user,onSuccess);
     }
