@@ -198,13 +198,25 @@ private void updateTaskStatus(Task task, TaskStatus newStatus) {
         Toast.makeText(this, "🔄 Task resumed.", Toast.LENGTH_SHORT).show();
     }
 
+//    if (newStatus == TaskStatus.COMPLETED) {
+//        task.calculateXp();
+//        userService.addExperienceToCurrentUser(this, task.getXp(), task.getId());
+//
+//    } else if (newStatus == TaskStatus.CANCELED || newStatus == TaskStatus.PAUSED) {
+//        task.setXp(0);
+//    }
     if (newStatus == TaskStatus.COMPLETED) {
         task.calculateXp();
         userService.addExperienceToCurrentUser(this, task.getXp(), task.getId());
 
+        // Dodaj odmah poziv misije – ovde je ključno!
+        TaskService missionService = new TaskService(this);
+        missionService.handleAllianceMissionProgress(task);
+
     } else if (newStatus == TaskStatus.CANCELED || newStatus == TaskStatus.PAUSED) {
         task.setXp(0);
     }
+
 
     task.setStatus(newStatus);
     TaskService service = new TaskService(this);

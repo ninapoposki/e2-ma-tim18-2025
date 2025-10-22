@@ -287,48 +287,32 @@ public class UserRepository {
     }
 
     public void useAllActiveClothing(User user, Runnable onSuccess) {
-        if (user == null || user.getEquipment() == null) return;
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        List<UserEquipment> equipmentList = user.getEquipment();
-        boolean changed = false;
+        db.collection("users")
+                .document(user.getUserId())
+                .collection("equipment")
+                .whereEqualTo("isActive", true)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        doc.getReference().update("isActive", false);
+                    }
 
-        // prolazimo kroz sve aktivne CLOTHING
-        for (int i = 0; i < equipmentList.size(); i++) {
-            UserEquipment item = equipmentList.get(i);
-
-            if (item.getType() == EquipmentType.CLOTHING && item.isActive()) {
-                // umanji trajanje
-                item.setDuration(item.getDuration() - 1);
-                changed = true;
-
-                // ako je duration pao na 0 ili manje, ukloni
-                if (item.getDuration() <= 0) {
-                    equipmentList.remove(i);
-                    i--; // obavezno smanji i, jer se lista pomerila
-                }
-            }
-        }
-
-        if (changed) {
-            try {
-                remoteDb.saveUserDocument(user); // snimi izmene
-                if (onSuccess != null) onSuccess.run(); // callback za UI osveženje
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+                    Log.d("USER_SERVICE", "All active clothing used.");
+                    if (onSuccess != null) onSuccess.run();
+                })
+                .addOnFailureListener(e -> Log.e("USER_SERVICE", "Failed to use clothing", e));
     }
 
+    public void resetUsedPotions(User user, Runnable onSuccess) {
 
-    public void useAllActivePotions(User user, Runnable onSuccess) {
         if (user == null || user.getEquipment() == null) return;
 
         boolean changed = false;
 
         for (UserEquipment item : user.getEquipment()) {
-            if (item.getType() == EquipmentType.POTION
-                    && item.isActive()
-                    && !item.isUsedInNextBossFight()) {
+            if (item.getType() == EquipmentType.POTION && item.isActive()) {
                 item.setUsedInNextBossFight(true);
                 changed = true;
             }
@@ -336,13 +320,36 @@ public class UserRepository {
 
         if (changed) {
             try {
-                remoteDb.saveUserDocument(user); // snimi sve izmene u Firestore
-                if (onSuccess != null) onSuccess.run(); // callback da fragment osveži UI
+                remoteDb.saveUserDocument(user);
+                if (onSuccess != null) onSuccess.run();
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
     }
+
+
+
+    public void useAllActivePotions(User user, Runnable onSuccess) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users")
+                .document(user.getUserId())
+                .collection("potions")
+                .whereEqualTo("isActive", true)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                        doc.getReference().update("isActive", false);
+                    }
+
+                    Log.d("USER_SERVICE", "All active potions used.");
+                    if (onSuccess != null) onSuccess.run();
+                })
+                .addOnFailureListener(e -> Log.e("USER_SERVICE", "Failed to use potions", e));
+    }
+
+
 
 
     // Metoda koja dodaje oružje od bossa
@@ -1087,6 +1094,29 @@ public void getCurrentBoss(String userId, BossCallback callback) {
                 .update("allianceId", allianceId)
                 .addOnCompleteListener(task -> callback.onComplete(task.isSuccessful()));
     }
+    public void updateUser(User user, GenericCallback callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Log.d("UserService", "📤 Updating user: " + user.getUserId());
+        Log.d("UserService", "💰 Coins: " + user.getCoins());
+        Log.d("UserService", "🏅 BadgeCount: " + user.getBadgeCount());
+        Log.d("UserService", "🎖 Badges: " + user.getBadges());
+        Log.d("UserService", "🧩 Equipment: " + user.getEquipment());
+
+        db.collection("users")
+                .document(user.getUserId())
+                .set(user)
+                .addOnSuccessListener(aVoid -> {
+                    Log.i("UserService", "✅ User updated successfully: " + user.getUsername());
+                    callback.onComplete(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("UserService", "❌ Failed to update user: " + e.getMessage());
+                    callback.onComplete(false);
+                });
+    }
+
+
 
     // Poziv prijatelju ona koja radi
 //    public void sendAllianceInvite(String fromUserId, String toUserId, String allianceId, GenericCallback callback) {
@@ -1335,6 +1365,25 @@ public void getCurrentBoss(String userId, BossCallback callback) {
                     callback.onSuccess(messages);
                 });
     }
+    public void saveRewards(User user, int coinsReward, String itemReward, int bossLevel) {
+        remoteDb.saveRewardsAndEquipment(user, coinsReward, itemReward, bossLevel);
+    }
+    public void updateAllianceMissionStatus(String allianceId, boolean started, GenericCallback callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("alliances").document(allianceId)
+                .update("missionStarted", started)
+                .addOnSuccessListener(aVoid -> {
+                    Log.i("UserRepo", "✅ Alliance missionStarted updated to: " + started);
+                    callback.onComplete(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("UserRepo", "❌ Failed to update missionStarted: " + e.getMessage());
+                    callback.onComplete(false);
+                });
+    }
+
+
 
 
 

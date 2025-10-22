@@ -13,6 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class UserService {
     private final UserRepository userRepository;
@@ -51,10 +52,17 @@ public class UserService {
     public void loginUser(String email, String password, OnCompleteListener<AuthResult> callback) {
         userRepository.login(email, password, callback);
     }
+    public void updateUser(User user, Consumer<Boolean> onComplete) {
+        userRepository.updateUser(user, new UserRepository.GenericCallback() {
+            @Override
+            public void onComplete(boolean success) {
+                onComplete.accept(success);
+            }
+        });
+    }
 
-//    public void loginUserAndSavePlayerId(String email, String password, UserRepository.GenericCallback callback) {
-//        userRepository.loginAndSavePlayerId(email, password, callback);
-//    }
+
+
     public boolean isUserActivated() {
         return userRepository.isUserActivated();
     }
@@ -89,6 +97,24 @@ public class UserService {
         // Poziva repo direktno
         userRepository.upgradeWeapon(user, weapon, potentialCoinsFromBoss);
     }
+    public void resetUsedPotions(User user, Runnable onSuccess){
+        userRepository.resetUsedPotions(user,onSuccess);
+    }
+
+    public void receiveEquipmentByBoss(User user, UserEquipment newItem){
+        userRepository.receiveEquipmentByBoss(user,newItem);
+    }
+
+    public void saveRewards(User user, int coinsReward, String itemReward, int bossLevel) {
+        userRepository.saveRewards(user, coinsReward, itemReward, bossLevel);
+    }
+
+    public void updateAllianceMissionStatus(String allianceId, boolean started, UserRepository.GenericCallback callback) {
+        userRepository.updateAllianceMissionStatus(allianceId,started,callback);
+    }
+
+
+
 
 
 

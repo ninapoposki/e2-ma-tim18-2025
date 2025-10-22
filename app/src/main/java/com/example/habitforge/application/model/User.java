@@ -27,6 +27,8 @@ public class User {
 
     private String allianceId; // ID saveza u kojem je korisnik, null ako nije u savezu
     private String fcmToken;
+    private int badgeCount = 0;
+
 
     public String getFcmToken() {
         return fcmToken;
@@ -143,6 +145,31 @@ public class User {
         }
         return activeList;
     }
+    public int getBadgeCount() {
+        return badgeCount;
+    }
+
+    public void setBadgeCount(int badgeCount) {
+        this.badgeCount = badgeCount;
+    }
+    //dodavanje bedzeva
+    public void addBadge() {
+        if (badges == null) {
+            badges = new ArrayList<>();
+        }
+
+        badgeCount++;
+
+        String badgeName;
+        if (badgeCount >= 1 && badgeCount <= 6) {
+            badgeName = "badge" + badgeCount;
+        } else {
+            badgeName = "badgedef"; // default posle 6
+        }
+
+        badges.add(badgeName);
+    }
+
 
     @Override
     public String toString() {

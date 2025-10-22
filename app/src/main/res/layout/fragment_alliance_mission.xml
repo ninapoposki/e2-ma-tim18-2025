@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/pastel_cream"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- 🔹 Boss Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAllianceBoss"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@color/pastel_purple"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/tvAllianceMissionTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Alliance Boss 🐉"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_700"
+                    android:paddingBottom="4dp" />
+
+                <ImageView
+                    android:id="@+id/ivAllianceBoss"
+                    android:layout_width="160dp"
+                    android:layout_height="160dp"
+                    android:src="@drawable/mission_boss"
+                    android:scaleType="fitCenter"
+                    android:layout_marginVertical="8dp" />
+
+                <TextView
+                    android:id="@+id/tvBossHpLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Boss HP:"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black" />
+
+                <TextView
+                    android:id="@+id/tvBossHp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="500 / 500"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/red" />
+
+                <ProgressBar
+                    android:id="@+id/pbBossHp"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp"
+                    android:layout_marginTop="8dp"
+                    android:max="100"
+                    android:progress="100"
+                    android:progressTint="@color/red"
+                    android:progressBackgroundTint="@color/gray" />
+                <TextView
+                    android:id="@+id/tvMissionTimeLeft"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⏳ 14 days left"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_500"
+                    android:layout_marginTop="4dp"
+                    android:layout_gravity="center_horizontal" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 🔹 Team Progress -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardTeamProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Alliance Progress:"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_700"
+                    android:paddingBottom="8dp" />
+
+                <LinearLayout
+                    android:id="@+id/layoutTeamProgress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 🔹 Finish / Reward Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonFinishMission"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🏁 Finish Mission"
+            android:textSize="18sp"
+            app:cornerRadius="16dp"
+            app:backgroundTint="@color/purple_500"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="12dp" />
+
+        <!-- 🔹 Reward Section -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAllianceReward"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardBackgroundColor="@android:color/white">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="24dp">
+
+                <ImageView
+                    android:id="@+id/ivRewardChest"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:src="@drawable/new_chest_close"
+                    android:scaleType="fitCenter" />
+
+                <TextView
+                    android:id="@+id/tvRewardText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="🎉 Alliance Victory!"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_700" />
+            </LinearLayout>
+            <!-- 🔹 Badge Reward Section -->
+            <LinearLayout
+                android:id="@+id/layoutBadgeReward"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="16dp"
+                android:visibility="gone"
+                android:layout_marginTop="12dp"
+                android:background="@color/pastel_cream">
+
+                <TextView
+                    android:id="@+id/tvBadgeText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🏅 New Badge Earned!"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/purple_700"
+                    android:layout_marginBottom="8dp" />
+
+                <ImageView
+                    android:id="@+id/ivBadgeImage"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:src="@drawable/badgedef"
+                    android:contentDescription="New Badge"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:id="@+id/tvBadgeDescription"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="You’ve been awarded for alliance bravery!"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    android:gravity="center" />
+                <ImageView
+                    android:id="@+id/ivBadgeReward"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="12dp"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</ScrollView>
