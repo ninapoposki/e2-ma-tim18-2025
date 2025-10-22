@@ -51,6 +51,18 @@
         android:textColor="@android:color/white"
         android:layout_marginTop="8dp"/>
 
+
+    <Button
+        android:id="@+id/button_start_mission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Special Mission"
+        android:visibility="gone"
+        android:backgroundTint="@color/purple_500"
+        android:textColor="@android:color/white"
+        android:layout_marginTop="8dp" />
+
+
     <TextView
         android:id="@+id/text_example"
         android:layout_width="wrap_content"

@@ -23,6 +23,8 @@ import com.bumptech.glide.Glide;
 import com.example.habitforge.R;
 import com.example.habitforge.application.model.Alliance;
 import com.example.habitforge.application.model.User;
+import com.example.habitforge.application.service.AllianceMissionService;
+import com.example.habitforge.application.service.UserService;
 import com.example.habitforge.data.repository.UserRepository;
 import com.example.habitforge.presentation.adapter.AllianceMessageAdapter;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,15 +32,17 @@ import com.google.firebase.auth.FirebaseAuth;
 public class AllianceFragment extends Fragment {
 
     private AllianceViewModel viewModel;
-    private TextView textAllianceName, textLeader, textMembers;
+    private TextView textAllianceName, textLeader;
     private ImageView imageLeaderAvatar;
     private LinearLayout layoutMembers;
-    private Button buttonDisband;
-
+    private Button buttonDisband, buttonStartMission;
     private RecyclerView recyclerMessages;
     private EditText editMessage;
     private Button buttonSend;
+
     private AllianceMessageAdapter messageAdapter;
+    private final AllianceMissionService missionService = new AllianceMissionService(getContext());
+
 
     @Nullable
     @Override
@@ -53,53 +57,95 @@ public class AllianceFragment extends Fragment {
 
         textAllianceName = view.findViewById(R.id.text_alliance_name);
         textLeader = view.findViewById(R.id.text_leader);
-        //textMembers = view.findViewById(R.id.text_members);
         imageLeaderAvatar = view.findViewById(R.id.image_leader_avatar);
         layoutMembers = view.findViewById(R.id.layout_members);
         buttonDisband = view.findViewById(R.id.button_disband_alliance);
         recyclerMessages = view.findViewById(R.id.recycler_alliance_messages);
         editMessage = view.findViewById(R.id.edit_message);
         buttonSend = view.findViewById(R.id.button_send_message);
+        buttonStartMission = view.findViewById(R.id.button_start_mission);
+        buttonStartMission.setVisibility(View.GONE);
 
-
-
+        UserService userService = new UserService(requireContext());
         viewModel = new ViewModelProvider(this).get(AllianceViewModel.class);
-
         String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        // Praćenje saveza
         viewModel.getAllianceLiveData().observe(getViewLifecycleOwner(), alliance -> {
             textAllianceName.setText(alliance.getName());
-          //  textLeader.setText("Leader: " + alliance.getLeaderId());
-           // textMembers.setText("Members: " + String.join(", ", alliance.getMemberIds()));
 
+            // Učitaj lidera
             viewModel.getUserById(alliance.getLeaderId(), new UserRepository.UserCallback() {
                 @Override
                 public void onSuccess(User leader) {
                     textLeader.setText("Leader: " + leader.getUsername());
-                    // Učitaj avatar, npr. sa Glide
                     Glide.with(getContext())
                             .load(leader.getAvatar())
                             .placeholder(R.drawable.avatar1)
                             .into(imageLeaderAvatar);
-                    if (alliance.getLeaderId().equals(currentUserId)) {
-                        // Ako je korisnik lider
+
+                    boolean isLeader = alliance.getLeaderId().equals(currentUserId);
+
+                    // Ako je lider saveza
+                    if (isLeader) {
                         buttonDisband.setVisibility(View.VISIBLE);
+                        buttonDisband.setEnabled(!alliance.isMissionStarted());
+                        buttonDisband.setAlpha(alliance.isMissionStarted() ? 0.5f : 1f);
+
+                        buttonStartMission.setVisibility(View.VISIBLE);
+                        buttonStartMission.setEnabled(true);
+                        buttonStartMission.setAlpha(1f);
 
                         if (alliance.isMissionStarted()) {
-                            // Ako je misija pokrenuta - onemogući dugme
-                            buttonDisband.setEnabled(false);
-                            buttonDisband.setAlpha(0.5f); // Vizuelno izgleda sivo/deaktivirano
+                            buttonStartMission.setText("View Mission");
+                            buttonStartMission.setOnClickListener(v -> {
+                                Bundle args = new Bundle();
+                                args.putString("allianceId", alliance.getId());
+                                NavHostFragment.findNavController(AllianceFragment.this)
+                                        .navigate(R.id.nav_alliance_mission, args);
+                            });
                         } else {
-                            // Ako nije pokrenuta, dugme aktivno
-                            buttonDisband.setEnabled(true);
-                            buttonDisband.setAlpha(1f);
+                            //  Nema aktivne misije – startuj novu
+                            buttonStartMission.setText("Start Mission");
+                            buttonStartMission.setOnClickListener(v -> {
+                                missionService.startMission(
+                                        alliance.getId(),
+                                        "Special Alliance Mission",
+                                        "Defeat the Alliance Boss together!",
+                                        () -> {
+                                            Toast.makeText(getContext(), "Mission started!", Toast.LENGTH_SHORT).show();
+                                            alliance.setMissionStarted(true);
+                                            userService.updateAllianceMissionStatus(alliance.getId(), true, success -> {});
+                                            Bundle args = new Bundle();
+                                            args.putString("allianceId", alliance.getId());
+                                            NavHostFragment.findNavController(AllianceFragment.this)
+                                                    .navigate(R.id.nav_alliance_mission, args);
+                                        },
+                                        () -> Toast.makeText(getContext(), "Error starting mission!", Toast.LENGTH_SHORT).show()
+                                );
+                            });
                         }
+
                     } else {
+                        //Ako je običan član
                         buttonDisband.setVisibility(View.GONE);
+
+                        if (alliance.isMissionStarted()) {
+                            buttonStartMission.setVisibility(View.VISIBLE);
+                            buttonStartMission.setText("View Mission");
+                            buttonStartMission.setEnabled(true);
+                            buttonStartMission.setAlpha(1f);
+                            buttonStartMission.setOnClickListener(v -> {
+                                Bundle args = new Bundle();
+                                args.putString("allianceId", alliance.getId());
+                                NavHostFragment.findNavController(AllianceFragment.this)
+                                        .navigate(R.id.nav_alliance_mission, args);
+                            });
+                        } else {
+                            buttonStartMission.setVisibility(View.GONE);
+                        }
                     }
                 }
-
-
 
                 @Override
                 public void onFailure(Exception e) {
@@ -107,59 +153,50 @@ public class AllianceFragment extends Fragment {
                 }
             });
 
-            // Članovi
+            //  Prikaz članova saveza
             layoutMembers.removeAllViews();
             for (String memberId : alliance.getMemberIds()) {
                 viewModel.getUserById(memberId, new UserRepository.UserCallback() {
                     @Override
                     public void onSuccess(User member) {
-                        View memberItem = LayoutInflater.from(getContext()).inflate(R.layout.item_member, layoutMembers, false);
+                        View memberItem = LayoutInflater.from(getContext())
+                                .inflate(R.layout.item_member, layoutMembers, false);
                         TextView memberName = memberItem.findViewById(R.id.text_member_name);
                         ImageView memberAvatar = memberItem.findViewById(R.id.image_member_avatar);
-
                         memberName.setText(member.getUsername());
                         Glide.with(getContext())
                                 .load(member.getAvatar())
                                 .placeholder(R.drawable.avatar1)
                                 .into(memberAvatar);
-
                         layoutMembers.addView(memberItem);
                     }
 
                     @Override
-                    public void onFailure(Exception e) {
-                        // ako ne postoji user
-                    }
+                    public void onFailure(Exception e) {}
                 });
             }
 
+            //  Brisanje saveza
             buttonDisband.setOnClickListener(v -> {
                 viewModel.disbandAlliance(alliance.getId(), success -> {
                     if (success) {
-                        Toast.makeText(getContext(), "Alliance has been removed!", Toast.LENGTH_SHORT).show();
-                        requireActivity().runOnUiThread(() -> {
-                            NavHostFragment.findNavController(this).navigate(R.id.nav_home);
-                        });
+                        Toast.makeText(getContext(), "Alliance removed!", Toast.LENGTH_SHORT).show();
+                        NavHostFragment.findNavController(AllianceFragment.this)
+                                .navigate(R.id.nav_home);
                     } else {
                         Toast.makeText(getContext(), "Error deleting alliance", Toast.LENGTH_SHORT).show();
                     }
                 });
             });
-
-
         });
 
-        viewModel.getErrorLiveData().observe(getViewLifecycleOwner(), error ->
-                Toast.makeText(getContext(), error, Toast.LENGTH_SHORT).show()
-        );
-
+        // Poruke saveza
         messageAdapter = new AllianceMessageAdapter(currentUserId);
         recyclerMessages.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerMessages.setAdapter(messageAdapter);
 
-        viewModel.getAllianceLiveData().observe(getViewLifecycleOwner(), alliance -> {
-            viewModel.listenAllianceMessages(alliance.getId());
-        });
+        viewModel.getAllianceLiveData().observe(getViewLifecycleOwner(),
+                alliance -> viewModel.listenAllianceMessages(alliance.getId()));
 
         viewModel.getMessagesLiveData().observe(getViewLifecycleOwner(), messages -> {
             messageAdapter.setMessages(messages);
@@ -169,29 +206,20 @@ public class AllianceFragment extends Fragment {
         buttonSend.setOnClickListener(v -> {
             String content = editMessage.getText().toString().trim();
             if (!content.isEmpty()) {
-               // String senderName = FirebaseAuth.getInstance().getCurrentUser().getDisplayName(); // ili username iz baze
-//                viewModel.sendAllianceMessage(viewModel.getAllianceLiveData().getValue().getId(),
-//                        currentUserId, senderName, content);
-//                editMessage.setText("");
-                String userId = currentUserId;
                 String allianceId = viewModel.getAllianceLiveData().getValue().getId();
-
-                // Poziv ViewModel metode koja dohvata username
-                viewModel.getUsername(userId, new UserRepository.UserCallback() {
+                viewModel.getUsername(currentUserId, new UserRepository.UserCallback() {
                     @Override
                     public void onSuccess(User user) {
-                        String senderName = user.getUsername();  // OVDE DOBIJAŠ USERNAME
-                        viewModel.sendAllianceMessage(allianceId, userId, senderName, content);
+                        viewModel.sendAllianceMessage(allianceId, currentUserId, user.getUsername(), content);
                         editMessage.setText("");
                     }
 
                     @Override
                     public void onFailure(Exception e) {
-                        Toast.makeText(getContext(), "Ne mogu da dohvatim username: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "Ne mogu da dohvatim username", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
-
         });
 
         viewModel.loadAllianceForCurrentUser(currentUserId);

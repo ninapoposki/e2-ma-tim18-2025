@@ -94,21 +94,16 @@ public class TaskListActivity extends AppCompatActivity {
         List<Task> filtered = new ArrayList<>();
 
         for (Task t : allTasks) {
-            if (t.getStatus() == TaskStatus.COMPLETED)
-                continue;
-
-            if (t.getStatus() == TaskStatus.CANCELED)
-                continue;
-
-            if (t.getStatus() == TaskStatus.UNCOMPLETED)
+            // 👉 Prikazujemo samo aktivne i pauzirane zadatke
+            if (t.getStatus() != TaskStatus.ACTIVE && t.getStatus() != TaskStatus.PAUSED)
                 continue;
 
             if (t.getTaskType() == TaskType.ONE_TIME) {
                 LocalDate execDate = Instant.ofEpochMilli(t.getExecutionTime())
                         .atZone(ZoneId.systemDefault()).toLocalDate();
 
-
-                if (!execDate.isBefore(today) && tabIndex == 0)
+                // prikazi sve aktivne/pauzirane ONE_TIME zadatke (ne mora od danas)
+                if (tabIndex == 0)
                     filtered.add(t);
 
             } else if (t.getTaskType() == TaskType.RECURRING) {
@@ -117,14 +112,15 @@ public class TaskListActivity extends AppCompatActivity {
                 LocalDate end = Instant.ofEpochMilli(t.getRecurringEnd())
                         .atZone(ZoneId.systemDefault()).toLocalDate();
 
-                // prikazi ako traje jos period
-                if (!end.isBefore(today) && tabIndex == 1)
+                // prikazi sve aktivne/pauzirane RECURRING zadatke
+                if (tabIndex == 1)
                     filtered.add(t);
             }
         }
 
         runOnUiThread(() -> adapter.updateTasks(filtered));
     }
+
 
 
 }

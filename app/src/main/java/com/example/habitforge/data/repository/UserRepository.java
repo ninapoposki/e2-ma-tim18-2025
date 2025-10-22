@@ -1037,6 +1037,29 @@ public void getCurrentBoss(String userId, BossCallback callback) {
                 .update("allianceId", allianceId)
                 .addOnCompleteListener(task -> callback.onComplete(task.isSuccessful()));
     }
+    public void updateUser(User user, GenericCallback callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Log.d("UserService", "📤 Updating user: " + user.getUserId());
+        Log.d("UserService", "💰 Coins: " + user.getCoins());
+        Log.d("UserService", "🏅 BadgeCount: " + user.getBadgeCount());
+        Log.d("UserService", "🎖 Badges: " + user.getBadges());
+        Log.d("UserService", "🧩 Equipment: " + user.getEquipment());
+
+        db.collection("users")
+                .document(user.getUserId())
+                .set(user)
+                .addOnSuccessListener(aVoid -> {
+                    Log.i("UserService", "✅ User updated successfully: " + user.getUsername());
+                    callback.onComplete(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("UserService", "❌ Failed to update user: " + e.getMessage());
+                    callback.onComplete(false);
+                });
+    }
+
+
 
     // Poziv prijatelju ona koja radi
 //    public void sendAllianceInvite(String fromUserId, String toUserId, String allianceId, GenericCallback callback) {
@@ -1194,6 +1217,21 @@ public void getCurrentBoss(String userId, BossCallback callback) {
     public void saveRewards(User user, int coinsReward, String itemReward, int bossLevel) {
         remoteDb.saveRewardsAndEquipment(user, coinsReward, itemReward, bossLevel);
     }
+    public void updateAllianceMissionStatus(String allianceId, boolean started, GenericCallback callback) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("alliances").document(allianceId)
+                .update("missionStarted", started)
+                .addOnSuccessListener(aVoid -> {
+                    Log.i("UserRepo", "✅ Alliance missionStarted updated to: " + started);
+                    callback.onComplete(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("UserRepo", "❌ Failed to update missionStarted: " + e.getMessage());
+                    callback.onComplete(false);
+                });
+    }
+
 
 
     public interface AllianceMessageCallback {

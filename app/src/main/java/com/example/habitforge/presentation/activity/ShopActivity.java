@@ -1,6 +1,7 @@
 package com.example.habitforge.presentation.activity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -13,10 +14,12 @@ import android.view.LayoutInflater;
 import android.widget.Toast;
 
 import com.example.habitforge.R;
+import com.example.habitforge.application.model.AllianceMission;
 import com.example.habitforge.application.model.Equipment;
 import com.example.habitforge.application.model.User;
 import com.example.habitforge.application.model.UserEquipment;
 import com.example.habitforge.application.model.enums.EquipmentType;
+import com.example.habitforge.application.service.AllianceMissionService;
 import com.example.habitforge.data.repository.UserRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,6 +28,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class ShopActivity extends AppCompatActivity {
@@ -33,6 +37,9 @@ public class ShopActivity extends AppCompatActivity {
     private LinearLayout equipmentContainer;
     private UserRepository userRepository;
     private User currentUser;
+    private AllianceMissionService missionService;
+    final int SHOP_HIT_DAMAGE = 2; // koliko HP se skida po kupovini
+    final int MAX_SHOP_HITS = 5;   // max 5 puta može da se doda doprinos
 
 
     @Override
@@ -42,6 +49,8 @@ public class ShopActivity extends AppCompatActivity {
 
 /// /
         userRepository = new UserRepository(this);
+        missionService = new AllianceMissionService(this);
+
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         userRepository.getUserById(userId, new UserRepository.UserCallback() {
@@ -184,6 +193,45 @@ public class ShopActivity extends AppCompatActivity {
                 userRepository.updateUser(currentUser);
 
                 Toast.makeText(this, "Kupio si " + eq.getName() + "!", Toast.LENGTH_SHORT).show();
+                // Dodaj napredak u specijalnoj misiji saveza (−2 HP)
+                missionService.getAllianceMissions(currentUser.getAllianceId(), new AllianceMissionService.MissionListCallback() {
+                    @Override
+                    public void onSuccess(List<AllianceMission> missions) {
+                        if (missions == null || missions.isEmpty()) return;
+                        AllianceMission mission = missions.get(0);
+
+                        Map<String, Integer> progress = mission.getProgress();
+                        int currentDamage = 0;
+                        if (progress != null && progress.containsKey(currentUser.getUserId())) {
+                            currentDamage = progress.get(currentUser.getUserId());
+                        }
+
+                        // Računamo koliko puta je korisnik već dobio HP damage bonuse iz SHOP-a
+                        int currentShopHits = currentDamage / SHOP_HIT_DAMAGE;
+
+                        if (currentShopHits >= MAX_SHOP_HITS) {
+                            // I dalje može da kupuje, ali se više ne dodaje HP damage
+                            Log.i("ShopActivity", "Korisnik je već iskoristio svih 5 shop bonusa. Ne skidamo više HP.");
+                            return;
+                        }
+
+                        // ⚔️ Dodaj 2 HP damage bossa
+                        missionService.addMemberProgress(
+                                mission.getId(),
+                                currentUser.getUserId(),
+                                SHOP_HIT_DAMAGE,
+                                () -> Log.i("ShopActivity", "Bossu je oduzeto −2 HP za kupovinu!"),
+                                () -> Log.e("ShopActivity", "Greška pri ažuriranju misije!")
+                        );
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.e("ShopActivity", "Greška pri dohvatanju misije: " + e.getMessage());
+                    }
+                });
+
+
             });
 
             equipmentContainer.addView(itemView);

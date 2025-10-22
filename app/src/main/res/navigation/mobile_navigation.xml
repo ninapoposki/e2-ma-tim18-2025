@@ -57,5 +57,16 @@
         android:label="@string/menu_alliance"
         tools:layout="@layout/fragment_qr_scan" />
 
+    <fragment
+        android:id="@+id/nav_alliance_mission"
+        android:name="com.example.habitforge.presentation.activity.ui.mission.AllianceMissionFragment"
+        android:label="Alliance Mission"
+        tools:layout="@layout/fragment_alliance_mission" >
+        <argument
+            android:name="allianceId"
+            app:argType="string" />
+    </fragment>
+
+
 
 </navigation>
