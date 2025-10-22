@@ -112,7 +112,7 @@ public class GalleryFragment extends Fragment {
                 binding.textCoins.setText(String.valueOf(user.getCoins()));
                 binding.textBadges.setText(user.getBadges() != null ? user.getBadges().toString() : "Nema bedževa");
                // binding.textEquipment.setText(user.getEquipment() != null ? user.getEquipment().toString() : "Nema opreme");
-
+                displayUserBadges(user);
                 setAvatarImage(user.getAvatar());
                 generateQrCode(user.getUserId());
 
@@ -260,4 +260,40 @@ public class GalleryFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
+    private void displayUserBadges(User user) {
+        TextView badgeCountText = binding.textBadgeCount;
+        LinearLayout badgeContainer = binding.layoutBadgeContainer;
+
+        List<String> badges = user.getBadges();
+        int count = (badges != null) ? badges.size() : 0;
+        badgeCountText.setText("Broj bedževa: " + count);
+
+        badgeContainer.removeAllViews();
+
+        if (badges == null || badges.isEmpty()) {
+            TextView noBadgesText = new TextView(getContext());
+            noBadgesText.setText("Nema bedževa");
+            noBadgesText.setTextColor(Color.DKGRAY);
+            badgeContainer.addView(noBadgesText);
+            return;
+        }
+
+        for (String badgeName : badges) {
+            ImageView badgeView = new ImageView(getContext());
+            int resId = getResources().getIdentifier(badgeName, "drawable", requireContext().getPackageName());
+
+            if (resId == 0) {
+                resId = R.drawable.badgedef; // default ikonica ako ne postoji
+            }
+
+            badgeView.setImageResource(resId);
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(100, 100);
+            params.setMargins(8, 0, 8, 0);
+            badgeView.setLayoutParams(params);
+
+            badgeContainer.addView(badgeView);
+        }
+    }
+
 }
