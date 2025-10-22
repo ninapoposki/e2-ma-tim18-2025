@@ -61,6 +61,11 @@
         android:name="com.example.habitforge.presentation.activity.ui.allianceReq.AllianceInvitesFragment"
         android:label="@string/menu_alliance"
         tools:layout="@layout/fragment_alliance_invites" />
+    <fragment
+        android:id="@+id/statistics"
+        android:name="com.example.habitforge.presentation.activity.ui.statistics.StatisticsFragment"
+        android:label="@string/menu_alliance"
+        tools:layout="@layout/fragment_statistics" />
 
 
 </navigation>

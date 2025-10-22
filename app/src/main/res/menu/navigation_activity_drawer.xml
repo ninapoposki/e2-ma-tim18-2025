@@ -41,6 +41,10 @@
             android:id="@+id/alliance_req"
             android:icon="@drawable/ic_menu_equipment"
             android:title="Alliance Requests"/>
+        <item
+            android:id="@+id/statistics"
+            android:icon="@drawable/ic_menu_equipment"
+            android:title="User statistics"/>
 
 
     </group>
