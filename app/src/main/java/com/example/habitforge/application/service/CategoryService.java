@@ -114,22 +114,35 @@ public void addCategory(Category category, OnCompleteListener<Void> callback) {
     }
 
     public void deleteCategory(String categoryId, OnCompleteListener<Void> callback) {
-
-        taskRepository.getTaskById(categoryId, taskResult -> {
+        taskRepository.getAllTasks(taskResult -> {
             if (taskResult.isSuccessful() && taskResult.getResult() != null) {
-                Task foundTask = taskResult.getResult();
+                List<Task> tasks = taskResult.getResult();
 
-                if (foundTask != null && foundTask.getStatus() != null
-                        && foundTask.getStatus().name().equals("ACTIVE")) {
-                    // Aif it has active task-stop
-                    callback.onComplete(com.google.android.gms.tasks.Tasks.forException(
-                            new IllegalStateException("You cannot delete a category that has active tasks!")));
-                    return;
+                boolean hasActiveTask = false;
+
+                for (Task task : tasks) {
+                    if (task.getCategoryId() != null &&
+                            task.getCategoryId().equals(categoryId) &&
+                            task.getStatus() != null &&
+                            task.getStatus().name().equalsIgnoreCase("ACTIVE")) {
+
+                        hasActiveTask = true;
+                        break;
+                    }
                 }
-            }
 
-            // Ako nema aktivnih taskova → slobodno briši
-            categoryRepository.deleteCategory(categoryId, callback);
+                if (hasActiveTask) {
+                    callback.onComplete(Tasks.forException(
+                            new IllegalStateException("You cannot delete this category because it has active tasks!")
+                    ));
+                } else {
+                    categoryRepository.deleteCategory(categoryId, callback);
+                }
+            } else {
+                callback.onComplete(Tasks.forException(
+                        new Exception("Failed to check active tasks before deleting category.")
+                ));
+            }
         });
     }
 
